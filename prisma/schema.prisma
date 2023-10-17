@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Symbol {
+  id          Int      @id @default(autoincrement())
+  symbol      String   @unique
+  description String?
+}
+
+model Exchange {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  api         String?
+}
+
+model Candle {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  symbol    String
+  exchange  String
+  timeframe String
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+  trades    Int?
+}
