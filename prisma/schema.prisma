@@ -3,34 +3,43 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model Symbol {
-  id          Int      @id @default(autoincrement())
-  symbol      String   @unique
+  id          Int     @id @default(autoincrement())
+  symbol      String  @unique
+  description String?
+}
+
+model Market {
+  id          Int     @id @default(autoincrement())
+  symbol      String
+  synonym     String
+  exchange    String
   description String?
 }
 
 model Exchange {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  api         String?
+  id   Int     @id @default(autoincrement())
+  name String  @unique
+  api  String?
 }
 
 model Candle {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   symbol    String
   exchange  String
   timeframe String
+  time      DateTime
   open      Float
   high      Float
   low       Float
   close     Float
   volume    Float
-  trades    Int?
+  trades    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

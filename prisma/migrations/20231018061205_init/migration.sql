@@ -8,6 +8,17 @@ CREATE TABLE "Symbol" (
 );
 
 -- CreateTable
+CREATE TABLE "Market" (
+    "id" SERIAL NOT NULL,
+    "symbol" TEXT NOT NULL,
+    "synonym" TEXT NOT NULL,
+    "exchange" TEXT NOT NULL,
+    "description" TEXT,
+
+    CONSTRAINT "Market_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Exchange" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -19,17 +30,18 @@ CREATE TABLE "Exchange" (
 -- CreateTable
 CREATE TABLE "Candle" (
     "id" SERIAL NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
     "symbol" TEXT NOT NULL,
     "exchange" TEXT NOT NULL,
     "timeframe" TEXT NOT NULL,
+    "time" TIMESTAMP(3) NOT NULL,
     "open" DOUBLE PRECISION NOT NULL,
     "high" DOUBLE PRECISION NOT NULL,
     "low" DOUBLE PRECISION NOT NULL,
     "close" DOUBLE PRECISION NOT NULL,
     "volume" DOUBLE PRECISION NOT NULL,
-    "trades" INTEGER,
+    "trades" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Candle_pkey" PRIMARY KEY ("id")
 );
