@@ -22,18 +22,14 @@ model TopCoin {
   updatedAt   DateTime  @updatedAt
 }
 
-model Symbol {
-  id          Int     @id @default(autoincrement())
-  symbol      String  @unique
-  description String?
-}
-
 model Market {
   id          Int     @id @default(autoincrement())
   symbol      String
   synonym     String
   exchange    String
   description String?
+  disabled    Boolean @default(false)
+  priority    Int     @default(0)
 
   @@index([symbol, exchange])
   @@index([synonym, exchange])
@@ -44,6 +40,8 @@ model Exchange {
   id   Int     @id @default(autoincrement())
   name String  @unique
   api  String?
+  disabled    Boolean @default(false)
+  priority    Int     @default(0)
 }
 
 model Candle {

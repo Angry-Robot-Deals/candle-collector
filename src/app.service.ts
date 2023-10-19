@@ -10,13 +10,13 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    // setTimeout(() => this.fetchAllCandles(), 5000);
+    setTimeout(() => this.fetchAllCandles(), 5000);
   }
 
   async fetchAllCandles() {
     await this.fetchCandles({
       exchange: 'binance',
-      symbol: 'BTC/USDT',
+      symbol: 'ETH/USDT',
       timeframe: '1m',
       limit: 1000,
     });
@@ -115,15 +115,26 @@ export class AppService implements OnApplicationBootstrap {
 
       return [];
     }
-    console.log('Loaded markets:', Object.keys(markets).length, exchangeId);
+    const totalMarkets = Object.keys(markets).length;
+    console.log('Loaded markets:', totalMarkets, exchangeId);
 
+    let counter = 0;
     const symbols = [];
     for (const market of Object.values(markets)) {
       symbols.push(market.symbol);
+      counter++;
 
+      console.log(
+        'Check market',
+        exchangeId,
+        market.symbol,
+        counter,
+        '/',
+        totalMarkets,
+      );
       const existData = await this.prisma.market.findUnique({
         where: {
-          symbol_exchange: {
+          symbol_synonym_exchange: {
             symbol: market.symbol,
             synonym: market.id,
             exchange: exchangeId,
@@ -132,11 +143,18 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       if (!existData) {
-        console.log('New market', exchangeId, market.symbol);
+        console.log(
+          'A new market',
+          exchangeId,
+          market.symbol,
+          counter,
+          '/',
+          totalMarkets,
+        );
 
         await this.prisma.market.upsert({
           where: {
-            symbol_exchange: {
+            symbol_synonym_exchange: {
               symbol: market.symbol,
               synonym: market.id,
               exchange: exchangeId,
@@ -167,22 +185,25 @@ export class AppService implements OnApplicationBootstrap {
     const maxTimestamp = await this.getMaxTimestamp(body);
     console.log(maxTimestamp);
 
-    // console.log(
-    //   `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol}&interval=${timeframe}&limit=${
-    //     limit || 64
-    //   }&startTime=${+start ? start : (+maxTimestamp || 0) + 1}`,
-    // );
+    console.log(
+      `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
+        '/',
+        '',
+      )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
+        start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
+      }`,
+    );
 
     const res = await fetch(
       `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
         '/',
         '',
       )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
-        start ? start : (+maxTimestamp || 0) - 1
+        start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
       }`,
     )
       .then((res) => res.json())
-      .catch((e) => console.error(e));
+      .catch((e) => console.error(`Error fetch candles: ${e.message}`));
 
     if (!res?.length) {
       return `Error fetch candles: ${JSON.stringify(res)}`;
