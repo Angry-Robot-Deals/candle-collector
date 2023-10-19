@@ -1,8 +1,8 @@
 {
   "name": "candles",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Fetch candles from exchanges and store them in a database",
+  "author": "Pavel Valentov",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -26,6 +26,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "5.4.2",
+    "ccxt": "^4.1.17",
     "dotenv": "^16.3.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"

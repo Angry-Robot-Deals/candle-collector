@@ -8,6 +8,20 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+model TopCoin {
+  id          Int       @id @default(autoincrement())
+  coin        String    @unique
+  name        String
+  logo        String?
+  price       Float     @default(0)
+  volume24    Float     @default(0)
+  cost24      Float     @default(0)
+  volumeCap   Float     @default(0)
+  costCap     Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 model Symbol {
   id          Int     @id @default(autoincrement())
   symbol      String  @unique
@@ -20,6 +34,10 @@ model Market {
   synonym     String
   exchange    String
   description String?
+
+  @@index([symbol, exchange])
+  @@index([synonym, exchange])
+  @@unique([symbol, synonym, exchange])
 }
 
 model Exchange {
@@ -42,4 +60,8 @@ model Candle {
   trades    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([symbol, exchange, timeframe, time])
+  @@index([symbol, exchange, timeframe])
+  @@index([symbol, exchange])
 }

@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  OnApplicationBootstrap,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { Exchange, Market, Symbol as SymbolModel } from '@prisma/client';
 import { PrismaService } from './prisma.service';
@@ -28,6 +35,16 @@ export class AppController {
   @Get('market')
   async getAllMarkets(): Promise<Market[]> {
     return this.prisma.market.findMany();
+  }
+
+  @Get('updateTopCoins')
+  async updateTopCoins(): Promise<Market[]> {
+    return this.appService.updateTopCoins();
+  }
+
+  @Get('market/fetch/:exchange')
+  async fetchMarkets(@Param('exchange') exchange: string): Promise<string[]> {
+    return this.appService.fetchMarkets(exchange);
   }
 
   @Post('candle/download')

@@ -6,6 +6,8 @@ const dotenv = import('dotenv');
 async function bootstrap() {
   (await dotenv).configDotenv();
 
+  process.setMaxListeners(0);
+
   // console.log('PrismaService init', process.env.DATABASE_URL);
 
   const app = await NestFactory.create(AppModule);
