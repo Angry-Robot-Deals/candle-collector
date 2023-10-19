@@ -1,0 +1,19 @@
+-- CreateTable
+CREATE TABLE "TopCoin" (
+    "id" SERIAL NOT NULL,
+    "coin" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "logo" TEXT,
+    "price" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "volume24" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "cost24" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "volumeCap" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "costCap" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TopCoin_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TopCoin_coin_key" ON "TopCoin"("coin");
