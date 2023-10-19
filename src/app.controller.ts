@@ -1,13 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  OnApplicationBootstrap,
-  Param,
-  Post,
-} from '@nestjs/common';
-import { AppService } from './app.service';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Exchange, Market, Symbol as SymbolModel } from '@prisma/client';
+import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 
 @Controller()

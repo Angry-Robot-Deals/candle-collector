@@ -3,7 +3,7 @@ import { PrismaService } from './prisma.service';
 import { OHLCV_Binance } from './interface';
 import * as topCoins from '../data/coins-top-300.json';
 import * as ccxt from 'ccxt';
-import { Dictionary, Market as ExchangeMarket } from 'ccxt';
+import { Market as ExchangeMarket } from 'ccxt';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
