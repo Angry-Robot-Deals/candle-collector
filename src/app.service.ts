@@ -50,7 +50,7 @@ export class AppService implements OnApplicationBootstrap {
         Logger.log(`Saved ${coin.coin} ${candles.length}`);
 
         if (candles.length <= 5) {
-          this.delayCoin = { [coin.coin]: Date.now() };
+          this.delayCoin[coin.coin] = Date.now();
           Logger.warn(`Delay ${coin.coin} ${candles.length}`);
         }
       }
@@ -233,7 +233,7 @@ export class AppService implements OnApplicationBootstrap {
     //   }`,
     // );
 
-    const res = await fetch(
+    const candles: any = await fetch(
       `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
         '/',
         '',
@@ -242,20 +242,18 @@ export class AppService implements OnApplicationBootstrap {
       }`,
     )
       .then((res) => res.json())
-      .catch((e) => console.error(`Error fetch candles: ${e.message}`));
+      .catch((e) => {
+        console.error(`Error fetch candles: ${e.message}`);
+        return null;
+      });
 
-    if (!res?.length) {
-      return `Error fetch candles ${symbol}: ${JSON.stringify(res)}`;
+    if (!candles?.length) {
+      return `Error fetch candles ${symbol}: ${JSON.stringify(candles)}`;
     }
 
     // console.log('Fetched: ', res?.length);
 
-    let saved = [];
-    if (res.length) {
-      saved = await this.saveBinanceCandles(exchange, symbol, timeframe, res);
-    }
-
-    return saved;
+    return this.saveBinanceCandles(exchange, symbol, timeframe, candles);
   }
 
   async getTopCoins(): Promise<any[]> {

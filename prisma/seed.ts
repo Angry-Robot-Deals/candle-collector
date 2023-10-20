@@ -2,13 +2,6 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const symbolData = [
-  {
-    symbol: 'BTC/USDT',
-    description: '',
-  },
-];
-
 const marketData = [
   {
     symbol: 'BTC/USDT',
@@ -26,13 +19,6 @@ const exchangeData = [
 ];
 
 async function main() {
-  console.log(`Start seeding ...`);
-  for (const u of symbolData) {
-    const symbol = await prisma.symbol.create({
-      data: u,
-    });
-    console.log(`Created user with id: ${symbol.id}`);
-  }
   for (const u of exchangeData) {
     const exchange = await prisma.exchange.create({
       data: u,

@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  candles:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: production
+    command: npm run start:prod
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+    ports:
+      - "3000:3000"
+    volumes:
+      - project_data:/usr/app
+    networks:
+      - default
+
+volumes:
+  project_data:
+
+networks:
+  default:
+    driver: bridge

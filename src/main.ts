@@ -7,6 +7,7 @@ const dotenv = import('dotenv');
 async function bootstrap() {
   (await dotenv).configDotenv();
 
+  /// <reference types="node" />
   process.setMaxListeners(15);
 
   // console.log('PrismaService init', process.env.DATABASE_URL);

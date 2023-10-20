@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { Exchange, Market, Symbol as SymbolModel } from '@prisma/client';
+import { Exchange, Market } from '@prisma/client';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
 
@@ -13,11 +13,6 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
-  }
-
-  @Get('symbol')
-  getAllSymbols(): Promise<SymbolModel[]> {
-    return this.prisma.symbol.findMany();
   }
 
   @Get('exchange')
