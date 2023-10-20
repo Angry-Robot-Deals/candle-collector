@@ -1,0 +1,15 @@
+export const STABLES = [
+  'BUSD',
+  'DAI',
+  'PAX',
+  'TUSD',
+  'USDC',
+  'USDP',
+  'USDS',
+  'USDSB',
+  'USDSBE',
+  'USDSBT',
+  'USDSBN',
+  'USDSBS',
+  'USDT',
+];

@@ -35,6 +35,11 @@ export class AppController {
     return this.appService.updateTopCoins();
   }
 
+  @Get('getTopCoins')
+  async getTopCoins(): Promise<Market[]> {
+    return this.appService.getTopCoins();
+  }
+
   @Get('market/fetch/:exchange')
   async fetchMarkets(@Param('exchange') exchange: string): Promise<string[]> {
     return this.appService.fetchMarkets(exchange);
@@ -50,7 +55,7 @@ export class AppController {
       start: number;
       limit: number;
     },
-  ): Promise<string> {
+  ): Promise<any[] | string> {
     return this.appService.fetchCandles(body);
   }
 }

@@ -4,9 +4,13 @@ import { OHLCV_Binance } from './interface';
 import * as topCoins from '../data/coins-top-300.json';
 import * as ccxt from 'ccxt';
 import { Market as ExchangeMarket } from 'ccxt';
+import { STABLES } from './constant';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
+  private badCoins = [];
+  private delayCoin = {};
+
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -14,14 +18,47 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchAllCandles() {
-    await this.fetchCandles({
-      exchange: 'binance',
-      symbol: 'ETH/USDT',
-      timeframe: '1m',
-      limit: 1000,
-    });
+    const coins = await this.getTopCoins();
+    if (!coins?.length) {
+      Logger.error('Error loading top coins', 'fetchAllCandles');
+      return;
+    }
 
-    setTimeout(() => this.fetchAllCandles(), 1000);
+    for (const coin of coins.slice(0, 30) || []) {
+      if (this.badCoins.includes(coin.coin)) {
+        continue;
+      }
+
+      if (
+        this.delayCoin?.[coin.coin] &&
+        Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60
+      ) {
+        continue;
+      }
+
+      const candles = await this.fetchCandles({
+        exchange: 'binance',
+        symbol: `${coin.coin}/USDT`,
+        timeframe: '1m',
+        limit: 1000,
+      });
+
+      if (typeof candles === 'string') {
+        Logger.error(candles, 'fetchAllCandles');
+        this.badCoins.push(coin.coin);
+      } else {
+        Logger.log(`Saved ${coin.coin} ${candles.length}`);
+
+        if (candles.length <= 5) {
+          this.delayCoin = { [coin.coin]: Date.now() };
+          Logger.warn(`Delay ${coin.coin} ${candles.length}`);
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    setTimeout(() => this.fetchAllCandles(), 100);
   }
 
   getHello(): string {
@@ -32,7 +69,7 @@ export class AppService implements OnApplicationBootstrap {
     exchange: string;
     symbol: string;
     timeframe: string;
-  }): Promise<number | null> {
+  }): Promise<Date | null> {
     const { exchange, symbol, timeframe } = body;
     try {
       const maxTimestamp = await this.prisma.candle.findFirst({
@@ -179,20 +216,22 @@ export class AppService implements OnApplicationBootstrap {
     timeframe: string;
     start?: number;
     limit?: number;
-  }): Promise<string> {
+  }): Promise<any[] | string> {
     const { exchange, symbol, timeframe, start, limit } = body;
 
     const maxTimestamp = await this.getMaxTimestamp(body);
-    console.log(maxTimestamp);
-
-    console.log(
-      `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
-        '/',
-        '',
-      )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
-        start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
-      }`,
+    Logger.log(
+      `Max timestamp: ${maxTimestamp?.toISOString()} for ${symbol} ${timeframe}`,
     );
+
+    // console.log(
+    //   `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
+    //     '/',
+    //     '',
+    //   )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
+    //     start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
+    //   }`,
+    // );
 
     const res = await fetch(
       `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
@@ -206,7 +245,7 @@ export class AppService implements OnApplicationBootstrap {
       .catch((e) => console.error(`Error fetch candles: ${e.message}`));
 
     if (!res?.length) {
-      return `Error fetch candles: ${JSON.stringify(res)}`;
+      return `Error fetch candles ${symbol}: ${JSON.stringify(res)}`;
     }
 
     // console.log('Fetched: ', res?.length);
@@ -216,9 +255,27 @@ export class AppService implements OnApplicationBootstrap {
       saved = await this.saveBinanceCandles(exchange, symbol, timeframe, res);
     }
 
-    return JSON.stringify(saved);
+    return saved;
   }
 
+  async getTopCoins(): Promise<any[]> {
+    // select top coins form prisma which is not in the array STABLES, limit 30 records
+    const coins = await this.prisma.topCoin.findMany({
+      where: {
+        NOT: {
+          coin: {
+            in: STABLES,
+          },
+        },
+      },
+      orderBy: {
+        cost24: 'desc',
+      },
+      // take: 30,
+    });
+
+    return coins;
+  }
   async updateTopCoins(): Promise<any[]> {
     const coins: any[] = topCoins;
 
