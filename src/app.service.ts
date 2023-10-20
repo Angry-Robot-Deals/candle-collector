@@ -260,7 +260,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async getTopCoins(): Promise<any[]> {
     // select top coins form prisma which is not in the array STABLES, limit 30 records
-    const coins = await this.prisma.topCoin.findMany({
+    return this.prisma.topCoin.findMany({
       where: {
         NOT: {
           coin: {
@@ -273,8 +273,6 @@ export class AppService implements OnApplicationBootstrap {
       },
       // take: 30,
     });
-
-    return coins;
   }
   async updateTopCoins(): Promise<any[]> {
     const coins: any[] = topCoins;
