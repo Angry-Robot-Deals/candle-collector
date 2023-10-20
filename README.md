@@ -1,3 +1,10 @@
+## Prepare for launch
+
+```bash
+cp .env.example .env
+```
+Change the values in the .env file to your own
+
 ## Running the app
 
 ```bash
