@@ -76,7 +76,7 @@ export class AppService implements OnApplicationBootstrap {
 
         if (candles?.length <= 5) {
           this.delayCoin[coin.coin] = Date.now();
-          Logger.warn(`Delay ${coin.coin} ${candles.length}`);
+          Logger.warn(`Delay COIN ${coin.coin} ${candles.length}`);
         }
       }
 
