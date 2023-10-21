@@ -9,13 +9,6 @@ else
   exit 1
 fi
 
-if [ -f .env ]; then
-  export $(xargs < .env)
-else
-  echo "Файл .env не найден"
-  exit 1
-fi
-
 ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
 # Переходим в директорию с репозиторием
