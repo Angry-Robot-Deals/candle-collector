@@ -22,7 +22,7 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
     setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
   }
 
@@ -72,7 +72,7 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { saved: 0 };
 
-        Logger.log(`Saved ${coin.coin} ${JSON.stringify(saved)}`);
+        Logger.log(`Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}`);
 
         if (candles?.length <= 5) {
           this.delayCoin[coin.coin] = Date.now();
@@ -161,7 +161,7 @@ export class AppService implements OnApplicationBootstrap {
               })
             : { saved: 0 };
 
-          Logger.log(`Saved ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
+          Logger.log(`Saved D1 ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
         }
 
         await new Promise((resolve) => setTimeout(resolve, 100));
