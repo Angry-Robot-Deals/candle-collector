@@ -1,15 +1,15 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import * as ccxt from 'ccxt';
-import { PrismaService } from './prisma.service';
-import * as topCoins from '../data/coins-top-300.json';
 import { Market as ExchangeMarket } from 'ccxt';
-import { STABLES } from './constant';
+import * as ccxt from 'ccxt';
+import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
 import { binanceFetchCandles, okxFetchCandles } from './exchange-fetch-candles';
 import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { timeframeMSeconds } from './timeseries.constant';
+import { PrismaService } from './prisma.service';
+import * as topCoins from '../data/coins-top-300.json';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
-import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
+import { STABLES } from './constant';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -110,6 +110,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async getMaxTimestamp(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
     const { exchangeId, symbolId, timeframe } = body;
+    console.log('Get max timestamp:', body);
     try {
       const maxTimestamp = await this.prisma.candle.findFirst({
         select: {
@@ -124,6 +125,7 @@ export class AppService implements OnApplicationBootstrap {
           time: 'desc',
         },
       });
+      console.log('Max timestamp:', maxTimestamp);
 
       return maxTimestamp?.time || null;
     } catch (error) {
@@ -228,8 +230,6 @@ export class AppService implements OnApplicationBootstrap {
           name: symbol,
         },
       });
-
-      console.log('Symbol:', row, symbol);
 
       return row?.id || null;
     } catch (error) {
@@ -389,13 +389,13 @@ export class AppService implements OnApplicationBootstrap {
 
     let maxTimestamp: Date;
     if (!start) {
-      maxTimestamp =
-        new Date(start) ||
-        (await this.getMaxTimestamp({
-          exchangeId,
-          symbolId,
-          timeframe,
-        }));
+      maxTimestamp = start
+        ? new Date(start)
+        : await this.getMaxTimestamp({
+            exchangeId,
+            symbolId,
+            timeframe,
+          });
     }
     if (maxTimestamp) {
       Logger.debug(`Max timestamp ${exchange} ${symbol} ${timeframe}: ${maxTimestamp?.toISOString()}`);
