@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [ -f .env ]; then
+  # shellcheck disable=SC2046
   export $(xargs < .env)
 else
   echo "Файл .env не найден"
