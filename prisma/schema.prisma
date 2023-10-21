@@ -9,57 +9,74 @@ datasource db {
 }
 
 model TopCoin {
-  id          Int       @id @default(autoincrement())
-  coin        String    @unique
-  name        String
-  logo        String?
-  price       Float     @default(0)
-  volume24    Float     @default(0)
-  cost24      Float     @default(0)
-  volumeCap   Float     @default(0)
-  costCap     Float     @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  coin      String   @unique
+  name      String
+  logo      String?
+  price     Float    @default(0)
+  volume24  Float    @default(0)
+  cost24    Float    @default(0)
+  volumeCap Float    @default(0)
+  costCap   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Symbol {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  disabled Boolean  @default(false)
+  Candle   Candle[]
+  Market   Market[]
+}
+
+model Exchange {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  apiUri     String?
+  candlesUri String?
+  disabled   Boolean  @default(false)
+  priority   Int      @default(999)
+  Candle     Candle[]
+  Market     Market[]
 }
 
 model Market {
   id          Int     @id @default(autoincrement())
-  symbol      String
+  symbolId    Int
+  exchangeId  Int
   synonym     String
-  exchange    String
   description String?
   disabled    Boolean @default(false)
   priority    Int     @default(0)
 
-  @@index([symbol, exchange])
-  @@index([synonym, exchange])
-  @@unique([symbol, synonym, exchange])
-}
+  symbol   Symbol   @relation(fields: [symbolId], references: [id]) // добавлен внешний ключ для Symbol
+  exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange
 
-model Exchange {
-  id   Int     @id @default(autoincrement())
-  name String  @unique
-  api  String?
-  disabled    Boolean @default(false)
-  priority    Int     @default(0)
+  @@unique([symbolId, synonym, exchangeId])
+  @@index([symbolId, exchangeId])
+  @@index([synonym, exchangeId])
 }
 
 model Candle {
-  id        Int      @id @default(autoincrement())
-  symbol    String
-  exchange  String
-  timeframe String
-  time      DateTime
-  open      Float
-  high      Float
-  low       Float
-  close     Float
-  volume    Float
-  trades    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  symbolId   Int // добавлено поле symbolId
+  exchangeId Int // добавлено поле exchangeId
+  timeframe  String
+  time       DateTime
+  open       Float
+  high       Float
+  low        Float
+  close      Float
+  volume     Float
+  trades     Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@index([symbol, exchange, timeframe, time])
-  @@index([symbol, exchange, timeframe])
-  @@index([symbol, exchange])
+  symbol   Symbol   @relation(fields: [symbolId], references: [id]) // добавлен внешний ключ для Symbol
+  exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange
+
+  @@unique([symbolId, exchangeId, timeframe, time]) // изменен индекс
+  @@index([symbolId, exchangeId, timeframe]) // изменен индекс
+  @@index([symbolId, exchangeId]) // изменен индекс
 }

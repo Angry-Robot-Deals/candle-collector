@@ -28,4 +28,28 @@ export type OHLCV_Binance = [
   string,
   string,
 ];
-export type OHLCV = [number, number, number, number, number, number];
+
+export type OHLCV_Okx = [
+  string, // timestamp
+  string, // open
+  string, // high
+  string, // low
+  string, // close
+  string, // volume
+  string, // currency volume
+  string, // volCcyQuote
+  string, // confirm
+];
+
+// timestamp, open, high, low, close, volume, ticks/trades
+export type OHLCVT = [number, number, number, number, number, number];
+
+export type CandleDb = {
+  time: Date;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  trades: number;
+};

@@ -1,10 +1,15 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
-import { OHLCV_Binance } from './interface';
-import * as topCoins from '../data/coins-top-300.json';
 import * as ccxt from 'ccxt';
+import { PrismaService } from './prisma.service';
+import * as topCoins from '../data/coins-top-300.json';
 import { Market as ExchangeMarket } from 'ccxt';
 import { STABLES } from './constant';
+import { binanceFetchCandles, okxFetchCandles } from './exchange-fetch-candles';
+import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
+import { timeframeMSeconds } from './timeseries.constant';
+import { TIMEFRAME } from './timeseries.interface';
+import { CandleDb } from './interface';
+import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -14,37 +19,34 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    setTimeout(() => this.fetchAllCandles(), 5000);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
   }
 
-  async fetchAllCandles() {
+  async fetchTopCoinsM1Candles() {
     const coins = await this.getTopCoins();
     if (!coins?.length) {
-      Logger.error('Error loading top coins', 'fetchAllCandles');
+      Logger.error('Error loading top coins', 'fetchTopCoinsM1Candles');
       return;
     }
 
-    for (const coin of coins.slice(0, 30) || []) {
+    for (const coin of coins.slice(0, 50) || []) {
       if (this.badCoins.includes(coin.coin)) {
         continue;
       }
 
-      if (
-        this.delayCoin?.[coin.coin] &&
-        Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60
-      ) {
+      if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60) {
         continue;
       }
 
       const candles = await this.fetchCandles({
         exchange: 'binance',
         symbol: `${coin.coin}/USDT`,
-        timeframe: '1m',
+        timeframe: TIMEFRAME.M1,
         limit: 1000,
       });
 
       if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchAllCandles');
+        Logger.error(candles, 'fetchTopCoinsM1Candles');
         this.badCoins.push(coin.coin);
       } else {
         Logger.log(`Saved ${coin.coin} ${candles.length}`);
@@ -58,27 +60,64 @@ export class AppService implements OnApplicationBootstrap {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    setTimeout(() => this.fetchAllCandles(), 100);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 100);
+  }
+
+  async fetchAllSymbolD1Candles() {
+    const coins = await this.getTopCoins();
+    if (!coins?.length) {
+      Logger.error('Error loading top coins', 'fetchTopCoinsM1Candles');
+      return;
+    }
+
+    for (const coin of coins.slice(0, 30) || []) {
+      if (this.badCoins.includes(coin.coin)) {
+        continue;
+      }
+
+      if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60) {
+        continue;
+      }
+
+      const candles = await this.fetchCandles({
+        exchange: 'binance',
+        symbol: `${coin.coin}/USDT`,
+        timeframe: TIMEFRAME.D1,
+        limit: 1000,
+      });
+
+      if (typeof candles === 'string') {
+        Logger.error(candles, 'fetchTopCoinsM1Candles');
+        this.badCoins.push(coin.coin);
+      } else {
+        Logger.log(`Saved ${coin.coin} ${candles.length}`);
+
+        if (candles.length <= 5) {
+          this.delayCoin[coin.coin] = Date.now();
+          Logger.warn(`Delay ${coin.coin} ${candles.length}`);
+        }
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 100);
   }
 
   getHello(): string {
     return 'Hello World!';
   }
 
-  async getMaxTimestamp(body: {
-    exchange: string;
-    symbol: string;
-    timeframe: string;
-  }): Promise<Date | null> {
-    const { exchange, symbol, timeframe } = body;
+  async getMaxTimestamp(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
+    const { exchangeId, symbolId, timeframe } = body;
     try {
       const maxTimestamp = await this.prisma.candle.findFirst({
         select: {
           time: true,
         },
         where: {
-          exchange,
-          symbol,
+          exchangeId,
+          symbolId,
           timeframe,
         },
         orderBy: {
@@ -86,43 +125,152 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       return maxTimestamp?.time || null;
     } catch (error) {
-      // Обработка ошибки, например, логирование или возврат ошибки
-      console.error(error);
+      Logger.error(`Error get a max timestamp: ${error.message}`, 'getMaxTimestamp');
       return null;
     }
   }
 
-  async saveBinanceCandles(
-    exchange: string,
-    symbol: string,
-    timeframe: string,
-    candles: OHLCV_Binance[],
-  ): Promise<any[]> {
-    const candlesToSave = candles.map((candle) => {
-      return {
-        exchange,
-        symbol,
-        timeframe,
-        time: new Date(candle[0]),
-        open: +candle[1],
-        high: +candle[2],
-        low: +candle[3],
-        close: +candle[4],
-        volume: +candle[5],
-        trades: candle[8],
-      };
+  async getSynonym(body: { exchangeId: number; symbolId: number }): Promise<string | null> {
+    const { exchangeId, symbolId } = body;
+    try {
+      const row = await this.prisma.market.findFirst({
+        select: {
+          synonym: true,
+        },
+        where: {
+          exchangeId,
+          symbolId,
+        },
+      });
+
+      return row?.synonym || null;
+    } catch (error) {
+      Logger.error(`Error get a market synonym: ${error.message}`, 'getSynonym');
+      return null;
+    }
+  }
+
+  async addSymbol(data: { symbol: string }): Promise<SymbolModel> {
+    const { symbol } = data;
+
+    const value = await this.prisma.symbol.upsert({
+      where: {
+        name: symbol,
+      } as any,
+      create: {
+        name: symbol,
+      },
+      update: {},
     });
 
+    console.log('Saved exchange:', value);
+
+    return value;
+  }
+
+  async addExchange(data: {
+    exchange: string;
+    apiUri?: string;
+    candlesUri?: string;
+    disabled?: boolean;
+    priority?: number;
+  }): Promise<ExchangeModel> {
+    const { exchange, apiUri, candlesUri, disabled, priority } = data;
+
+    const value = await this.prisma.exchange.upsert({
+      where: {
+        name: exchange,
+      } as any,
+      create: {
+        name: exchange,
+        apiUri: apiUri || '',
+        candlesUri,
+        disabled,
+        priority,
+      },
+      update: {
+        apiUri,
+        candlesUri,
+        disabled,
+        priority,
+      },
+    });
+
+    console.log('Saved exchange:', value);
+
+    return value;
+  }
+
+  async getExchangeId(exchange: string): Promise<number | null> {
     try {
-      await this.prisma.candle.createMany({
+      const row = await this.prisma.exchange.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          name: exchange,
+        },
+      });
+
+      return row?.id || null;
+    } catch (error) {
+      Logger.error(`Error get an exchange id: ${error.message}`, 'getExchangeId');
+      return null;
+    }
+  }
+
+  async getSymbolId(symbol: string): Promise<number | null> {
+    try {
+      const row = await this.prisma.symbol.findFirst({
+        select: {
+          id: true,
+        },
+        where: {
+          name: symbol,
+        },
+      });
+
+      return row?.id || null;
+    } catch (error) {
+      Logger.error(`Error get a symbol id: ${error.message}`, 'getSymbolId');
+      return null;
+    }
+  }
+
+  async saveExchangeCandles(data: {
+    exchangeId: number;
+    symbolId: number;
+    timeframe: string;
+    candles: CandleDb[];
+  }): Promise<any[]> {
+    const { exchangeId, symbolId, timeframe, candles } = data;
+    try {
+      const timestamps = candles.map((candle) => candle.time);
+
+      await this.prisma.candle.deleteMany({
+        where: {
+          exchangeId,
+          symbolId,
+          timeframe,
+          time: {
+            in: timestamps,
+          },
+        },
+      });
+
+      const candlesToSave = candles.map((candle) => ({
+        ...candle,
+        exchangeId,
+        symbolId,
+        timeframe,
+      }));
+      const newCandles = await this.prisma.candle.createMany({
         data: candlesToSave,
         skipDuplicates: true,
       });
-      // console.log('Saved:', savedCandles);
+      console.log('Saved:', newCandles);
 
       return candlesToSave;
     } catch (error) {
@@ -132,75 +280,81 @@ export class AppService implements OnApplicationBootstrap {
     }
   }
 
-  async fetchMarkets(exchangeId: string): Promise<string[]> {
-    const exchange = new ccxt[exchangeId]({
-      enableRateLimit: true,
-      verbose: false,
-      options: {
-        defaultType: 'spot',
-      },
-    });
+  async fetchMarkets(exchangeName: string): Promise<string[]> {
+    let exchange: any;
+    try {
+      exchange = new ccxt[exchangeName]({
+        enableRateLimit: true,
+        verbose: false,
+        options: {
+          defaultType: 'spot',
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
 
-    console.log('Loading markets...', exchangeId);
+    const exc = await this.addExchange({ exchange: exchangeName });
+    if (!exc?.id) {
+      Logger.error(`Error loading exchange for [${exchangeName}]`, 'fetchMarkets');
+      return [];
+    }
+
+    console.log('Loading markets...', exchangeName);
 
     // const markets: Dictionary<ExchangeMarket> = await exchange.fetchMarkets();
-    const markets: Record<string, ExchangeMarket> =
-      await exchange.loadMarkets(false);
+    const markets: Record<string, ExchangeMarket> = await exchange.loadMarkets(false);
 
     if (!markets) {
-      Logger.error(`Error loading markets for [${exchangeId}]`, 'fetchMarkets');
+      Logger.error(`Error loading markets for [${exchangeName}]`, 'fetchMarkets');
 
       return [];
     }
     const totalMarkets = Object.keys(markets).length;
-    console.log('Loaded markets:', totalMarkets, exchangeId);
+    Logger.log(`Loaded markets ${exchangeName}: ${totalMarkets}`, 'fetchMarkets');
 
     let counter = 0;
     const symbols = [];
     for (const market of Object.values(markets)) {
       symbols.push(market.symbol);
+      const sym = await this.addSymbol({ symbol: market.symbol });
       counter++;
 
-      console.log(
-        'Check market',
-        exchangeId,
-        market.symbol,
-        counter,
-        '/',
-        totalMarkets,
-      );
+      if (!sym?.id) {
+        Logger.error(
+          `Error loading symbol for [${exchangeName}] ${market.symbol}: ${JSON.stringify(sym || {})}`,
+          'fetchMarkets',
+        );
+        continue;
+      }
+
+      Logger.log(`Check market ${exchangeName} ${market.symbol}: ${counter}/${totalMarkets}`, 'fetchMarkets');
       const existData = await this.prisma.market.findUnique({
         where: {
-          symbol_synonym_exchange: {
-            symbol: market.symbol,
+          symbolId_synonym_exchangeId: {
+            symbolId: sym.id,
             synonym: market.id,
-            exchange: exchangeId,
+            exchangeId: exc.id,
           },
         },
       });
 
       if (!existData) {
-        console.log(
-          'A new market',
-          exchangeId,
-          market.symbol,
-          counter,
-          '/',
-          totalMarkets,
-        );
+        Logger.log(`A new market ${exchangeName} ${market.symbol}: ${counter}/${totalMarkets}`, 'fetchMarkets');
 
         await this.prisma.market.upsert({
           where: {
-            symbol_synonym_exchange: {
-              symbol: market.symbol,
+            symbolId_synonym_exchangeId: {
+              symbolId: sym.id,
               synonym: market.id,
-              exchange: exchangeId,
+              exchangeId: exc.id,
             },
           },
           create: {
-            exchange: exchangeId,
-            symbol: market.symbol,
-            synonym: market.id as string,
+            symbolId: sym.id,
+            synonym: market.id,
+            exchangeId: exc.id,
           },
           update: { synonym: market.id },
         });
@@ -213,47 +367,76 @@ export class AppService implements OnApplicationBootstrap {
   async fetchCandles(body: {
     exchange: string;
     symbol: string;
-    timeframe: string;
+    timeframe: TIMEFRAME;
     start?: number;
     limit?: number;
   }): Promise<any[] | string> {
     const { exchange, symbol, timeframe, start, limit } = body;
 
-    const maxTimestamp = await this.getMaxTimestamp(body);
-    Logger.log(
-      `Max timestamp: ${maxTimestamp?.toISOString()} for ${symbol} ${timeframe}`,
-    );
-
-    // console.log(
-    //   `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
-    //     '/',
-    //     '',
-    //   )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
-    //     start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
-    //   }`,
-    // );
-
-    const candles: any = await fetch(
-      `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol.replace(
-        '/',
-        '',
-      )}&interval=${timeframe}&limit=${limit || 64}&startTime=${
-        start ? start : +maxTimestamp ? +maxTimestamp - 1 : 1
-      }`,
-    )
-      .then((res) => res.json())
-      .catch((e) => {
-        console.error(`Error fetch candles: ${e.message}`);
-        return null;
-      });
-
-    if (!candles?.length) {
-      return `Error fetch candles ${symbol}: ${JSON.stringify(candles)}`;
+    const exchangeId = await this.getExchangeId(exchange);
+    if (!exchangeId) {
+      return `Error get an exchange id ${exchange}`;
     }
 
-    // console.log('Fetched: ', res?.length);
+    const symbolId = await this.getSymbolId(exchange);
+    if (!symbolId) {
+      return `Error get a symbol id ${exchange}`;
+    }
 
-    return this.saveBinanceCandles(exchange, symbol, timeframe, candles);
+    const synonym = await this.getSynonym({ exchangeId, symbolId });
+    if (!synonym) {
+      return `Error get a symbol synonym ${exchange} ${symbol}`;
+    }
+
+    let maxTimestamp: Date;
+    if (!start) {
+      maxTimestamp =
+        new Date(start) ||
+        (await this.getMaxTimestamp({
+          exchangeId,
+          symbolId,
+          timeframe,
+        }));
+    }
+    if (maxTimestamp) {
+      Logger.debug(`Max timestamp ${exchange} ${symbol} ${timeframe}: ${maxTimestamp?.toISOString()}`);
+    }
+
+    let startTime = 0;
+    let endTime = 0;
+
+    let candles: CandleDb[] | string;
+    switch (exchange) {
+      case 'binance':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        candles = await binanceFetchCandles(synonym, BINANCE_TIMEFRAME[timeframe], startTime, limit || 64);
+        break;
+      case 'okx':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        endTime = startTime + (limit || 64) * timeframeMSeconds(timeframe);
+        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime);
+        break;
+      default:
+        return [];
+    }
+
+    if (typeof candles === 'string') {
+      return `Error fetch candles ${exchange} ${symbol}: ${candles}`;
+    }
+    if (!candles) {
+      return `Error fetch candles ${exchange} ${symbol}}`;
+    }
+
+    if (!candles.length) {
+      return [];
+    }
+
+    return this.saveExchangeCandles({
+      exchangeId,
+      symbolId,
+      timeframe,
+      candles,
+    });
   }
 
   async getTopCoins(): Promise<any[]> {
@@ -281,28 +464,23 @@ export class AppService implements OnApplicationBootstrap {
           name: coin[1],
           logo: coin[2],
           price:
-            typeof coin[3] === 'string' &&
-            +coin[3].replaceAll('$', '').replaceAll(',', '')
+            typeof coin[3] === 'string' && +coin[3].replaceAll('$', '').replaceAll(',', '')
               ? +coin[3].replaceAll('$', '').replaceAll(',', '')
               : coin[3],
           volumeCap:
-            typeof coin[4] === 'string' &&
-            +coin[4].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
+            typeof coin[4] === 'string' && +coin[4].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
               ? +coin[4].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
               : 0,
           costCap:
-            typeof coin[5] === 'string' &&
-            +coin[5].replaceAll('$', '').replaceAll(',', '')
+            typeof coin[5] === 'string' && +coin[5].replaceAll('$', '').replaceAll(',', '')
               ? +coin[5].replaceAll('$', '').replaceAll(',', '')
               : 0,
           volume24:
-            typeof coin[6] === 'string' &&
-            +coin[6].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
+            typeof coin[6] === 'string' && +coin[6].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
               ? +coin[6].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
               : 0,
           cost24:
-            typeof coin[7] === 'string' &&
-            +coin[7].replace('$', '').replaceAll(',', '')
+            typeof coin[7] === 'string' && +coin[7].replace('$', '').replaceAll(',', '')
               ? +coin[7].replace('$', '').replaceAll(',', '')
               : 0,
         };

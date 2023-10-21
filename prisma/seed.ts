@@ -2,19 +2,49 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const marketData = [
-  {
-    symbol: 'BTC/USDT',
-    synonym: 'BTCUSDT',
-    exchange: 'binance',
-    description: '',
-  },
-];
-
 const exchangeData = [
   {
     name: 'binance',
-    api: 'https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data',
+    apiUri:
+      'https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data',
+  },
+  {
+    name: 'bitmart',
+    apiUri: 'https://developer-pro.bitmart.com/en/spot/#get-history-k-line-v3',
+  },
+  {
+    name: 'bybit',
+    apiUri: 'https://bybit-exchange.github.io/docs/v5/market/kline',
+  },
+  {
+    name: 'poloniex',
+    apiUri: 'https://docs.poloniex.com/#public-endpoints-market-data-candles',
+  },
+  {
+    name: 'huobi',
+    apiUri: 'https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles',
+  },
+  {
+    name: 'kucoin',
+    apiUri: 'https://docs.kucoin.com/#get-klines',
+  },
+  {
+    name: 'mexc',
+    apiUri:
+      'https://mexcdevelop.github.io/apidocs/spot_v3_en/#kline-candlestick-data',
+  },
+  {
+    name: 'gateio',
+    apiUri: 'https://www.gate.io/docs/developers/apiv4/en/#market-candlesticks',
+  },
+  {
+    name: 'okx',
+    apiUri:
+      'https://www.okx.com/docs-v5/en/#order-book-trading-market-data-get-candlesticks',
+  },
+  {
+    name: 'coinbasepro',
+    apiUri: 'https://api.kucoin.com/api/v2/symbols',
   },
 ];
 
@@ -24,12 +54,6 @@ async function main() {
       data: u,
     });
     console.log(`Created exchange with id: ${exchange.id}`);
-  }
-  for (const u of marketData) {
-    const market = await prisma.market.create({
-      data: u,
-    });
-    console.log(`Created market with id: ${market.id}`);
   }
   console.log(`Seeding finished.`);
 }

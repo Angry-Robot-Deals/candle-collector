@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Exchange, Market } from '@prisma/client';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma.service';
+import { TIMEFRAME } from './timeseries.interface';
 
 @Controller()
 export class AppController {
@@ -46,7 +47,7 @@ export class AppController {
     body: {
       exchange: string;
       symbol: string;
-      timeframe: string;
+      timeframe: TIMEFRAME;
       start: number;
       limit: number;
     },
