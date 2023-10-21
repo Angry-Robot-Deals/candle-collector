@@ -70,8 +70,6 @@ model Candle {
   close      Float
   volume     Float
   trades     Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 
   symbol   Symbol   @relation(fields: [symbolId], references: [id]) // добавлен внешний ключ для Symbol
   exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange

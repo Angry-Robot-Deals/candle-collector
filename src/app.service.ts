@@ -110,7 +110,6 @@ export class AppService implements OnApplicationBootstrap {
 
   async getMaxTimestamp(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
     const { exchangeId, symbolId, timeframe } = body;
-    console.log('Get max timestamp:', body);
     try {
       const maxTimestamp = await this.prisma.candle.findFirst({
         select: {
@@ -125,7 +124,6 @@ export class AppService implements OnApplicationBootstrap {
           time: 'desc',
         },
       });
-      console.log('Max timestamp:', maxTimestamp);
 
       return maxTimestamp?.time || null;
     } catch (error) {
@@ -265,11 +263,11 @@ export class AppService implements OnApplicationBootstrap {
         symbolId,
         timeframe,
       }));
-      const newCandles = await this.prisma.candle.createMany({
+
+      await this.prisma.candle.createMany({
         data: candlesToSave,
         skipDuplicates: true,
       });
-      console.log('Saved:', newCandles);
 
       return candlesToSave;
     } catch (error) {
@@ -398,7 +396,7 @@ export class AppService implements OnApplicationBootstrap {
           });
     }
     if (maxTimestamp) {
-      Logger.debug(`Max timestamp ${exchange} ${symbol} ${timeframe}: ${maxTimestamp?.toISOString()}`);
+      Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
     }
 
     let startTime = 0;
