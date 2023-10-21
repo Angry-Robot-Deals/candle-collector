@@ -135,13 +135,12 @@ export class AppService implements OnApplicationBootstrap {
   async getSynonym(body: { exchangeId: number; symbolId: number }): Promise<string | null> {
     const { exchangeId, symbolId } = body;
     try {
-      const row = await this.prisma.market.findFirst({
-        select: {
-          synonym: true,
-        },
+      const row = await this.prisma.market.findUnique({
         where: {
-          exchangeId,
-          symbolId,
+          symbolId_exchangeId: {
+            exchangeId,
+            symbolId,
+          },
         },
       });
 
@@ -205,10 +204,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async getExchangeId(exchange: string): Promise<number | null> {
     try {
-      const row = await this.prisma.exchange.findFirst({
-        select: {
-          id: true,
-        },
+      const row = await this.prisma.exchange.findUnique({
         where: {
           name: exchange,
         },
