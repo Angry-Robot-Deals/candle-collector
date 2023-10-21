@@ -54,7 +54,7 @@ model Market {
   exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange
 
   @@unique([symbolId, synonym, exchangeId])
-  @@index([symbolId, exchangeId])
+  @@unique([symbolId, exchangeId])
   @@index([synonym, exchangeId])
 }
 
