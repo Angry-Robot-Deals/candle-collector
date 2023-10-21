@@ -223,14 +223,13 @@ export class AppService implements OnApplicationBootstrap {
 
   async getSymbolId(symbol: string): Promise<number | null> {
     try {
-      const row = await this.prisma.symbol.findFirst({
-        select: {
-          id: true,
-        },
+      const row = await this.prisma.symbol.findUnique({
         where: {
           name: symbol,
         },
       });
+
+      console.log('Symbol:', row, symbol);
 
       return row?.id || null;
     } catch (error) {
@@ -378,9 +377,9 @@ export class AppService implements OnApplicationBootstrap {
       return `Error get an exchange id ${exchange}`;
     }
 
-    const symbolId = await this.getSymbolId(exchange);
+    const symbolId = await this.getSymbolId(symbol);
     if (!symbolId) {
-      return `Error get a symbol id ${exchange}`;
+      return `Error get a symbol id ${symbol}`;
     }
 
     const synonym = await this.getSynonym({ exchangeId, symbolId });
