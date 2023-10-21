@@ -350,8 +350,13 @@ export class AppService implements OnApplicationBootstrap {
     symbolId: number;
     timeframe: string;
     candles: CandleDb[];
-  }): Promise<any[]> {
+  }): Promise<any> {
     const { exchangeId, symbolId, timeframe, candles } = data;
+
+    if (!candles?.length) {
+      return { empty: true };
+    }
+
     try {
       const timestamps = candles.map((candle) => candle.time);
 
@@ -373,12 +378,10 @@ export class AppService implements OnApplicationBootstrap {
         timeframe,
       }));
 
-      await this.prisma.candle.createMany({
+      return this.prisma.candle.createMany({
         data: candlesToSave,
         skipDuplicates: true,
       });
-
-      return candlesToSave;
     } catch (error) {
       // Обработка ошибки, например, логирование или возврат ошибки
       console.error(error);
