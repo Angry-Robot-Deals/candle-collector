@@ -23,11 +23,12 @@ model TopCoin {
 }
 
 model Symbol {
-  id       Int      @id @default(autoincrement())
-  name     String   @unique
-  disabled Boolean  @default(false)
-  Candle   Candle[]
-  Market   Market[]
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  disabled  Boolean  @default(false)
+  Candle    Candle[]
+  CandleD1  CandleD1[]
+  Market    Market[]
 }
 
 model Exchange {
@@ -38,20 +39,20 @@ model Exchange {
   disabled   Boolean  @default(false)
   priority   Int      @default(999)
   Candle     Candle[]
+  CandleD1   CandleD1[]
   Market     Market[]
 }
 
 model Market {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   symbolId    Int
   exchangeId  Int
   synonym     String
   description String?
-  disabled    Boolean @default(false)
-  priority    Int     @default(0)
-
-  symbol   Symbol   @relation(fields: [symbolId], references: [id]) // добавлен внешний ключ для Symbol
-  exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange
+  disabled    Boolean  @default(false)
+  priority    Int      @default(0)
+  exchange    Exchange @relation(fields: [exchangeId], references: [id])
+  symbol      Symbol   @relation(fields: [symbolId], references: [id])
 
   @@unique([symbolId, synonym, exchangeId])
   @@unique([symbolId, exchangeId])
@@ -60,8 +61,8 @@ model Market {
 
 model Candle {
   id         Int      @id @default(autoincrement())
-  symbolId   Int // добавлено поле symbolId
-  exchangeId Int // добавлено поле exchangeId
+  symbolId   Int
+  exchangeId Int
   timeframe  String
   time       DateTime
   open       Float
@@ -70,11 +71,30 @@ model Candle {
   close      Float
   volume     Float
   trades     Int      @default(0)
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
 
-  symbol   Symbol   @relation(fields: [symbolId], references: [id]) // добавлен внешний ключ для Symbol
-  exchange Exchange @relation(fields: [exchangeId], references: [id]) // добавлен внешний ключ для Exchange
+  @@unique([symbolId, exchangeId, timeframe, time])
+  @@index([symbolId, exchangeId, timeframe])
+  @@index([symbolId, exchangeId])
+}
 
-  @@unique([symbolId, exchangeId, timeframe, time]) // изменен индекс
-  @@index([symbolId, exchangeId, timeframe]) // изменен индекс
-  @@index([symbolId, exchangeId]) // изменен индекс
+model CandleD1 {
+  id         Int      @id @default(autoincrement())
+  symbolId   Int
+  exchangeId Int
+  timeframe  String
+  time       DateTime
+  open       Float
+  high       Float
+  low        Float
+  close      Float
+  volume     Float
+  trades     Int      @default(0)
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([symbolId, exchangeId, timeframe, time])
+  @@index([symbolId, exchangeId, timeframe])
+  @@index([symbolId, exchangeId])
 }

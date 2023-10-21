@@ -17,9 +17,9 @@ export function isCorrectSymbol(symbol: string): boolean {
     return false;
   }
 
-  if (!STABLES.includes(stable)) {
-    return false;
-  }
+  // if (!STABLES.includes(stable)) {
+  //   return false;
+  // }
 
   for (const char of coin) {
     if (!abc.includes(char)) {
