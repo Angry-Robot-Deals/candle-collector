@@ -64,7 +64,7 @@ export class AppService implements OnApplicationBootstrap {
         }
 
         const saved = candles?.length
-          ? this.saveExchangeCandles({
+          ? await this.saveExchangeCandles({
               exchangeId,
               symbolId,
               timeframe: TIMEFRAME.M1,
