@@ -18,6 +18,9 @@ pwd
 # Останавливаем контейнеры
 docker compose -p cc -f docker-compose.yml down --remove-orphans
 
+docker volume rm data
+docker network rm default
+
 # REMOVE ALL UNUSED DATA
 docker image prune -f -a
 docker volume prune -f
