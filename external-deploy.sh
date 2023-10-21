@@ -1,7 +1,15 @@
 #!/bin/bash
 
 if [ -f .env ]; then
-  # shellcheck disable=SC2046
+  while IFS='=' read -r key value; do
+    export "$key=$value"
+  done < .env
+else
+  echo "Файл .env не найден"
+  exit 1
+fi
+
+if [ -f .env ]; then
   export $(xargs < .env)
 else
   echo "Файл .env не найден"
