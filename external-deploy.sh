@@ -1,18 +1,16 @@
 #!/bin/bash
 
 if [ -f .env ]; then
-#  export "$(cat .env | xargs)"
-  export "$(xargs < .env)"
+  export $(xargs < .env)
 else
   echo "Файл .env не найден"
   exit 1
 fi
 
-
 ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
 # Переходим в директорию с репозиторием
-cd "$APP_SERVER_PATH"
+cd /repos/candle-collector
 pwd
 
 # Останавливаем контейнеры
@@ -31,8 +29,6 @@ git pull
 # Поднимаем контейнеры с последними изменениями
 docker compose -p cc -f docker-compose.yml build
 docker compose --env-file .env -p cc -f docker-compose.yml up -d --remove-orphans
-
-docker ps -s
 
 EOF
 
