@@ -1,9 +1,6 @@
 import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { Logger } from '@nestjs/common';
-import {
-  binanceCandleToCandleModel,
-  okxCandleToCandleModel,
-} from './exchange-dto';
+import { binanceCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
 import { OHLCV_Binance, OHLCV_Okx } from './interface';
 
 export async function binanceFetchCandles(
@@ -13,9 +10,9 @@ export async function binanceFetchCandles(
   limit?: number,
 ): Promise<any[] | string> {
   const candles: any = await fetch(
-    `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=${
-      limit || 64
-    }&startTime=${start || 1}`,
+    `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=${limit || 64}&startTime=${
+      start || 1
+    }`,
   )
     .then((res) => res.json())
     .catch((e) => {
@@ -27,9 +24,7 @@ export async function binanceFetchCandles(
     return 'No candles';
   }
 
-  return candles.map((candle: OHLCV_Binance) =>
-    binanceCandleToCandleModel(candle),
-  );
+  return candles.map((candle: OHLCV_Binance) => binanceCandleToCandleModel(candle));
 }
 
 export async function okxFetchCandles(
@@ -39,9 +34,9 @@ export async function okxFetchCandles(
   end: number, // milliseconds, include a candle with this value
 ): Promise<any[] | string> {
   const candles: any = await fetch(
-    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${
-      start - 1
-    }&before=${end + 1}`,
+    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start - 1}&before=${
+      end + 1
+    }`,
   )
     .then((res) => res.json())
     .catch((e) => {
@@ -57,7 +52,5 @@ export async function okxFetchCandles(
     return [];
   }
 
-  return candles.data.map((candle: OHLCV_Okx) =>
-    okxCandleToCandleModel(candle),
-  );
+  return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
 }

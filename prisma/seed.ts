@@ -5,8 +5,7 @@ const prisma = new PrismaClient();
 const exchangeData = [
   {
     name: 'binance',
-    apiUri:
-      'https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data',
+    apiUri: 'https://binance-docs.github.io/apidocs/spot/en/#kline-candlestick-data',
   },
   {
     name: 'bitmart',
@@ -30,8 +29,7 @@ const exchangeData = [
   },
   {
     name: 'mexc',
-    apiUri:
-      'https://mexcdevelop.github.io/apidocs/spot_v3_en/#kline-candlestick-data',
+    apiUri: 'https://mexcdevelop.github.io/apidocs/spot_v3_en/#kline-candlestick-data',
   },
   {
     name: 'gateio',
@@ -39,8 +37,7 @@ const exchangeData = [
   },
   {
     name: 'okx',
-    apiUri:
-      'https://www.okx.com/docs-v5/en/#order-book-trading-market-data-get-candlesticks',
+    apiUri: 'https://www.okx.com/docs-v5/en/#order-book-trading-market-data-get-candlesticks',
   },
   {
     name: 'coinbasepro',
