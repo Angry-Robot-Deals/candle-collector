@@ -1,17 +1,18 @@
 #!/bin/bash
 
 if [ -f .env ]; then
-  export $(cat .env | xargs)
+#  export "$(cat .env | xargs)"
+  export "$(xargs < .env)"
 else
   echo "Файл .env не найден"
   exit 1
 fi
 
 
-ssh -i $APP_SERVER_SSH_KEY $APP_SERVER_USER << "EOF"
+ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
 # Переходим в директорию с репозиторием
-cd $APP_SERVER_PATH
+cd "$APP_SERVER_PATH"
 pwd
 
 # Останавливаем контейнеры
