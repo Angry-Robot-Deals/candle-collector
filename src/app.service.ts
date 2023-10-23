@@ -2,7 +2,12 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as ccxt from 'ccxt';
 import { Market as ExchangeMarket } from 'ccxt';
 import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
-import { binanceFetchCandles, okxFetchCandles, okxFindFirstCandle } from './exchange-fetch-candles';
+import {
+  binanceFetchCandles,
+  binanceFindFirstCandle,
+  okxFetchCandles,
+  okxFindFirstCandle,
+} from './exchange-fetch-candles';
 import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { PrismaService } from './prisma.service';
 import * as topCoins from '../data/coins-top-300.json';
@@ -575,6 +580,12 @@ export class AppService implements OnApplicationBootstrap {
         if (!maxTimestamp) {
           switch (exchange) {
             case 'binance':
+              maxTimestamp = await binanceFindFirstCandle({ synonym, timeframe });
+
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+              }
               break;
             case 'okx':
               maxTimestamp = await okxFindFirstCandle({ synonym, timeframe });

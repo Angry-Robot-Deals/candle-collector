@@ -58,6 +58,51 @@ export async function okxFetchCandles(
   return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
 }
 
+export async function binanceFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
+  const { synonym } = data;
+  // const synonym = 'BTC-USDT';
+  const timeframe = BINANCE_TIMEFRAME[data.timeframe];
+
+  let start = new Date('2017-01-01T00:00:00.000Z').getTime();
+  // add 64 candles to start
+  let end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+  const now = new Date().getTime();
+
+  while (start < now && start < end) {
+    // const res: any = await fetch(
+    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start - 1}&before=${
+    //     end + 1
+    //   }`,
+    // )
+    const res: any = await fetch(
+      `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=3&startTime=${start}`,
+    )
+      .then((res) => res.json())
+      .catch((e) => {
+        Logger.error(`Error fetch candles: ${e.message}`);
+        return null;
+      });
+
+    console.log(
+      `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=3&startTime=${start}`,
+      res?.data?.length,
+    );
+
+    if (res?.length) {
+      return new Date(+res.data[0]);
+    }
+
+    start = start + 64 * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+    // delay 100 ms
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
+}
+
 export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
   const { synonym } = data;
   // const synonym = 'BTC-USDT';
