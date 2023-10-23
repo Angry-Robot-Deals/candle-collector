@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ -f .env ]; then
+if [ -f ../.env ]; then
   while IFS='=' read -r key value; do
     export "$key=$value"
-  done < .env
+  done < ../.env
 else
   echo "Файл .env не найден"
   exit 1
@@ -39,4 +39,4 @@ docker compose --env-file .env -p cc -f docker-compose.yml up -d --remove-orphan
 EOF
 
 # Сообщаем об успешном выполнении скрипта
-echo "APP CI Done!"
+echo "Deploy Done!"

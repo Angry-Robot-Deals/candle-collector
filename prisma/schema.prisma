@@ -23,24 +23,26 @@ model TopCoin {
 }
 
 model Symbol {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  disabled  Boolean  @default(false)
-  Candle    Candle[]
-  CandleD1  CandleD1[]
-  Market    Market[]
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  disabled    Boolean  @default(false)
+  Candle      Candle[]
+  CandleD1    CandleD1[]
+  Market      Market[]
+  ATHL        ATHL[]
 }
 
 model Exchange {
-  id         Int      @id @default(autoincrement())
-  name       String   @unique
-  apiUri     String?
-  candlesUri String?
-  disabled   Boolean  @default(false)
-  priority   Int      @default(999)
-  Candle     Candle[]
-  CandleD1   CandleD1[]
-  Market     Market[]
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  apiUri      String?
+  candlesUri  String?
+  disabled    Boolean  @default(false)
+  priority    Int      @default(999)
+  Candle      Candle[]
+  CandleD1    CandleD1[]
+  Market      Market[]
+  ATHL        ATHL[]
 }
 
 model Market {
@@ -97,4 +99,18 @@ model CandleD1 {
   @@unique([symbolId, exchangeId, timeframe, time])
   @@index([symbolId, exchangeId, timeframe])
   @@index([symbolId, exchangeId])
+}
+
+model ATHL {
+  id          Int      @id @default(autoincrement())
+  symbolId    Int
+  exchangeId  Int
+  high        Float
+  low         Float
+  start       Float // start price
+  close       Float // close current price
+  exchange    Exchange @relation(fields: [exchangeId], references: [id])
+  symbol      Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([symbolId, exchangeId])
 }

@@ -26,7 +26,7 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
     setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
   }
 
