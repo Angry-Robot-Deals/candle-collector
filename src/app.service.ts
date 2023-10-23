@@ -619,11 +619,11 @@ export class AppService implements OnApplicationBootstrap {
     switch (exchange) {
       case 'binance':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        candles = await binanceFetchCandles(synonym, BINANCE_TIMEFRAME[timeframe], startTime, limit || 64);
+        candles = await binanceFetchCandles(synonym, BINANCE_TIMEFRAME[timeframe], startTime, limit || 1000);
         break;
       case 'okx':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, limit || 64);
+        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, limit || 300);
         break;
       default:
         return [];

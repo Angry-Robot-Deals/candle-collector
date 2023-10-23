@@ -65,7 +65,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
 
   let start = new Date('2017-01-01T00:00:00.000Z').getTime();
   // add 64 candles to start
-  let end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+  let end = Math.min(start + 1000 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   const now = new Date().getTime();
 
@@ -113,7 +113,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
   // let start = getCandleTime(data.timeframe, 1517443200000) - 100 * timeframeMSeconds(data.timeframe);
 
   // add 64 candles to start
-  let end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+  let end = Math.min(start + 300 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   const now = new Date().getTime();
 
