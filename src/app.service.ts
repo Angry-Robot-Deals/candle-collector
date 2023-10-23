@@ -5,10 +5,11 @@ import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client
 import {
   binanceFetchCandles,
   binanceFindFirstCandle,
+  huobiFetchCandles,
   okxFetchCandles,
   okxFindFirstCandle,
 } from './exchange-fetch-candles';
-import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
+import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
 import * as topCoins from '../data/coins-top-300.json';
@@ -28,7 +29,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
-    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
     setTimeout(() => this.calculateAllATHL(), 7000);
   }
 
@@ -111,6 +112,7 @@ export class AppService implements OnApplicationBootstrap {
 
     setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
   }
+
   async calculateAllATHL() {
     console.log('calculateAllATHL');
     const start = Date.now();
@@ -243,8 +245,8 @@ export class AppService implements OnApplicationBootstrap {
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
     switch (exchange.name) {
       case 'binance':
-        break;
       case 'okx':
+      case 'huobi':
         break;
       default:
         return;
@@ -295,7 +297,7 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchAllSymbolD1Candles');
+        Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
       } else {
         if (candles.length <= 3) {
           if (!this.delayMarket[exchange.id]) {
@@ -312,9 +314,43 @@ export class AppService implements OnApplicationBootstrap {
               timeframe: TIMEFRAME.D1,
               candles,
             })
-          : { saved: 0 };
+          : { fetched: 0 };
 
         Logger.log(`Saved D1 ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
+      }
+
+      if (exchange.name === 'huobi') {
+        const candlesMN1 = await this.fetchCandles({
+          exchange: exchange.name,
+          exchangeId: exchange.id,
+          symbol: market.symbol.name,
+          symbolId: market.symbolId,
+          synonym: market.synonym,
+          timeframe: TIMEFRAME.D1,
+        });
+
+        if (typeof candlesMN1 === 'string') {
+          Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
+        } else {
+          if (candlesMN1.length <= 3) {
+            if (!this.delayMarket[exchange.id]) {
+              this.delayMarket[exchange.id] = {};
+            }
+            Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candlesMN1.length}`);
+            this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          }
+
+          const saved = candlesMN1?.length
+            ? await this.saveExchangeCandlesD1({
+                exchangeId: exchange.id,
+                symbolId: market.symbolId,
+                timeframe: TIMEFRAME.MN1,
+                candles: candlesMN1,
+              })
+            : { fetched: 0 };
+
+          Logger.log(`Saved Month ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
+        }
       }
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -744,6 +780,8 @@ export class AppService implements OnApplicationBootstrap {
                 await this.disableMarket({ exchangeId, symbolId });
               }
               break;
+            case 'huobi':
+              break;
             default:
               return [];
           }
@@ -773,15 +811,19 @@ export class AppService implements OnApplicationBootstrap {
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
         candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, limit || 300);
         break;
+      case 'huobi':
+        candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);
+        break;
       default:
         return [];
     }
 
     if (typeof candles === 'string') {
-      return `Error fetch candles ${exchange} ${symbol}: ${candles}`;
+      return `Error fetch candles ${exchange} ${symbol} ${timeframe}: ${candles?.length}`;
     }
     if (!candles) {
-      return `Error fetch candles ${exchange} ${symbol}}`;
+      await this.disableMarket({ exchangeId, symbolId });
+      return `Error fetch candles ${exchange} ${symbol}} ${timeframe}`;
     }
 
     return candles;

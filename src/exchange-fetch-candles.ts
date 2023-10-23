@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
-import { binanceCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
-import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
-import { OHLCV_Binance, OHLCV_Okx } from './interface';
+import { binanceCandleToCandleModel, huobiCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
+import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
+import { OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx } from './interface';
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
@@ -19,7 +19,7 @@ export async function binanceFetchCandles(
   )
     .then((res) => res.json())
     .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`);
+      Logger.error(`Error fetch candles: ${e.message}`, 'binanceFetchCandles');
       return null;
     });
 
@@ -58,6 +58,33 @@ export async function okxFetchCandles(
   return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
 }
 
+export async function huobiFetchCandles(
+  synonym: string,
+  timeframe: keyof typeof HUOBI_TIMEFRAME,
+  limit: number, // milliseconds, include a candle with this value
+): Promise<any[] | string> {
+  console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
+
+  const candles: any = await fetch(
+    `https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`,
+  )
+    .then((res) => res.json())
+    .catch((e) => {
+      Logger.error(`Error fetch candles: ${e.message}`, 'huobiFetchCandles');
+      return null;
+    });
+
+  if (!candles?.data || candles?.status !== 'ok') {
+    return `Bad response ${JSON.stringify(candles || {})}`;
+  }
+
+  if (!candles.data?.length) {
+    return [];
+  }
+
+  return candles.data.map((candle: OHLCV_Huobi) => huobiCandleToCandleModel(candle));
+}
+
 export async function binanceFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
   const { synonym } = data;
   // const synonym = 'BTC-USDT';
@@ -80,7 +107,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     )
       .then((res) => res.json())
       .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`);
+        Logger.error(`Error fetch candles: ${e.message}`, 'binanceFindFirstCandle');
         return null;
       });
 
@@ -130,7 +157,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     )
       .then((res) => res.json())
       .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`);
+        Logger.error(`Error fetch candles: ${e.message}`, 'okxFindFirstCandle');
         return null;
       });
 

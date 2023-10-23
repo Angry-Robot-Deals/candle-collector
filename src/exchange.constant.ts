@@ -14,3 +14,10 @@ export const COINBASE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1min',
   [TIMEFRAME.D1]: '1day',
 };
+
+export const HUOBI_TIMEFRAME = {
+  [TIMEFRAME.M1]: '1min',
+  [TIMEFRAME.H1]: '60min',
+  [TIMEFRAME.D1]: '1day',
+  [TIMEFRAME.MN1]: '1mon',
+};

@@ -41,6 +41,25 @@ export type OHLCV_Okx = [
   string, // confirm
 ];
 
+// id	long	The UNIX timestamp in seconds as response id
+// amount	float	Accumulated trading volume, in base currency
+// count	integer	The number of completed trades
+// open	float	The opening price
+// close	float	The closing price
+// low	float	The low price
+// high	float	The high price
+// vol	float	Accumulated trading value, in quote currency
+export type OHLCV_Huobi = {
+  id: number; // timestamp seconds
+  open: 49056.37; // open
+  close: 49025.51; // close
+  low: 49022.86; // low
+  high: 49056.38; // high
+  amount: 3.946281917950917; // vol in currency
+  vol: 193489.67275732; // vol in quote currency
+  count: 196; // trades
+};
+
 // timestamp, open, high, low, close, volume, ticks/trades
 export type OHLCVT = [number, number, number, number, number, number];
 
