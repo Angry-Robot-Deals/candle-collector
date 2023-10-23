@@ -27,8 +27,9 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
+    setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
     setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
-    setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
+    setTimeout(() => this.calculateAllATHL(), 7000);
   }
 
   async fetchTopCoinsM1Candles() {
@@ -83,7 +84,7 @@ export class AppService implements OnApplicationBootstrap {
 
         Logger.log(`Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}`);
 
-        if (candles?.length <= 5) {
+        if (candles?.length <= 3) {
           this.delayCoin[coin.coin] = Date.now();
           Logger.warn(`Delay COIN ${coin.coin} ${candles.length}`);
         }
@@ -109,6 +110,134 @@ export class AppService implements OnApplicationBootstrap {
     await Promise.all(jobs);
 
     setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
+  }
+  async calculateAllATHL() {
+    console.log('calculateAllATHL');
+    const start = Date.now();
+    // select unique symbolId and exchangeId from candleD1
+    const daySymbols = await this.prisma.candleD1.groupBy({
+      by: ['symbolId', 'exchangeId'],
+      _count: {
+        _all: true,
+      },
+      _min: {
+        low: true,
+      },
+      _max: {
+        high: true,
+      },
+      orderBy: {
+        symbolId: 'asc',
+      },
+    });
+    // const daySymbols = await this.prisma.candleD1.findMany({
+    //   select: {
+    //     symbolId: true,
+    //     exchangeId: true,
+    //   },
+    //   // distinct: ['symbolId', 'exchangeId'],
+    //   groupBy: ['symbolId', 'exchangeId'],
+    // });
+
+    if (!daySymbols.length) {
+      return;
+    }
+
+    await this.prisma.aTHL.deleteMany({});
+
+    console.log('Select:', daySymbols.length, Date.now() - start, 'ms');
+
+    let i = 0;
+    // for each symbolId and exchangeId
+    for (const symbol of daySymbols) {
+      i++;
+      const firstCandle = await this.prisma.candleD1.findFirst({
+        select: {
+          open: true,
+        },
+        where: {
+          symbolId: symbol.symbolId,
+          exchangeId: symbol.exchangeId,
+        },
+        orderBy: {
+          time: 'asc',
+        },
+      });
+      const lastCandle = await this.prisma.candleD1.findFirst({
+        select: {
+          close: true,
+        },
+        where: {
+          symbolId: symbol.symbolId,
+          exchangeId: symbol.exchangeId,
+        },
+        orderBy: {
+          time: 'desc',
+        },
+      });
+
+      const highRange = symbol._max.high - firstCandle.open;
+      // const lowRange = firstCandle.open - symbol._min.low || symbol._max.high / 2;
+      const zeroRange = firstCandle.open || symbol._max.high / 2;
+      const fullRange = symbol._max.high - symbol._min.low;
+
+      let index = 0;
+      if (lastCandle.close > firstCandle.open) {
+        index = (lastCandle.close - firstCandle.open) / highRange;
+      } else if (lastCandle.close < firstCandle.open) {
+        index = (-1 * lastCandle.close) / zeroRange;
+      }
+
+      let position = 0;
+      if (lastCandle.close > firstCandle.open) {
+        position = (lastCandle.close - firstCandle.open) / fullRange;
+      } else if (lastCandle.close < firstCandle.open) {
+        position = (lastCandle.close - firstCandle.open) / fullRange;
+      }
+
+      const athl = await this.prisma.aTHL.upsert({
+        where: {
+          symbolId_exchangeId: {
+            symbolId: symbol.symbolId,
+            exchangeId: symbol.exchangeId,
+          },
+        },
+        create: {
+          symbolId: symbol.symbolId,
+          exchangeId: symbol.exchangeId,
+          high: symbol._max.high,
+          low: symbol._min.low,
+          start: firstCandle.open,
+          close: lastCandle.close,
+          index,
+          position,
+        },
+        update: {
+          high: symbol._max.high,
+          low: symbol._min.low,
+          start: firstCandle.open,
+          close: lastCandle.close,
+          index,
+          position,
+        },
+      });
+
+      if (i % 10 === 0) {
+        console.log(
+          i,
+          '/',
+          daySymbols.length,
+          'index',
+          athl.index * 100,
+          'pos',
+          athl.position * 100,
+          Date.now() - start,
+          'ms',
+        );
+      }
+    }
+
+    setTimeout(() => this.calculateAllATHL(), 1000 * 60 * 60);
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
@@ -168,7 +297,7 @@ export class AppService implements OnApplicationBootstrap {
       if (typeof candles === 'string') {
         Logger.error(candles, 'fetchAllSymbolD1Candles');
       } else {
-        if (candles.length <= 5) {
+        if (candles.length <= 3) {
           if (!this.delayMarket[exchange.id]) {
             this.delayMarket[exchange.id] = {};
           }
