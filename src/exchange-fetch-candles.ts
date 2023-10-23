@@ -1,10 +1,10 @@
-import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { Logger } from '@nestjs/common';
 import { binanceCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
+import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { OHLCV_Binance, OHLCV_Okx } from './interface';
-import { TIMEFRAME } from './timeseries.interface';
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleTime } from './timeseries';
+import { TIMEFRAME } from './timeseries.interface';
 
 export async function binanceFetchCandles(
   synonym: string,
