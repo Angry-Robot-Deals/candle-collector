@@ -4,7 +4,6 @@ import { Market as ExchangeMarket } from 'ccxt';
 import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
 import { binanceFetchCandles, okxFetchCandles, okxFindFirstCandle } from './exchange-fetch-candles';
 import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
-import { timeframeMSeconds } from './timeseries.constant';
 import { PrismaService } from './prisma.service';
 import * as topCoins from '../data/coins-top-300.json';
 import { TIMEFRAME } from './timeseries.interface';
@@ -581,7 +580,7 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     let startTime = 0;
-    const endTime = 0;
+    // const endTime = 0;
 
     let candles: CandleDb[] | string;
     switch (exchange) {

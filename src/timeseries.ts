@@ -1,5 +1,5 @@
 import { TIMEFRAME } from './timeseries.interface';
-import { timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
+import { timeframeMSeconds } from './timeseries.constant';
 
 export function getLowTimeframe(timeframe: TIMEFRAME | string, shift = 1): TIMEFRAME {
   const i = Object.values(TIMEFRAME).indexOf(timeframe as TIMEFRAME);
