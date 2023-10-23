@@ -2,6 +2,9 @@ import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { Logger } from '@nestjs/common';
 import { binanceCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
 import { OHLCV_Binance, OHLCV_Okx } from './interface';
+import { TIMEFRAME } from './timeseries.interface';
+import { timeframeMSeconds } from './timeseries.constant';
+import { getCandleTime } from './timeseries';
 
 export async function binanceFetchCandles(
   synonym: string,
@@ -31,12 +34,12 @@ export async function okxFetchCandles(
   synonym: string,
   timeframe: keyof typeof OKX_TIMEFRAME,
   start: number, // milliseconds, include a candle with this value
-  end: number, // milliseconds, include a candle with this value
+  limit: number, // milliseconds, include a candle with this value
 ): Promise<any[] | string> {
   const candles: any = await fetch(
-    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start - 1}&before=${
-      end + 1
-    }`,
+    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${
+      start - 1
+    }&limit=${limit}`,
   )
     .then((res) => res.json())
     .catch((e) => {
@@ -53,4 +56,52 @@ export async function okxFetchCandles(
   }
 
   return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
+}
+
+export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
+  const { synonym } = data;
+  // const synonym = 'BTC-USDT';
+  const timeframe = OKX_TIMEFRAME[data.timeframe];
+
+  let start = new Date('2017-01-01T00:00:00.000Z').getTime();
+  // let start = getCandleTime(data.timeframe, Date.now()) - 100 * timeframeMSeconds(data.timeframe);
+  // let start = getCandleTime(data.timeframe, 1517443200000) - 100 * timeframeMSeconds(data.timeframe);
+
+  // add 64 candles to start
+  let end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+  const now = new Date().getTime();
+
+  while (start < now && start < end) {
+    // const res: any = await fetch(
+    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start - 1}&before=${
+    //     end + 1
+    //   }`,
+    // )
+    const res: any = await fetch(
+      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start}&limit=3`,
+    )
+      .then((res) => res.json())
+      .catch((e) => {
+        Logger.error(`Error fetch candles: ${e.message}`);
+        return null;
+      });
+
+    // console.log(
+    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start}&before=${end}&limit=3`,
+    //   res?.data?.length,
+    // );
+
+    if (res?.code === '0' && res?.data?.length) {
+      return new Date(+res.data[0][0]);
+    }
+
+    start = start + 64 * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+    // delay 100 ms
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
 }
