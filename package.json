@@ -4,7 +4,7 @@
   "description": "Fetch candles from exchanges and store them in a database",
   "author": "Pavel Valentov",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

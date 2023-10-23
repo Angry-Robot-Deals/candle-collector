@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ -f ../.env ]; then
+if [ -f ".env" ]; then
   while IFS='=' read -r key value; do
     export "$key=$value"
-  done < ../.env
+  done < ".env"
 else
   echo "Файл .env не найден"
   exit 1
