@@ -84,13 +84,15 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
         return null;
       });
 
-    console.log(
-      `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=3&startTime=${start}`,
-      res?.data?.length,
-    );
+    // console.log(
+    //   `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=3&startTime=${start}`,
+    //   res?.data?.length,
+    // );
 
     if (res?.length) {
-      return new Date(+res.data[0]);
+      const firstCandleTime = new Date(+res.data[0]);
+      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime}`);
+      return firstCandleTime;
     }
 
     start = start + 64 * timeframeMSeconds(data.timeframe);
@@ -138,7 +140,9 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     // );
 
     if (res?.code === '0' && res?.data?.length) {
-      return new Date(+res.data[0][0]);
+      const firstCandleTime = new Date(+res.data[0][0]);
+      Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime}`);
+      return firstCandleTime;
     }
 
     start = start + 64 * timeframeMSeconds(data.timeframe);

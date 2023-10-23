@@ -722,6 +722,9 @@ export class AppService implements OnApplicationBootstrap {
           symbolId,
           timeframe,
         });
+        if (maxTimestamp) {
+          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
+        }
         if (!maxTimestamp) {
           switch (exchange) {
             case 'binance':
@@ -751,10 +754,10 @@ export class AppService implements OnApplicationBootstrap {
           symbolId,
           timeframe,
         });
+        if (maxTimestamp) {
+          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
+        }
       }
-    }
-    if (maxTimestamp) {
-      Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
     }
 
     let startTime = 0;
