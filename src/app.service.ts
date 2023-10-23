@@ -326,7 +326,7 @@ export class AppService implements OnApplicationBootstrap {
           symbol: market.symbol.name,
           symbolId: market.symbolId,
           synonym: market.synonym,
-          timeframe: TIMEFRAME.D1,
+          timeframe: TIMEFRAME.MN1,
         });
 
         if (typeof candlesMN1 === 'string') {
@@ -736,7 +736,7 @@ export class AppService implements OnApplicationBootstrap {
       if (!this.badSymbols[exchangeId]) {
         this.badSymbols[exchangeId] = [];
       }
-      return `Error get a symbol id ${symbol}`;
+      return `Error get a symbol id ${exchange} ${symbol}`;
     }
 
     const synonym = body.synonym || (await this.getSynonym({ exchangeId, symbolId }));
@@ -819,10 +819,14 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     if (typeof candles === 'string') {
-      return `Error fetch candles ${exchange} ${symbol} ${timeframe}: ${candles?.length}`;
+      if (candles.includes('invalid symbol')) {
+        Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+        await this.disableMarket({ exchangeId, symbolId });
+      }
+
+      return `Error fetch candles ${exchange} ${symbol} ${timeframe}: ${candles}`;
     }
     if (!candles) {
-      await this.disableMarket({ exchangeId, symbolId });
       return `Error fetch candles ${exchange} ${symbol}} ${timeframe}`;
     }
 

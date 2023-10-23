@@ -63,7 +63,7 @@ export async function huobiFetchCandles(
   timeframe: keyof typeof HUOBI_TIMEFRAME,
   limit: number, // milliseconds, include a candle with this value
 ): Promise<any[] | string> {
-  console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
+  // console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
 
   const candles: any = await fetch(
     `https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`,
