@@ -19,6 +19,7 @@ import { isCorrectSymbol } from './utils';
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   private badCoins = [];
+  private badSymbols = {};
   private delayCoin = {};
 
   private delayMarket = {};
@@ -43,6 +44,10 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60) {
+        continue;
+      }
+
+      if (this.badSymbols['binance'] && this.badSymbols['binance'].includes(`${coin.coin}/USDT`)) {
         continue;
       }
 
@@ -144,6 +149,10 @@ export class AppService implements OnApplicationBootstrap {
 
       if (!isCorrectSymbol(market.symbol.name)) {
         // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolD1Candles');
+        continue;
+      }
+
+      if (this.badSymbols[exchange.id] && this.badSymbols[exchange.id].includes(market.symbol.name)) {
         continue;
       }
 
@@ -559,11 +568,18 @@ export class AppService implements OnApplicationBootstrap {
 
     const symbolId = body.symbolId || (await this.getSymbolId(symbol));
     if (!symbolId) {
+      if (!this.badSymbols[exchangeId]) {
+        this.badSymbols[exchangeId] = [];
+      }
       return `Error get a symbol id ${symbol}`;
     }
 
     const synonym = body.synonym || (await this.getSynonym({ exchangeId, symbolId }));
     if (!synonym) {
+      if (!this.badSymbols[exchangeId]) {
+        this.badSymbols[exchangeId] = [];
+      }
+      this.badSymbols[exchangeId].push(symbol);
       return `Error get a symbol synonym ${exchange} ${symbol}`;
     }
 
