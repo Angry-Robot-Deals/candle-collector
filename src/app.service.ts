@@ -2,6 +2,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as ccxt from 'ccxt';
 import { Market as ExchangeMarket } from 'ccxt';
 import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
+import * as topCoins from '../data/coins-top-300.json';
 import {
   binanceFetchCandles,
   binanceFindFirstCandle,
@@ -12,12 +13,10 @@ import {
 import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
-import * as topCoins from '../data/coins-top-300.json';
+import { getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
-import { timeframeSeconds } from './timeseries.constant';
-import { getCandleTime } from './timeseries';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
