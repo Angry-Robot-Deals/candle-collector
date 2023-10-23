@@ -9,12 +9,12 @@ import {
   okxFindFirstCandle,
 } from './exchange-fetch-candles';
 import { BINANCE_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
+import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
 import * as topCoins from '../data/coins-top-300.json';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
-import { isCorrectSymbol } from './utils';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -143,7 +143,7 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    await this.prisma.aTHL.deleteMany({});
+    // await this.prisma.aTHL.deleteMany({});
 
     console.log('Select:', daySymbols.length, Date.now() - start, 'ms');
 
