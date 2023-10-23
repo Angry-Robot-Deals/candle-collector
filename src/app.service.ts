@@ -16,6 +16,8 @@ import * as topCoins from '../data/coins-top-300.json';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
+import { timeframeSeconds } from './timeseries.constant';
+import { getCandleTime } from './timeseries';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -287,6 +289,34 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
+      if (exchange.name === 'huobi') {
+        const lastCandle = await this.prisma.candleD1.findFirst({
+          select: {
+            time: true,
+          },
+          where: {
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            timeframe: TIMEFRAME.D1,
+          },
+          orderBy: {
+            time: 'desc',
+          },
+        });
+
+        if (
+          lastCandle?.time &&
+          getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1, new Date())
+        ) {
+          if (!this.delayMarket[exchange.id]) {
+            this.delayMarket[exchange.id] = {};
+          }
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${TIMEFRAME.D1}`);
+          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          continue;
+        }
+      }
+
       const candles = await this.fetchCandles({
         exchange: exchange.name,
         exchangeId: exchange.id,
@@ -320,6 +350,32 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (exchange.name === 'huobi') {
+        const lastCandle = await this.prisma.candleD1.findFirst({
+          select: {
+            time: true,
+          },
+          where: {
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            timeframe: TIMEFRAME.MN1,
+          },
+          orderBy: {
+            time: 'desc',
+          },
+        });
+
+        if (
+          lastCandle?.time &&
+          getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1, new Date())
+        ) {
+          if (!this.delayMarket[exchange.id]) {
+            this.delayMarket[exchange.id] = {};
+          }
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${TIMEFRAME.MN1}`);
+          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          continue;
+        }
+
         const candlesMN1 = await this.fetchCandles({
           exchange: exchange.name,
           exchangeId: exchange.id,
