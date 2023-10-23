@@ -303,10 +303,7 @@ export class AppService implements OnApplicationBootstrap {
           },
         });
 
-        if (
-          lastCandle?.time &&
-          getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1, new Date())
-        ) {
+        if (lastCandle?.time && getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1)) {
           if (!this.delayMarket[exchange.id]) {
             this.delayMarket[exchange.id] = {};
           }
@@ -363,10 +360,7 @@ export class AppService implements OnApplicationBootstrap {
           },
         });
 
-        if (
-          lastCandle?.time &&
-          getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1, new Date())
-        ) {
+        if (lastCandle?.time && getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1)) {
           if (!this.delayMarket[exchange.id]) {
             this.delayMarket[exchange.id] = {};
           }
