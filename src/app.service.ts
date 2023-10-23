@@ -119,6 +119,7 @@ export class AppService implements OnApplicationBootstrap {
       },
       where: {
         exchangeId: exchange.id,
+        disabled: false,
       },
     });
 
@@ -518,6 +519,22 @@ export class AppService implements OnApplicationBootstrap {
     return symbols;
   }
 
+  async disableMarket(data: { exchangeId: number; symbolId: number }) {
+    const { exchangeId, symbolId } = data;
+
+    await this.prisma.market.update({
+      where: {
+        symbolId_exchangeId: {
+          symbolId,
+          exchangeId,
+        },
+      },
+      data: {
+        disabled: true,
+      },
+    });
+  }
+
   async fetchCandles(body: {
     exchange: string;
     exchangeId?: number;
@@ -562,6 +579,11 @@ export class AppService implements OnApplicationBootstrap {
             case 'okx':
               maxTimestamp = await okxFindFirstCandle({ synonym, timeframe });
               // console.log('okxFindFirstCandle', symbol, maxTimestamp);
+
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+              }
               break;
             default:
               return [];
