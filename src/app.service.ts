@@ -905,7 +905,10 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     if (typeof candles === 'string') {
-      if (candles.toLowerCase().includes('invalid symbol')) {
+      if (
+        candles.toLowerCase().includes('invalid symbol') ||
+        candles.toLowerCase().includes('could not get the candlesticks for symbol')
+      ) {
         Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
         await this.disableMarket({ exchangeId, symbolId });
       }
