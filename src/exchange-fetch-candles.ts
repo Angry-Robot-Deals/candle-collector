@@ -40,7 +40,7 @@ export async function okxFetchCandles(
   timeframe: keyof typeof OKX_TIMEFRAME,
   start: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
-): Promise<any[] | string> {
+): Promise<CandleDb[] | string> {
   const candles: any = await fetch(
     `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${
       start - 1
@@ -153,9 +153,9 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     // );
 
     if (res?.length) {
-      const minTime = Math.min(...res.data.map((candle: OHLCV_Binance) => +candle[0]));
+      const minTime = Math.min(...res.map((candle: OHLCV_Binance) => +candle[0]));
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
-      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime}`);
+      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime.toISOString()}`);
       return firstCandleTime;
     }
 

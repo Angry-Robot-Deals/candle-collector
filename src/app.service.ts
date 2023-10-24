@@ -781,7 +781,7 @@ export class AppService implements OnApplicationBootstrap {
     timeframe: TIMEFRAME;
     start?: number;
     limit?: number;
-  }): Promise<any[] | string> {
+  }): Promise<CandleDb[] | string> {
     const { exchange, symbol, timeframe, start, limit } = body;
 
     const exchangeId = body.exchangeId || (await this.getExchangeId(exchange));
@@ -833,6 +833,7 @@ export class AppService implements OnApplicationBootstrap {
               if (!maxTimestamp) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
+                return [];
               }
               break;
             case 'okx':
@@ -842,6 +843,7 @@ export class AppService implements OnApplicationBootstrap {
               if (!maxTimestamp) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
+                return [];
               }
               break;
             case 'poloniex':
@@ -850,6 +852,7 @@ export class AppService implements OnApplicationBootstrap {
               if (!maxTimestamp) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
+                return [];
               }
               break;
             case 'huobi':
