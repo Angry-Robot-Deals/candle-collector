@@ -33,8 +33,8 @@ export class AppService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
-    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
-    // setTimeout(() => this.calculateAllATHL(), 7000);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    setTimeout(() => this.calculateAllATHL(), 7000);
   }
 
   async fetchTopCoinsM1Candles() {
@@ -118,7 +118,6 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async calculateAllATHL() {
-    console.log('calculateAllATHL');
     const start = Date.now();
     // select unique symbolId and exchangeId from candleD1
     const daySymbols = await this.prisma.candleD1.groupBy({
@@ -248,10 +247,10 @@ export class AppService implements OnApplicationBootstrap {
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
     switch (exchange.name) {
-      // case 'binance':
-      // case 'okx':
-      // case 'huobi':
+      case 'binance':
+      case 'okx':
       case 'poloniex':
+      case 'huobi':
         break;
       default:
         return;
@@ -292,9 +291,10 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
+      // delay
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       let limit: number = 0;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       if (exchange.name === 'huobi') {
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
@@ -354,8 +354,6 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       // 1-month candles
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       if (exchange.name === 'huobi') {
         limit = 0;
         const lastCandle = await this.prisma.candleD1.findFirst({
@@ -414,8 +412,6 @@ export class AppService implements OnApplicationBootstrap {
           Logger.log(`Saved Month ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
         }
       }
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
@@ -811,18 +807,23 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     let maxTimestamp: Date;
-    if (!start) {
-      if (start) {
-        maxTimestamp = getCandleHumanTime(timeframe, new Date(start));
-      } else if (timeframe === TIMEFRAME.D1) {
+    if (start) {
+      maxTimestamp = getCandleHumanTime(timeframe, new Date(start));
+    } else {
+      if (timeframe === TIMEFRAME.D1) {
         maxTimestamp = await this.getMaxTimestampD1({
           exchangeId,
           symbolId,
           timeframe,
         });
         if (maxTimestamp) {
+          Logger.debug(
+            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()} = ${getCandleHumanTime(
+              TIMEFRAME.D1,
+              maxTimestamp,
+            ).toISOString()}`,
+          );
           maxTimestamp = getCandleHumanTime(TIMEFRAME.D1, maxTimestamp);
-          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
         if (!maxTimestamp) {
           switch (exchange) {
@@ -864,8 +865,13 @@ export class AppService implements OnApplicationBootstrap {
           timeframe,
         });
         if (maxTimestamp) {
+          Logger.debug(
+            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()} = ${getCandleHumanTime(
+              timeframe,
+              maxTimestamp,
+            ).toISOString()}`,
+          );
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
-          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
       }
     }
@@ -888,7 +894,10 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'poloniex':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        endTime = startTime + (limit || 499) * timeframeMSeconds(timeframe);
+        endTime = Math.min(startTime + (limit || 499) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
+        if (startTime >= endTime) {
+          return [];
+        }
         candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
         break;
       default:

@@ -16,7 +16,7 @@ export async function binanceFetchCandles(
   timeframe: keyof typeof BINANCE_TIMEFRAME,
   start?: number,
   limit?: number,
-): Promise<any[] | string> {
+): Promise<CandleDb[] | string> {
   const candles: any = await fetch(
     `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=${limit || 64}&startTime=${
       start || 1
@@ -79,11 +79,10 @@ export async function poloniexFetchCandles(
       return null;
     });
 
-  console.log(
-    `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
-  );
-
   if (!candles || !Array.isArray(candles)) {
+    console.log(
+      `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
+    );
     return `Bad response ${JSON.stringify(candles || {})}`;
   }
 
@@ -111,6 +110,7 @@ export async function huobiFetchCandles(
     });
 
   if (!candles?.data || candles?.status !== 'ok') {
+    console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
     return `Bad response ${JSON.stringify(candles || {})}`;
   }
 

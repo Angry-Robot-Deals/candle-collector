@@ -69,15 +69,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
   switch (timeframe) {
     case '1m':
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
       break;
     case '3m':
@@ -86,15 +84,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -104,15 +100,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -122,15 +116,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -140,29 +132,25 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
 
       break;
     case '1h':
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -172,15 +160,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -190,15 +176,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -208,15 +192,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -226,15 +208,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -244,40 +224,34 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
     case '1d':
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          0,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        0,
+        0,
+        0,
+        0, // milliseconds
       );
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          0,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        0,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -287,15 +261,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          0,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        0,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
@@ -305,29 +277,25 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          0,
-          0,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        0,
+        0,
+        0,
+        0, // milliseconds
       );
 
       break;
     case '1M':
       candleTime = new Date(
-        Date.UTC(
-          years, // year
-          months, // month is 0-11
-          1, // days
-          0, // hours
-          0, // minutes
-          0, // seconds
-          0, // milliseconds
-        ),
+        years, // year
+        months, // month is 0-11
+        1, // days
+        0, // hours
+        0, // minutes
+        0, // seconds
+        0, // milliseconds
       );
 
       break;
@@ -337,15 +305,13 @@ export function getCandleTime(timeframe: TIMEFRAME, time: Date | number = undefi
       }
 
       candleTime = new Date(
-        Date.UTC(
-          years,
-          months,
-          days,
-          hours,
-          minutes,
-          0,
-          0, // milliseconds
-        ),
+        years,
+        months,
+        days,
+        hours,
+        minutes,
+        0,
+        0, // milliseconds
       );
 
       break;
