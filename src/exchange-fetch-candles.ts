@@ -1,7 +1,12 @@
 import { Logger } from '@nestjs/common';
-import { binanceCandleToCandleModel, huobiCandleToCandleModel, okxCandleToCandleModel } from './exchange-dto';
-import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
-import { OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx } from './interface';
+import {
+  binanceCandleToCandleModel,
+  huobiCandleToCandleModel,
+  okxCandleToCandleModel,
+  poloniexCandleToCandleModel,
+} from './exchange-dto';
+import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME, POLONIEX_TIMEFRAME } from './exchange.constant';
+import { CandleDb, OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx, OHLCV_Poloniex } from './interface';
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
@@ -56,6 +61,37 @@ export async function okxFetchCandles(
   }
 
   return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
+}
+
+export async function poloniexFetchCandles(
+  synonym: string,
+  timeframe: keyof typeof POLONIEX_TIMEFRAME,
+  start: number, // milliseconds, include a candle with this value
+  end: number, // milliseconds, include a candle with this value
+  limit: number, // milliseconds, include a candle with this value
+): Promise<CandleDb[] | string> {
+  const candles: any = await fetch(
+    `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
+  )
+    .then((res) => res.json())
+    .catch((e) => {
+      Logger.error(`Error fetch candles: ${e.message}`);
+      return null;
+    });
+
+  console.log(
+    `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
+  );
+
+  if (!candles || !Array.isArray(candles)) {
+    return `Bad response ${JSON.stringify(candles || {})}`;
+  }
+
+  if (!candles.length) {
+    return [];
+  }
+
+  return candles.map((candle: OHLCV_Poloniex) => poloniexCandleToCandleModel(candle));
 }
 
 export async function huobiFetchCandles(
@@ -117,7 +153,8 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     // );
 
     if (res?.length) {
-      const firstCandleTime = getCandleHumanTime(data.timeframe, +res.data[0]);
+      const minTime = Math.min(...res.data.map((candle: OHLCV_Binance) => +candle[0]));
+      const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
       Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime}`);
       return firstCandleTime;
     }
@@ -167,13 +204,52 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     // );
 
     if (res?.code === '0' && res?.data?.length) {
-      const firstCandleTime = getCandleHumanTime(data.timeframe, +res.data[0][0]);
+      const minTime = Math.min(...res.data.map((candle: OHLCV_Okx) => +candle[0]));
+      const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
       Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime}`);
       return firstCandleTime;
     }
 
-    start = start + 64 * timeframeMSeconds(data.timeframe);
-    end = Math.min(start + 64 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+    start = start + 300 * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + 300 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+    // delay 100 ms
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
+}
+
+export async function poloniexFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
+  const { synonym } = data;
+  const timeframe = POLONIEX_TIMEFRAME[data.timeframe];
+
+  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z').getTime());
+
+  // add 64 candles to start
+  let end = Math.min(start + 500 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+  const now = new Date().getTime();
+
+  while (start < now && start < end) {
+    const res: any = await fetch(
+      `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}`,
+    )
+      .then((res) => res.json())
+      .catch((e) => {
+        Logger.error(`Error fetch candles: ${e.message}`);
+        return null;
+      });
+
+    if (res?.length) {
+      const minTime = Math.min(...res.map((candle: OHLCV_Poloniex) => +candle[12]));
+      const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
+      Logger.log(`[poloniex] ${synonym} first candle time ${firstCandleTime.toISOString()}`);
+      return firstCandleTime;
+    }
+
+    start = start + 500 * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + 500 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
     // delay 100 ms
     await new Promise((resolve) => setTimeout(resolve, 100));

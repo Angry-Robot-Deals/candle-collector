@@ -1,4 +1,4 @@
-import { CandleDb, OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx } from './interface';
+import { CandleDb, OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx, OHLCV_Poloniex } from './interface';
 
 export function binanceCandleToCandleModel(candle: OHLCV_Binance): CandleDb {
   return {
@@ -8,6 +8,18 @@ export function binanceCandleToCandleModel(candle: OHLCV_Binance): CandleDb {
     low: +candle[3],
     close: +candle[4],
     volume: +candle[5],
+    trades: candle[8],
+  };
+}
+
+export function poloniexCandleToCandleModel(candle: OHLCV_Poloniex): CandleDb {
+  return {
+    time: new Date(candle[12]),
+    open: +candle[2],
+    high: +candle[1],
+    low: +candle[0],
+    close: +candle[3],
+    volume: +candle[4],
     trades: candle[8],
   };
 }

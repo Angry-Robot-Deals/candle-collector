@@ -29,6 +29,53 @@ export type OHLCV_Binance = [
   string,
 ];
 
+// [
+//   "1757.25",
+//   "1848.17",
+//   "1763.05",
+//   "1828.9",
+//   "7432850.54",
+//   "4114.942304",
+//   "3892188.09",
+//   "2153.241905",
+//   13412,
+//   1698145627344,
+//   "1806.55",
+//   "DAY_1",
+//   1698105600000,
+//   1698191999999
+// ]
+// low	String	lowest price over the interval
+// high	String	highest price over the interval
+// open	String	price at the start time
+// close	String	price at the end time
+// amount	String	quote units traded over the interval
+// quantity	String	base units traded over the interval
+// buyTakerAmount	String	quote units traded over the interval filled by market buy orders
+// buyTakerQuantity	String	base units traded over the interval filled by market buy orders
+// tradeCount	Integer	count of trades
+// ts	Long	time the record was pushed
+// weightedAverage	String	weighted average over the interval
+// interval	String	the selected interval
+// startTime	Long	start time of interval
+// closeTime	Long	close time of interval
+export type OHLCV_Poloniex = [
+  string, // low
+  string, // high
+  string, // open
+  string, // close
+  string, // amount - quote volume
+  string, // quantity - coin volume
+  string, // buyTakerQuantity
+  string, // buyTakerAmount
+  number, // tradeCount
+  number, // ts
+  string, // weightedAverage
+  string, // interval
+  number, // startTime
+  number, // closeTime
+];
+
 export type OHLCV_Okx = [
   string, // timestamp
   string, // open

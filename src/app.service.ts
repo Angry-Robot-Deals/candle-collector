@@ -9,14 +9,17 @@ import {
   huobiFetchCandles,
   okxFetchCandles,
   okxFindFirstCandle,
+  poloniexFetchCandles,
+  poloniexFindFirstCandle,
 } from './exchange-fetch-candles';
-import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
+import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from './timeseries';
+import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME, POLONIEX_TIMEFRAME } from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
-import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
+import { timeframeMSeconds } from './timeseries.constant';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -30,8 +33,8 @@ export class AppService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
-    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
-    setTimeout(() => this.calculateAllATHL(), 7000);
+    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    // setTimeout(() => this.calculateAllATHL(), 7000);
   }
 
   async fetchTopCoinsM1Candles() {
@@ -245,9 +248,10 @@ export class AppService implements OnApplicationBootstrap {
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
     switch (exchange.name) {
-      case 'binance':
-      case 'okx':
-      case 'huobi':
+      // case 'binance':
+      // case 'okx':
+      // case 'huobi':
+      case 'poloniex':
         break;
       default:
         return;
@@ -289,6 +293,8 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       let limit: number = 0;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (exchange.name === 'huobi') {
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
@@ -348,6 +354,8 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       // 1-month candles
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if (exchange.name === 'huobi') {
         limit = 0;
         const lastCandle = await this.prisma.candleD1.findFirst({
@@ -805,7 +813,7 @@ export class AppService implements OnApplicationBootstrap {
     let maxTimestamp: Date;
     if (!start) {
       if (start) {
-        maxTimestamp = new Date(start);
+        maxTimestamp = getCandleHumanTime(timeframe, new Date(start));
       } else if (timeframe === TIMEFRAME.D1) {
         maxTimestamp = await this.getMaxTimestampD1({
           exchangeId,
@@ -835,6 +843,14 @@ export class AppService implements OnApplicationBootstrap {
                 await this.disableMarket({ exchangeId, symbolId });
               }
               break;
+            case 'poloniex':
+              maxTimestamp = await poloniexFindFirstCandle({ synonym, timeframe });
+
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+              }
+              break;
             case 'huobi':
               break;
             default:
@@ -848,13 +864,14 @@ export class AppService implements OnApplicationBootstrap {
           timeframe,
         });
         if (maxTimestamp) {
+          maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
           Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
       }
     }
 
     let startTime = 0;
-    // const endTime = 0;
+    let endTime = 0;
 
     let candles: CandleDb[] | string;
     switch (exchange) {
@@ -869,12 +886,17 @@ export class AppService implements OnApplicationBootstrap {
       case 'huobi':
         candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);
         break;
+      case 'poloniex':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        endTime = startTime + (limit || 499) * timeframeMSeconds(timeframe);
+        candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
+        break;
       default:
         return [];
     }
 
     if (typeof candles === 'string') {
-      if (candles.includes('invalid symbol')) {
+      if (candles.toLowerCase().includes('invalid symbol')) {
         Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
         await this.disableMarket({ exchangeId, symbolId });
       }
