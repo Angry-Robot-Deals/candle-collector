@@ -288,6 +288,7 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
+      let limit: number = 0;
       if (exchange.name === 'huobi') {
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
@@ -304,12 +305,7 @@ export class AppService implements OnApplicationBootstrap {
         });
 
         if (lastCandle?.time && getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1)) {
-          if (!this.delayMarket[exchange.id]) {
-            this.delayMarket[exchange.id] = {};
-          }
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${TIMEFRAME.D1}`);
-          this.delayMarket[exchange.id][market.symbolId] = Date.now();
-          continue;
+          limit = 1;
         }
       }
 
@@ -320,6 +316,7 @@ export class AppService implements OnApplicationBootstrap {
         symbolId: market.symbolId,
         synonym: market.synonym,
         timeframe: TIMEFRAME.D1,
+        limit,
       });
 
       if (typeof candles === 'string') {
@@ -346,6 +343,7 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (exchange.name === 'huobi') {
+        limit = 0;
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
             time: true,
@@ -360,13 +358,8 @@ export class AppService implements OnApplicationBootstrap {
           },
         });
 
-        if (lastCandle?.time && getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1)) {
-          if (!this.delayMarket[exchange.id]) {
-            this.delayMarket[exchange.id] = {};
-          }
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${TIMEFRAME.MN1}`);
-          this.delayMarket[exchange.id][market.symbolId] = Date.now();
-          continue;
+        if (lastCandle?.time && getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTime(TIMEFRAME.MN1)) {
+          limit = 1;
         }
 
         const candlesMN1 = await this.fetchCandles({
@@ -376,12 +369,13 @@ export class AppService implements OnApplicationBootstrap {
           symbolId: market.symbolId,
           synonym: market.synonym,
           timeframe: TIMEFRAME.MN1,
+          limit,
         });
 
         if (typeof candlesMN1 === 'string') {
           Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
         } else {
-          if (candlesMN1.length <= 3) {
+          if (candlesMN1.length <= 1) {
             if (!this.delayMarket[exchange.id]) {
               this.delayMarket[exchange.id] = {};
             }
