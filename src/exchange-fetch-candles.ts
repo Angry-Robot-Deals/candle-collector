@@ -3,7 +3,7 @@ import { binanceCandleToCandleModel, huobiCandleToCandleModel, okxCandleToCandle
 import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx } from './interface';
 import { timeframeMSeconds } from './timeseries.constant';
-import { getCandleTime } from './timeseries';
+import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
 
 export async function binanceFetchCandles(
@@ -117,7 +117,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     // );
 
     if (res?.length) {
-      const firstCandleTime = new Date(+res.data[0]);
+      const firstCandleTime = getCandleHumanTime(data.timeframe, +res.data[0]);
       Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime}`);
       return firstCandleTime;
     }
@@ -167,7 +167,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     // );
 
     if (res?.code === '0' && res?.data?.length) {
-      const firstCandleTime = new Date(+res.data[0][0]);
+      const firstCandleTime = getCandleHumanTime(data.timeframe, +res.data[0][0]);
       Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime}`);
       return firstCandleTime;
     }

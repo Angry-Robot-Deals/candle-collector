@@ -13,7 +13,7 @@ import {
 import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
-import { getCandleTime } from './timeseries';
+import { getCandleHumanTime, getCandleShift, getCandleTime, getCandleTimeByShift } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
@@ -30,7 +30,7 @@ export class AppService implements OnApplicationBootstrap {
 
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
-    // setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
+    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
     setTimeout(() => this.calculateAllATHL(), 7000);
   }
 
@@ -304,8 +304,13 @@ export class AppService implements OnApplicationBootstrap {
           },
         });
 
-        if (lastCandle?.time && getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1)) {
-          limit = 1;
+        if (lastCandle?.time) {
+          if (
+            getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1) ||
+            getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.D1, 1)
+          ) {
+            limit = 1;
+          }
         }
       }
 
@@ -342,6 +347,7 @@ export class AppService implements OnApplicationBootstrap {
         Logger.log(`Saved D1 ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
       }
 
+      // 1-month candles
       if (exchange.name === 'huobi') {
         limit = 0;
         const lastCandle = await this.prisma.candleD1.findFirst({
@@ -358,8 +364,13 @@ export class AppService implements OnApplicationBootstrap {
           },
         });
 
-        if (lastCandle?.time && getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTime(TIMEFRAME.MN1)) {
-          limit = 1;
+        if (lastCandle?.time) {
+          if (
+            getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTime(TIMEFRAME.MN1) ||
+            getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.MN1, 1)
+          ) {
+            limit = 1;
+          }
         }
 
         const candlesMN1 = await this.fetchCandles({
@@ -802,6 +813,7 @@ export class AppService implements OnApplicationBootstrap {
           timeframe,
         });
         if (maxTimestamp) {
+          maxTimestamp = getCandleHumanTime(TIMEFRAME.D1, maxTimestamp);
           Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
         if (!maxTimestamp) {
@@ -873,7 +885,7 @@ export class AppService implements OnApplicationBootstrap {
       return `Error fetch candles ${exchange} ${symbol}} ${timeframe}`;
     }
 
-    return candles;
+    return candles.map((candle) => ({ ...candle, time: getCandleHumanTime(timeframe, candle.time) }));
   }
 
   async getTopCoins(): Promise<any[]> {
