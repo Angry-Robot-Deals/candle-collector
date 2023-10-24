@@ -13,7 +13,7 @@ import {
 import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME } from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
-import { getCandleHumanTime, getCandleShift, getCandleTime, getCandleTimeByShift } from './timeseries';
+import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
