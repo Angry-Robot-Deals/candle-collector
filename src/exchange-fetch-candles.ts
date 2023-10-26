@@ -39,11 +39,12 @@ export async function okxFetchCandles(
   synonym: string,
   timeframe: keyof typeof OKX_TIMEFRAME,
   start: number, // milliseconds, include a candle with this value
+  end: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
 ): Promise<CandleDb[] | string> {
   const candles: any = await fetch(
-    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${
-      start - 1
+    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+      end + 1
     }&limit=${limit}`,
   )
     .then((res) => res.json())
@@ -51,6 +52,13 @@ export async function okxFetchCandles(
       Logger.error(`Error fetch candles: ${e.message}`);
       return null;
     });
+
+  console.log(
+    candles?.data?.length,
+    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+      end + 1
+    }&limit=${limit}`,
+  );
 
   if (!candles?.data || candles?.code !== '0') {
     return `Bad response ${JSON.stringify(candles || {})}`;
@@ -174,12 +182,14 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
   // const synonym = 'BTC-USDT';
   const timeframe = OKX_TIMEFRAME[data.timeframe];
 
-  let start = new Date('2017-01-01T00:00:00.000Z').getTime();
+  const limit = 64;
+
+  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z'));
   // let start = getCandleTime(data.timeframe, Date.now()) - 100 * timeframeMSeconds(data.timeframe);
   // let start = getCandleTime(data.timeframe, 1517443200000) - 100 * timeframeMSeconds(data.timeframe);
 
   // add 64 candles to start
-  let end = Math.min(start + 300 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+  let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   const now = new Date().getTime();
 
@@ -190,7 +200,9 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     //   }`,
     // )
     const res: any = await fetch(
-      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start}&limit=3`,
+      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+        end + 1
+      }&limit=${limit}`,
     )
       .then((res) => res.json())
       .catch((e) => {
@@ -199,19 +211,31 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
       });
 
     // console.log(
-    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&after=${start}&before=${end}&limit=3`,
     //   res?.data?.length,
+    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+    //     end + 1
+    //   }&limit=${limit}`,
     // );
 
     if (res?.code === '0' && res?.data?.length) {
       const minTime = Math.min(...res.data.map((candle: OHLCV_Okx) => +candle[0]));
+
+      // if (synonym === 'GARI-USDT') {
+      //   console.log(
+      //     'minTime',
+      //     minTime,
+      //     new Date(minTime).toISOString(),
+      //     res.data.map((candle: OHLCV_Okx) => new Date(+candle[0]).toISOString()),
+      //   );
+      // }
+
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
-      Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime}`);
+      Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime?.getTime()}, ${firstCandleTime?.toISOString()}`);
       return firstCandleTime;
     }
 
-    start = start + 300 * timeframeMSeconds(data.timeframe);
-    end = Math.min(start + 300 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+    start = start + limit * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
     // delay 100 ms
     await new Promise((resolve) => setTimeout(resolve, 100));

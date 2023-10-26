@@ -1,3 +1,4 @@
+import * as process from 'node:process';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as ccxt from 'ccxt';
 import { Market as ExchangeMarket } from 'ccxt';
@@ -13,7 +14,13 @@ import {
   poloniexFindFirstCandle,
 } from './exchange-fetch-candles';
 import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from './timeseries';
-import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME, POLONIEX_TIMEFRAME } from './exchange.constant';
+import {
+  BINANCE_TIMEFRAME,
+  ENABLED_EXCHANGES,
+  HUOBI_TIMEFRAME,
+  OKX_TIMEFRAME,
+  POLONIEX_TIMEFRAME,
+} from './exchange.constant';
 import { isCorrectSymbol } from './utils';
 import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
@@ -32,9 +39,17 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    setTimeout(() => this.fetchAllSymbolD1Candles(), 3000);
-    setTimeout(() => this.fetchTopCoinsM1Candles(), 5000);
-    setTimeout(() => this.calculateAllATHL(), 7000);
+    if (process.env.ENABLE_DAY_CANDLE_FETCH === 'true' || process.env.ENABLE_DAY_CANDLE_FETCH === '1') {
+      setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 10000);
+    }
+
+    if (process.env.ENABLE_TOP_COIN_FETCH === 'true' || process.env.ENABLE_TOP_COIN_FETCH === '1') {
+      setTimeout(() => this.fetchTopCoinsM1Candles(), Math.random() * 10000);
+    }
+
+    if (process.env.ENABLE_ATHL_CALCULATION === 'true' || process.env.ENABLE_ATHL_CALCULATION === '1') {
+      setTimeout(() => this.calculateAllATHL(), Math.random() * 10000);
+    }
   }
 
   async fetchTopCoinsM1Candles() {
@@ -246,14 +261,11 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
-    switch (exchange.name) {
-      case 'binance':
-      case 'okx':
-      case 'poloniex':
-      case 'huobi':
-        break;
-      default:
-        return;
+    const envExchanges = process.env.DAY_CANDLE_FETCH_EXCHANGES?.split(',') || [];
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+
+    if (!enabledExchanges.includes(exchange.name)) {
+      return;
     }
 
     const markets = await this.prisma.market.findMany({
@@ -890,7 +902,11 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'okx':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, limit || 300);
+        endTime = Math.min(
+          startTime + (limit || 64) * timeframeMSeconds(timeframe),
+          getCandleTime(timeframe, Date.now()),
+        );
+        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime, limit || 64);
         break;
       case 'huobi':
         candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);
