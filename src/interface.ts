@@ -88,6 +88,26 @@ export type OHLCV_Okx = [
   string, // confirm
 ];
 
+// list	array
+// An string array of individual candle
+// Sort in reverse by startTime
+// > list[0]: startTime	string	Start time of the candle (ms)
+// > list[1]: openPrice	string	Open price
+// > list[2]: highPrice	string	Highest price
+// > list[3]: lowPrice	string	Lowest price
+// > list[4]: closePrice	string	Close price. Is the last traded price when the candle is not closed
+// > list[5]: volume	string	Trade volume. Unit of contract: pieces of contract. Unit of spot: quantity of coins
+// > list[6]: turnover	string	Turnover. Unit of figure: quantity of quota coin
+export type OHLCV_Bybit = [
+  string, // timestamp
+  string, // open
+  string, // high
+  string, // low
+  string, // close
+  string, // volume
+  string, // quote volume
+];
+
 // id	long	The UNIX timestamp in seconds as response id
 // amount	float	Accumulated trading volume, in base currency
 // count	integer	The number of completed trades

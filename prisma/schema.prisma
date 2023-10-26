@@ -109,8 +109,9 @@ model ATHL {
   low         Float
   start       Float // start price
   close       Float // close current price
-  index       Float
+  index       Float    @default(0)
   position    Float    @default(0)
+  ath         Float    @default(0)
   exchange    Exchange @relation(fields: [exchangeId], references: [id])
   symbol      Symbol   @relation(fields: [symbolId], references: [id])
 

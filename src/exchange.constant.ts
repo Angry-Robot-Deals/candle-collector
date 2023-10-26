@@ -1,6 +1,6 @@
 import { TIMEFRAME } from './timeseries.interface';
 
-export const ENABLED_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'huobi'];
+export const ENABLED_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'huobi', 'bybit'];
 
 export const BINANCE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1m',
@@ -32,4 +32,14 @@ export const POLONIEX_TIMEFRAME = {
   [TIMEFRAME.D1]: 'DAY_1',
   [TIMEFRAME.W1]: 'WEEK_1',
   [TIMEFRAME.MN1]: 'MONTH_1',
+};
+
+export const BYBIT_TIMEFRAME = {
+  [TIMEFRAME.M1]: '1',
+  [TIMEFRAME.M5]: '5',
+  [TIMEFRAME.M15]: '15',
+  [TIMEFRAME.H1]: '60',
+  [TIMEFRAME.D1]: 'D',
+  [TIMEFRAME.W1]: 'W',
+  [TIMEFRAME.MN1]: 'M',
 };

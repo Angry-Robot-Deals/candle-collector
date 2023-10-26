@@ -1,12 +1,19 @@
 import { Logger } from '@nestjs/common';
 import {
   binanceCandleToCandleModel,
+  bybitCandleToCandleModel,
   huobiCandleToCandleModel,
   okxCandleToCandleModel,
   poloniexCandleToCandleModel,
 } from './exchange-dto';
-import { BINANCE_TIMEFRAME, HUOBI_TIMEFRAME, OKX_TIMEFRAME, POLONIEX_TIMEFRAME } from './exchange.constant';
-import { CandleDb, OHLCV_Binance, OHLCV_Huobi, OHLCV_Okx, OHLCV_Poloniex } from './interface';
+import {
+  BINANCE_TIMEFRAME,
+  BYBIT_TIMEFRAME,
+  HUOBI_TIMEFRAME,
+  OKX_TIMEFRAME,
+  POLONIEX_TIMEFRAME,
+} from './exchange.constant';
+import { CandleDb, OHLCV_Binance, OHLCV_Bybit, OHLCV_Huobi, OHLCV_Okx, OHLCV_Poloniex } from './interface';
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
@@ -99,6 +106,35 @@ export async function poloniexFetchCandles(
   }
 
   return candles.map((candle: OHLCV_Poloniex) => poloniexCandleToCandleModel(candle));
+}
+
+export async function bybitFetchCandles(
+  synonym: string,
+  timeframe: keyof typeof BYBIT_TIMEFRAME,
+  start: number, // milliseconds, include a candle with this value
+  limit: number, // milliseconds, include a candle with this value
+): Promise<CandleDb[] | string> {
+  const res: any = await fetch(
+    `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
+  )
+    .then((res) => res.json())
+    .catch((e) => {
+      Logger.error(`Error fetch candles: ${e.message}`);
+      return null;
+    });
+
+  if (res?.retCode !== 0 || !res.result?.list || !Array.isArray(res.result.list)) {
+    console.log(
+      `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
+    );
+    return `Bad response ${JSON.stringify(res || {})}`;
+  }
+
+  if (!res.result.list.length) {
+    return [];
+  }
+
+  return res.result.list.map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
 }
 
 export async function huobiFetchCandles(
@@ -200,9 +236,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     //   }`,
     // )
     const res: any = await fetch(
-      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-        end + 1
-      }&limit=${limit}`,
+      `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
     )
       .then((res) => res.json())
       .catch((e) => {
@@ -274,6 +308,48 @@ export async function poloniexFindFirstCandle(data: { synonym: string; timeframe
 
     start = start + 500 * timeframeMSeconds(data.timeframe);
     end = Math.min(start + 500 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+    // delay 100 ms
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
+}
+
+export async function bybitFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
+  const { synonym } = data;
+  const timeframe = BYBIT_TIMEFRAME[data.timeframe];
+
+  const limit = 999;
+
+  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z').getTime());
+
+  // add 64 candles to start
+  let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+
+  while (start < end) {
+    const request = `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`;
+    const res: any = await fetch(request)
+      .then((res) => res.json())
+      .catch((e) => {
+        Logger.error(`Error fetch candles: ${e.message}`, 'bybitFindFirstCandle');
+        return null;
+      });
+
+    if (res?.retCode === 0 && res.result?.list && Array.isArray(res.result.list) && res.result.list.length) {
+      const minTime = Math.min(...res.result.list.map((candle: OHLCV_Bybit) => +candle[0]));
+
+      const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
+
+      Logger.log(`[bybit] ${synonym} first candle time ${firstCandleTime.getTime()}, ${firstCandleTime.toISOString()}`);
+      return firstCandleTime;
+    } else {
+      // console.log(request);
+      // console.log(JSON.stringify(res));
+    }
+
+    start = start + limit * timeframeMSeconds(data.timeframe);
+    end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
     // delay 100 ms
     await new Promise((resolve) => setTimeout(resolve, 100));

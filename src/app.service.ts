@@ -7,6 +7,8 @@ import * as topCoins from '../data/coins-top-300.json';
 import {
   binanceFetchCandles,
   binanceFindFirstCandle,
+  bybitFetchCandles,
+  bybitFindFirstCandle,
   huobiFetchCandles,
   okxFetchCandles,
   okxFindFirstCandle,
@@ -16,6 +18,7 @@ import {
 import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from './timeseries';
 import {
   BINANCE_TIMEFRAME,
+  BYBIT_TIMEFRAME,
   ENABLED_EXCHANGES,
   HUOBI_TIMEFRAME,
   OKX_TIMEFRAME,
@@ -279,6 +282,9 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
       },
+      orderBy: {
+        synonym: 'asc',
+      },
     });
 
     if (!markets?.length) {
@@ -429,7 +435,7 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   getHello(): string {
-    return 'Hello World!';
+    return `Works ${process.uptime()} ms`;
   }
 
   async getMaxTimestamp(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
@@ -849,6 +855,15 @@ export class AppService implements OnApplicationBootstrap {
                 return [];
               }
               break;
+            case 'bybit':
+              maxTimestamp = await bybitFindFirstCandle({ synonym, timeframe });
+
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+                return [];
+              }
+              break;
             case 'okx':
               maxTimestamp = await okxFindFirstCandle({ synonym, timeframe });
               // console.log('okxFindFirstCandle', symbol, maxTimestamp);
@@ -893,7 +908,7 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     let startTime = 0;
-    let endTime = 0;
+    let endTime = getCandleTime(timeframe);
 
     let candles: CandleDb[] | string;
     switch (exchange) {
@@ -903,10 +918,7 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'okx':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        endTime = Math.min(
-          startTime + (limit || 64) * timeframeMSeconds(timeframe),
-          getCandleTime(timeframe, Date.now()),
-        );
+        endTime = Math.min(startTime + (limit || 64) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
         candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime, limit || 64);
         break;
       case 'huobi':
@@ -919,6 +931,13 @@ export class AppService implements OnApplicationBootstrap {
           return [];
         }
         candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
+        break;
+      case 'bybit':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        if (startTime >= endTime) {
+          return [];
+        }
+        candles = await bybitFetchCandles(synonym, BYBIT_TIMEFRAME[timeframe], startTime, limit || 999);
         break;
       default:
         return [];
