@@ -133,7 +133,7 @@ export class AppService implements OnApplicationBootstrap {
 
     await Promise.all(jobs);
 
-    setTimeout(() => this.fetchAllSymbolD1Candles(), 5000);
+    setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 1000 * 60);
   }
 
   async calculateAllATHL() {
