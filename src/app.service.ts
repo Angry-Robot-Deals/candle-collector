@@ -27,6 +27,7 @@ import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
 import { timeframeMSeconds } from './timeseries.constant';
+import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -64,7 +65,7 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
-      if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < 1000 * 60 * 60) {
+      if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < FETCH_DELAY) {
         continue;
       }
 
@@ -257,7 +258,7 @@ export class AppService implements OnApplicationBootstrap {
       }
     }
 
-    setTimeout(() => this.calculateAllATHL(), 1000 * 60 * 60);
+    setTimeout(() => this.calculateAllATHL(), CALCULATE_ATHL_PERIOD);
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
@@ -289,7 +290,7 @@ export class AppService implements OnApplicationBootstrap {
     for (const market of markets) {
       if (
         this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < 1000 * 60 * 60
+        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
       ) {
         continue;
       }

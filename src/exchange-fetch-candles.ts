@@ -53,12 +53,12 @@ export async function okxFetchCandles(
       return null;
     });
 
-  console.log(
-    candles?.data?.length,
-    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-      end + 1
-    }&limit=${limit}`,
-  );
+  // console.log(
+  //   candles?.data?.length,
+  //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+  //     end + 1
+  //   }&limit=${limit}`,
+  // );
 
   if (!candles?.data || candles?.code !== '0') {
     return `Bad response ${JSON.stringify(candles || {})}`;
@@ -136,7 +136,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
 
   let start = new Date('2017-01-01T00:00:00.000Z').getTime();
   // add 64 candles to start
-  let end = Math.min(start + 1000 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
+  let end = Math.min(start + timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   const now = new Date().getTime();
 
