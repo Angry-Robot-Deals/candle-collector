@@ -2,7 +2,6 @@ FROM node:20-alpine as base
 
 #RUN apt update; npm i -g npm@latest; npm i -g @nestjs/cli
 RUN apk update && \
-    apk add --no-cache nodejs npm && \
     npm i -g npm@latest && \
     npm i -g @nestjs/cli \
 
