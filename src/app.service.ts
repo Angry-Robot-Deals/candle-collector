@@ -836,13 +836,8 @@ export class AppService implements OnApplicationBootstrap {
           timeframe,
         });
         if (maxTimestamp) {
-          Logger.debug(
-            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()} = ${getCandleHumanTime(
-              TIMEFRAME.D1,
-              maxTimestamp,
-            ).toISOString()}`,
-          );
           maxTimestamp = getCandleHumanTime(TIMEFRAME.D1, maxTimestamp);
+          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
         if (!maxTimestamp) {
           switch (exchange) {
@@ -896,13 +891,8 @@ export class AppService implements OnApplicationBootstrap {
           timeframe,
         });
         if (maxTimestamp) {
-          Logger.debug(
-            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()} = ${getCandleHumanTime(
-              timeframe,
-              maxTimestamp,
-            ).toISOString()}`,
-          );
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
+          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         }
       }
     }
