@@ -63,7 +63,7 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    for (const coin of coins.slice(0, 100) || []) {
+    for (const coin of coins.slice(0, 150) || []) {
       if (this.badCoins.includes(coin.coin)) {
         continue;
       }
