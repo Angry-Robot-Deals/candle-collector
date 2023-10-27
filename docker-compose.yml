@@ -14,7 +14,7 @@ services:
         delay: 5s
         window: 120s
     ports:
-      - "3000:3000"
+      - "14444:14444"
     volumes:
       - data:/usr/app
     networks:
