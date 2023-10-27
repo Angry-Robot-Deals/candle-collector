@@ -508,19 +508,35 @@ export class AppService implements OnApplicationBootstrap {
   async addSymbol(data: { symbol: string }): Promise<SymbolModel> {
     const { symbol } = data;
 
-    const value = await this.prisma.symbol.upsert({
+    const exists = await this.prisma.symbol.findUnique({
       where: {
         name: symbol,
-      } as any,
-      create: {
-        name: symbol,
       },
-      update: {},
     });
 
-    console.log('Saved exchange:', value);
+    if (exists) {
+      return exists;
+    }
 
-    return value;
+    const newSymbol = await this.prisma.symbol.create({
+      data: {
+        name: symbol,
+      },
+    });
+
+    // const value = await this.prisma.symbol.upsert({
+    //   where: {
+    //     name: symbol,
+    //   } as any,
+    //   create: {
+    //     name: symbol,
+    //   },
+    //   update: {},
+    // });
+
+    Logger.log('Saved symbol:', newSymbol);
+
+    return newSymbol;
   }
 
   async addExchange(data: {
@@ -565,6 +581,25 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       return row?.id || null;
+    } catch (error) {
+      Logger.error(`Error get an exchange id: ${error.message}`, 'getExchangeId');
+      return null;
+    }
+  }
+
+  async getExchange(exchange: string): Promise<{ id: number; name: string } | null> {
+    try {
+      const row = await this.prisma.exchange.findUnique({
+        select: {
+          id: true,
+          name: true,
+        },
+        where: {
+          name: exchange,
+        },
+      });
+
+      return { id: row?.id, name: row.name } || null;
     } catch (error) {
       Logger.error(`Error get an exchange id: ${error.message}`, 'getExchangeId');
       return null;
@@ -706,8 +741,8 @@ export class AppService implements OnApplicationBootstrap {
       return [];
     }
 
-    const exc = await this.addExchange({ exchange: exchangeName });
-    if (!exc?.id) {
+    const exc = await this.getExchange(exchangeName);
+    if (!exc) {
       Logger.error(`Error loading exchange for [${exchangeName}]`, 'fetchMarkets');
       return [];
     }
@@ -740,7 +775,7 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
-      Logger.log(`Check market ${exchangeName} ${market.symbol}: ${counter}/${totalMarkets}`, 'fetchMarkets');
+      Logger.debug(`Check market ${exchangeName} ${market.symbol}: ${counter}/${totalMarkets}`, 'fetchMarkets');
       const existData = await this.prisma.market.findUnique({
         where: {
           symbolId_synonym_exchangeId: {

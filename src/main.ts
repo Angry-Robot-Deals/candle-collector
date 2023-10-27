@@ -13,6 +13,6 @@ async function bootstrap() {
   // console.log('PrismaService init', process.env.DATABASE_URL);
 
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  await app.listen(14444);
 }
 bootstrap();
