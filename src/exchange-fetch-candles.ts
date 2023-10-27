@@ -49,7 +49,7 @@ export async function okxFetchCandles(
   end: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
 ): Promise<CandleDb[] | string> {
-  const candles: any = await fetch(
+  const res: any = await fetch(
     `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
       end + 1
     }&limit=${limit}`,
@@ -60,22 +60,21 @@ export async function okxFetchCandles(
       return null;
     });
 
-  // console.log(
-  //   candles?.data?.length,
-  //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-  //     end + 1
-  //   }&limit=${limit}`,
-  // );
+  if (!res?.data || res?.code !== '0') {
+    Logger.error(
+      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+        end + 1
+      }&limit=${limit} ... ${JSON.stringify(res || {})}`,
+    );
 
-  if (!candles?.data || candles?.code !== '0') {
-    return `Bad response ${JSON.stringify(candles || {})}`;
+    return `Bad response ${JSON.stringify(res || {})}`;
   }
 
-  if (!candles.data?.length) {
+  if (!res.data?.length) {
     return [];
   }
 
-  return candles.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
+  return res.data.map((candle: OHLCV_Okx) => okxCandleToCandleModel(candle));
 }
 
 export async function poloniexFetchCandles(
@@ -236,20 +235,25 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     //   }`,
     // )
     const res: any = await fetch(
-      `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
+      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
+        end + 1
+      }&limit=${limit}`,
     )
       .then((res) => res.json())
       .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`, 'okxFindFirstCandle');
+        Logger.error(`Error fetch candles: ${e.message}`);
         return null;
       });
 
-    // console.log(
-    //   res?.data?.length,
-    //   `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-    //     end + 1
-    //   }&limit=${limit}`,
-    // );
+    if (!res?.data || res?.code !== '0') {
+      Logger.error(
+        `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${
+          start - 1
+        }&after=${end + 1}&limit=${limit} ... ${JSON.stringify(res || {})}`,
+      );
+
+      return null;
+    }
 
     if (res?.code === '0' && res?.data?.length) {
       const minTime = Math.min(...res.data.map((candle: OHLCV_Okx) => +candle[0]));
@@ -264,7 +268,9 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
       // }
 
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
+
       Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime?.getTime()}, ${firstCandleTime?.toISOString()}`);
+
       return firstCandleTime;
     }
 

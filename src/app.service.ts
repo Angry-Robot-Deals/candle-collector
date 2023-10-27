@@ -945,6 +945,7 @@ export class AppService implements OnApplicationBootstrap {
 
     if (typeof candles === 'string') {
       if (
+        candles.toLowerCase().includes('Instrument ID does not exist'.toLowerCase()) ||
         candles.toLowerCase().includes('invalid symbol') ||
         candles.toLowerCase().includes('could not get the candlesticks for symbol')
       ) {
