@@ -19,7 +19,6 @@ pwd
 docker compose -p cc -f docker-compose.yml down --remove-orphans
 
 docker volume rm cc_data
-docker volume rm cc_project_data
 docker image rm cc-candles
 
 # REMOVE ALL UNUSED DATA
