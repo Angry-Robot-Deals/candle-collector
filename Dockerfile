@@ -3,7 +3,7 @@ FROM node:20-alpine as base
 #RUN apt update; npm i -g npm@latest; npm i -g @nestjs/cli
 RUN apk update && \
     npm i -g npm@latest && \
-    npm i -g @nestjs/cli \
+    npm i -g @nestjs/cli
 
 WORKDIR /usr/app
 
