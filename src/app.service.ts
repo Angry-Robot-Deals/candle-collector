@@ -221,7 +221,7 @@ export class AppService implements OnApplicationBootstrap {
         position = (lastCandle.close - firstCandle.open) / fullRange;
       }
 
-      const ath = lastCandle.close / symbol._max.high;
+      const ath = lastCandle.close / symbol._max.high - 1;
 
       const athl = await this.prisma.aTHL.upsert({
         where: {
