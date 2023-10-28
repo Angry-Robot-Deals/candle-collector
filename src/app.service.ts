@@ -191,6 +191,7 @@ export class AppService implements OnApplicationBootstrap {
       const lastCandle = await this.prisma.candleD1.findFirst({
         select: {
           close: true,
+          time: true,
         },
         where: {
           symbolId: symbol.symbolId,
@@ -220,6 +221,8 @@ export class AppService implements OnApplicationBootstrap {
         position = (lastCandle.close - firstCandle.open) / fullRange;
       }
 
+      const ath = lastCandle.close / symbol._max.high;
+
       const athl = await this.prisma.aTHL.upsert({
         where: {
           symbolId_exchangeId: {
@@ -234,14 +237,17 @@ export class AppService implements OnApplicationBootstrap {
           low: symbol._min.low,
           start: firstCandle.open,
           close: lastCandle.close,
+          closeTime: lastCandle.time,
           index,
           position,
+          ath,
         },
         update: {
           high: symbol._max.high,
           low: symbol._min.low,
           start: firstCandle.open,
           close: lastCandle.close,
+          closeTime: lastCandle.time,
           index,
           position,
         },
