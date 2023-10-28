@@ -24,7 +24,7 @@ import {
   OKX_TIMEFRAME,
   POLONIEX_TIMEFRAME,
 } from './exchange.constant';
-import { isCorrectSymbol } from './utils';
+import { isCorrectSymbol, mapLimit } from './utils';
 import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
@@ -168,17 +168,50 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
+    // console.log('daySymbols', daySymbols);
+
+    const results = await mapLimit(daySymbols, 5, async (symbol) => {
+      const lowTime = await this.prisma.candleD1.findFirst({
+        where: {
+          symbolId: symbol.symbolId,
+          exchangeId: symbol.exchangeId,
+          low: symbol._min.low,
+        },
+        select: {
+          time: true,
+        },
+      });
+
+      const highTime = await this.prisma.candleD1.findFirst({
+        where: {
+          symbolId: symbol.symbolId,
+          exchangeId: symbol.exchangeId,
+          high: symbol._max.high,
+        },
+        select: {
+          time: true,
+        },
+      });
+
+      return {
+        ...symbol,
+        lowTime: lowTime?.time,
+        highTime: highTime?.time,
+      };
+    });
+
     // await this.prisma.aTHL.deleteMany({});
 
-    console.log('Select:', daySymbols.length, Date.now() - start, 'ms');
+    console.log('Select:', results.length, Date.now() - start, 'ms');
 
     let i = 0;
     // for each symbolId and exchangeId
-    for (const symbol of daySymbols) {
+    for (const symbol of results) {
       i++;
       const firstCandle = await this.prisma.candleD1.findFirst({
         select: {
           open: true,
+          time: true,
         },
         where: {
           symbolId: symbol.symbolId,
@@ -234,8 +267,11 @@ export class AppService implements OnApplicationBootstrap {
           symbolId: symbol.symbolId,
           exchangeId: symbol.exchangeId,
           high: symbol._max.high,
+          highTime: symbol.highTime,
           low: symbol._min.low,
+          lowTime: symbol.lowTime,
           start: firstCandle.open,
+          startTime: firstCandle.time,
           close: lastCandle.close,
           closeTime: lastCandle.time,
           index,
@@ -244,12 +280,16 @@ export class AppService implements OnApplicationBootstrap {
         },
         update: {
           high: symbol._max.high,
+          highTime: symbol.highTime,
           low: symbol._min.low,
+          lowTime: symbol.lowTime,
           start: firstCandle.open,
+          startTime: firstCandle.time,
           close: lastCandle.close,
           closeTime: lastCandle.time,
           index,
           position,
+          ath,
         },
       });
 
@@ -258,6 +298,7 @@ export class AppService implements OnApplicationBootstrap {
           i,
           '/',
           daySymbols.length,
+          results.length,
           'index',
           athl.index * 100,
           'pos',

@@ -110,6 +110,7 @@ model ATHL {
   low         Float
   lowTime     DateTime  @default(now())
   start       Float     // start price
+  startTime   DateTime  @default(now())
   close       Float     // close current price
   closeTime   DateTime  @default(now())
   index       Float     @default(0)
