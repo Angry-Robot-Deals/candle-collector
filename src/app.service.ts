@@ -31,6 +31,7 @@ import { CandleDb } from './interface';
 import { STABLES } from './constant';
 import { timeframeMSeconds } from './timeseries.constant';
 import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
+import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -106,7 +107,7 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { saved: 0 };
 
-        Logger.log(`Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}`);
+        Logger.log(`[binance] Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}`);
 
         if (candles?.length <= 3) {
           this.delayCoin[coin.coin] = Date.now();
@@ -369,7 +370,7 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { fetched: 0 };
 
-        Logger.log(`Saved D1 ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
+        Logger.log(`[${exchange.name}] Saved ${market.symbol.name}.D1 ${JSON.stringify(saved)}`);
       }
 
       // 1-month candles
@@ -912,6 +913,20 @@ export class AppService implements OnApplicationBootstrap {
                 await this.disableMarket({ exchangeId, symbolId });
                 return [];
               }
+
+              break;
+            case 'mexc':
+              const firstRes = await mexcFindFirstCandle({ synonym, timeframe });
+
+              if (typeof firstRes === 'string') {
+                if (firstRes.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
+                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                  await this.disableMarket({ exchangeId, symbolId });
+                }
+                return [];
+              }
+
+              maxTimestamp = firstRes;
               break;
             case 'huobi':
               break;
@@ -957,6 +972,14 @@ export class AppService implements OnApplicationBootstrap {
         }
         candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
         break;
+      case 'mexc':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        if (startTime >= endTime) {
+          return [];
+        }
+
+        candles = await mexcFetchCandles({ synonym, timeframe, start: startTime, limit: limit || 999 });
+        break;
       case 'bybit':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
         if (startTime >= endTime) {
@@ -974,11 +997,12 @@ export class AppService implements OnApplicationBootstrap {
         candles.toLowerCase().includes('invalid symbol') ||
         candles.toLowerCase().includes('could not get the candlesticks for symbol')
       ) {
-        Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+        Logger.error(`[${exchange}] Disable market ${symbol}`, 'fetchCandles');
+
         await this.disableMarket({ exchangeId, symbolId });
       }
 
-      return `Error fetch candles ${exchange} ${symbol} ${timeframe}: ${candles}`;
+      return `[${exchange}] Error fetch candles ${symbol} ${timeframe}: ${candles}`;
     }
     if (!candles) {
       return `Error fetch candles ${exchange} ${symbol}} ${timeframe}`;
