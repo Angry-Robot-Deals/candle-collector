@@ -1099,9 +1099,6 @@ export class AppService implements OnApplicationBootstrap {
             endsWith: '/USDT',
           },
         },
-        position: {
-          gt: -0.2,
-        },
       },
       orderBy: {
         position: 'desc',
