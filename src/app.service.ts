@@ -1135,7 +1135,13 @@ export class AppService implements OnApplicationBootstrap {
             a.time < current_date and
             a.time > current_date - interval '3 days' and
             a.timeframe = ${TIMEFRAME.D1} and
-            s."name" LIKE '%/USDT'
+            (
+                s."name" LIKE '%/USDT' or
+                s."name" LIKE '%/BUSD' or
+                s."name" LIKE '%/USDC' or
+                s."name" LIKE '%/TUSD' or
+                s."name" LIKE '%/USD'
+            )
       )
       SELECT
         "symbol",
