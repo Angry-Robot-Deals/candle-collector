@@ -1110,6 +1110,51 @@ export class AppService implements OnApplicationBootstrap {
     });
   }
 
+  async getTopTradeCoins(minTurnover?: number): Promise<any[]> {
+    return this.prisma.$queryRaw`
+      WITH LastCandles AS (
+        SELECT
+          a."time",
+          a."symbolId",
+          s."name" as symbol,
+          a."exchangeId",
+          e."name" as exchange,
+          "exchangeId",
+          "close",
+          volume,
+          "close" * volume AS cost,
+          trades,
+          ROW_NUMBER() OVER (PARTITION BY "symbolId", "exchangeId" ORDER BY "time" DESC) AS rn
+        FROM
+          public."CandleD1" as a
+        INNER JOIN "Symbol" s
+            ON s.id = a."symbolId"
+        INNER JOIN "Exchange" e
+            ON e.id = a."exchangeId"
+        where
+            a.time < current_date and
+            a.time > current_date - interval '3 days' and
+            a.timeframe = ${TIMEFRAME.D1} and
+            s."name" LIKE '%/USDT'
+      )
+      SELECT
+        "symbol",
+        "exchange",
+        "time",
+        "close",
+        volume,
+        cost,
+        trades
+      FROM
+        LastCandles
+      WHERE
+        rn = 1
+        and "cost" > ${minTurnover || 500000}
+      ORDER BY
+        cost desc;
+    `;
+  }
+
   async updateTopCoins(): Promise<any[]> {
     const coins: any[] = topCoins;
 

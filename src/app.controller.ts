@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query, UseInterceptors } from '@nestjs/common';
 import { Exchange, Market } from '@prisma/client';
 import { CACHE_MANAGER, CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -39,11 +39,20 @@ export class AppController {
     return this.appService.getTopCoins();
   }
 
-  @CacheTTL(60000)
+  @CacheTTL(300000) // 5 minutes
   @UseInterceptors(CacheInterceptor)
   @Get('getATHL')
   async getATHL(): Promise<Market[]> {
     return this.appService.getATHL();
+  }
+
+  @CacheTTL(300000) // 5 minutes
+  @UseInterceptors(CacheInterceptor)
+  @Get('getTopTradeCoins')
+  // show top coins by turnover in USD
+  // example: http://localhost:3000/getTopTradeCoins?turnover=1000000
+  async getTopTradeCoins(@Query('turnover') turnover: string): Promise<Market[]> {
+    return this.appService.getTopTradeCoins(+turnover || undefined);
   }
 
   @Get('market/fetch/:exchange')
