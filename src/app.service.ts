@@ -1074,6 +1074,42 @@ export class AppService implements OnApplicationBootstrap {
       // take: 30,
     });
   }
+
+  async getATHL(): Promise<any[]> {
+    // select top coins form prisma, which is not in the array STABLES, limit 30 records
+    return this.prisma.aTHL.findMany({
+      select: {
+        exchange: {
+          select: { name: true },
+        },
+        symbol: {
+          select: { name: true },
+        },
+        highTime: true,
+        lowTime: true,
+        startTime: true,
+        closeTime: true,
+        index: true,
+        position: true,
+        ath: true,
+      },
+      where: {
+        symbol: {
+          name: {
+            endsWith: '/USDT',
+          },
+        },
+        position: {
+          gt: -0.2,
+        },
+      },
+      orderBy: {
+        position: 'desc',
+      },
+      // take: 30,
+    });
+  }
+
   async updateTopCoins(): Promise<any[]> {
     const coins: any[] = topCoins;
 
