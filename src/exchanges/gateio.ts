@@ -41,7 +41,7 @@ async function fetchCandles(data: {
       return res;
     })
     .catch((err) => {
-      Logger.error(`[gateio] Error fetch candles: ${err.message}`);
+      Logger.error(`[gateio] Error fetch candles: ${err.message}`, 'fetchCandles.gateio');
 
       return err.message;
     });

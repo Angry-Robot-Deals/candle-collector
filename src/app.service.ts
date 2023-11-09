@@ -980,10 +980,8 @@ export class AppService implements OnApplicationBootstrap {
             case 'gateio':
               const firstResGateio = await gateioFindFirstCandle({ synonym, timeframe });
 
-              console.log('firstResGateio', firstResGateio);
-
               if (typeof firstResGateio === 'string') {
-                if (firstResGateio.toLowerCase().includes('Invalid currency pair'.toLowerCase())) {
+                if (firstResGateio.toLowerCase().includes('invalid currency pair'.toLowerCase())) {
                   Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
