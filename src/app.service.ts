@@ -983,8 +983,8 @@ export class AppService implements OnApplicationBootstrap {
               console.log('firstResGateio', firstResGateio);
 
               if (typeof firstResGateio === 'string') {
-                if (firstResGateio.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
-                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                if (firstResGateio.toLowerCase().includes('Invalid currency pair'.toLowerCase())) {
+                  Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
                 return [];
