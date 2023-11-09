@@ -79,6 +79,7 @@ model Candle {
   @@unique([symbolId, exchangeId, timeframe, time])
   @@index([symbolId, exchangeId, timeframe])
   @@index([symbolId, exchangeId])
+  @@index([time])
 }
 
 model CandleD1 {
