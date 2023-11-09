@@ -1,4 +1,4 @@
-import { TIMEFRAME } from "../timeseries.interface";
+import { TIMEFRAME } from '../timeseries.interface';
 
 // Index	Description
 // 0	Open time
