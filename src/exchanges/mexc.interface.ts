@@ -1,3 +1,5 @@
+import { TIMEFRAME } from "../timeseries.interface";
+
 // Index	Description
 // 0	Open time
 // 1	Open
@@ -17,7 +19,6 @@
 //   1698451200000,
 //   "3.9935754907E8"
 // ]
-import { TIMEFRAME } from '../timeseries.interface';
 
 export type OHLCV_Mexc = [
   number, // open time

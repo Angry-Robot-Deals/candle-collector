@@ -29,9 +29,10 @@ import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { STABLES } from './constant';
-import { timeframeMSeconds } from './timeseries.constant';
+import { timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
 import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
+import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -335,11 +336,12 @@ export class AppService implements OnApplicationBootstrap {
       },
     });
 
+    console.log('markets', exchange, markets.length);
     if (!markets?.length) {
       return;
     }
 
-    Logger.log(`Fetching markets ${exchange.name} ${markets.length}`);
+    Logger.log(`[${exchange.name}] Fetching markets: ${markets.length}`);
 
     for (const market of markets) {
       if (
@@ -963,17 +965,32 @@ export class AppService implements OnApplicationBootstrap {
 
               break;
             case 'mexc':
-              const firstRes = await mexcFindFirstCandle({ synonym, timeframe });
+              const firstResMexc = await mexcFindFirstCandle({ synonym, timeframe });
 
-              if (typeof firstRes === 'string') {
-                if (firstRes.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
+              if (typeof firstResMexc === 'string') {
+                if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
                   Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
                 return [];
               }
 
-              maxTimestamp = firstRes;
+              maxTimestamp = firstResMexc;
+              break;
+            case 'gateio':
+              const firstResGateio = await gateioFindFirstCandle({ synonym, timeframe });
+
+              console.log('firstResGateio', firstResGateio);
+
+              if (typeof firstResGateio === 'string') {
+                if (firstResGateio.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
+                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                  await this.disableMarket({ exchangeId, symbolId });
+                }
+                return [];
+              }
+
+              maxTimestamp = firstResGateio;
               break;
             case 'huobi':
               break;
@@ -1018,6 +1035,18 @@ export class AppService implements OnApplicationBootstrap {
           return [];
         }
         candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
+        break;
+      case 'gateio':
+        // seconds
+        startTime = start || maxTimestamp ? Math.ceil(maxTimestamp.getTime() / 1000) : 0;
+        endTime = Math.min(
+          startTime + (limit || 500) * timeframeSeconds(timeframe),
+          Math.ceil(getCandleTime(timeframe) / 1000),
+        );
+        if (startTime >= endTime) {
+          return [];
+        }
+        candles = await gateioFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
         break;
       case 'mexc':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
