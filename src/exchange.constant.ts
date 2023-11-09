@@ -1,6 +1,6 @@
 import { TIMEFRAME } from './timeseries.interface';
 
-export const ENABLED_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'huobi', 'bybit', 'mexc', 'gateio'];
+export const ENABLED_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'huobi', 'bybit', 'mexc', 'gateio', 'kucoin'];
 
 export const BINANCE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1m',
