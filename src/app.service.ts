@@ -59,13 +59,14 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchTopCoinsM1Candles() {
-    const coins = await this.getTopCoins();
+    const coins = (await this.getTopCoins()) || [];
     if (!coins?.length) {
       Logger.error('Error loading top coins', 'fetchTopCoinsM1Candles');
       return;
     }
 
-    for (const coin of coins.slice(0, 150) || []) {
+    // for (const coin of coins.slice(0, 150) || []) {
+    for (const coin of coins) {
       if (this.badCoins.includes(coin.coin)) {
         continue;
       }
