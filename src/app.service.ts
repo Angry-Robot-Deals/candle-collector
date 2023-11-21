@@ -23,12 +23,12 @@ import {
   HUOBI_TIMEFRAME,
   OKX_TIMEFRAME,
   POLONIEX_TIMEFRAME,
+  STABLES,
 } from './exchange.constant';
 import { isCorrectSymbol, mapLimit } from './utils';
 import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
-import { STABLES } from './constant';
 import { timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
 import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';

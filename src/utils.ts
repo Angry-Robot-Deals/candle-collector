@@ -1,4 +1,4 @@
-import { STABLES } from './constant';
+import { STABLES } from './exchange.constant';
 
 export function isCorrectSymbol(symbol: string): boolean {
   const abc: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';

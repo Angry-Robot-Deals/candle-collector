@@ -1,3 +1,15 @@
+# Fetch crypto exchanges candles (klines) and save to Postgres database 
+
+## Supported exchanges
+* Binance
+* Bybit
+* Gateio
+* Huobi
+* Kucoin
+* Mexc
+* Okx
+* Poloniex
+
 ## Prepare for launch
 
 ```bash
