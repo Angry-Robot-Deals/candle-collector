@@ -134,9 +134,11 @@ export class AppService implements OnApplicationBootstrap {
       jobs.push(this.fetchExchangeAllSymbolD1Candles(exchange));
     }
 
-    await Promise.all(jobs);
+    await Promise.all(jobs).catch((err) => {
+      Logger.error(`Error fetch all symbol D1 candles: ${err.message}`, 'fetchAllSymbolD1Candles');
+    });
 
-    setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 1000 * 60);
+    setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 1000 * 60 * 60);
   }
 
   async calculateAllATHL() {
@@ -337,12 +339,13 @@ export class AppService implements OnApplicationBootstrap {
       },
     });
 
-    console.log('markets', exchange, markets.length);
+    // console.log('markets', exchange, markets.length);
     if (!markets?.length) {
+      Logger.warn(`[${exchange.name}] No markets`, 'fetchAllSymbolD1Candles');
       return;
     }
 
-    Logger.log(`[${exchange.name}] Fetching markets: ${markets.length}`);
+    Logger.log(`[${exchange.name}] Fetching markets: ${markets.length}`, 'fetchAllSymbolD1Candles');
 
     for (const market of markets) {
       if (
@@ -982,11 +985,11 @@ export class AppService implements OnApplicationBootstrap {
               const firstResGateio = await gateioFindFirstCandle({ synonym, timeframe });
 
               if (typeof firstResGateio === 'string') {
-                if (firstResGateio.toLowerCase().includes('invalid currency pair'.toLowerCase())) {
+                if (firstResGateio.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase())) {
                   Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
-                return [];
+                return firstResGateio;
               }
 
               maxTimestamp = firstResGateio;
@@ -1046,6 +1049,15 @@ export class AppService implements OnApplicationBootstrap {
           return [];
         }
         candles = await gateioFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
+
+        if (typeof candles === 'string') {
+          if (candles.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase())) {
+            Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
+            await this.disableMarket({ exchangeId, symbolId });
+          }
+          return candles;
+        }
+
         break;
       case 'mexc':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
