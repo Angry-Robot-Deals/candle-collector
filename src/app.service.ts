@@ -985,7 +985,10 @@ export class AppService implements OnApplicationBootstrap {
               const firstResGateio = await gateioFindFirstCandle({ synonym, timeframe });
 
               if (typeof firstResGateio === 'string') {
-                if (firstResGateio.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase())) {
+                if (
+                  firstResGateio.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase()) ||
+                  firstResGateio.toLowerCase().includes('INVALID_CURRENCY'.toLowerCase())
+                ) {
                   Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
@@ -1051,7 +1054,10 @@ export class AppService implements OnApplicationBootstrap {
         candles = await gateioFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
 
         if (typeof candles === 'string') {
-          if (candles.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase())) {
+          if (
+            candles.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase()) ||
+            candles.toLowerCase().includes('INVALID_CURRENCY'.toLowerCase())
+          ) {
             Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
             await this.disableMarket({ exchangeId, symbolId });
           }
