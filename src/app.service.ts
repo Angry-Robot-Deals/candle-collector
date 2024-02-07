@@ -84,7 +84,7 @@ export class AppService implements OnApplicationBootstrap {
         symbol: `${coin.coin}/USDT`,
         timeframe: TIMEFRAME.M1,
         limit: 1000,
-        start: new Date('2024-01-01T00:00:00.000Z').getTime(),
+        start: new Date('2023-01-01T00:00:00.000Z').getTime(),
       });
 
       if (typeof candles === 'string') {
