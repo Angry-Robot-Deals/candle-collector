@@ -23,26 +23,28 @@ model TopCoin {
 }
 
 model Symbol {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  disabled    Boolean  @default(false)
-  Candle      Candle[]
-  CandleD1    CandleD1[]
-  Market      Market[]
-  ATHL        ATHL[]
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  disabled        Boolean  @default(false)
+  ExportCandle    ExportCandle[]
+  Candle          Candle[]
+  CandleD1        CandleD1[]
+  Market          Market[]
+  ATHL            ATHL[]
 }
 
 model Exchange {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  apiUri      String?
-  candlesUri  String?
-  disabled    Boolean  @default(false)
-  priority    Int      @default(999)
-  Candle      Candle[]
-  CandleD1    CandleD1[]
-  Market      Market[]
-  ATHL        ATHL[]
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  apiUri          String?
+  candlesUri      String?
+  disabled        Boolean  @default(false)
+  priority        Int      @default(999)
+  ExportCandle    ExportCandle[]
+  Candle          Candle[]
+  CandleD1        CandleD1[]
+  Market          Market[]
+  ATHL            ATHL[]
 }
 
 model Market {
@@ -65,7 +67,6 @@ model Candle {
   id         Int      @id @default(autoincrement())
   symbolId   Int
   exchangeId Int
-  timeframe  String
   time       DateTime
   open       Float
   high       Float
@@ -73,11 +74,28 @@ model Candle {
   close      Float
   volume     Float
   trades     Int      @default(0)
+  tf         Int      @default(1)
   exchange   Exchange @relation(fields: [exchangeId], references: [id])
   symbol     Symbol   @relation(fields: [symbolId], references: [id])
 
-  @@unique([symbolId, exchangeId, timeframe, time])
-  @@index([symbolId, exchangeId, timeframe])
+  @@unique([symbolId, exchangeId, tf, time])
+  @@index([symbolId, exchangeId, tf])
+  @@index([symbolId, exchangeId])
+  @@index([time])
+}
+
+model ExportCandle {
+  id         Int      @id @default(autoincrement())
+  symbolId   Int
+  exchangeId Int
+  tf         Int
+  time       DateTime
+  till       DateTime
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+
+  @@unique([symbolId, exchangeId, tf, time])
+  @@index([symbolId, exchangeId, tf])
   @@index([symbolId, exchangeId])
   @@index([time])
 }

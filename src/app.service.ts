@@ -29,7 +29,7 @@ import { isCorrectSymbol, mapLimit } from './utils';
 import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
-import { timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
+import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
 import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
@@ -84,6 +84,7 @@ export class AppService implements OnApplicationBootstrap {
         symbol: `${coin.coin}/USDT`,
         timeframe: TIMEFRAME.M1,
         limit: 1000,
+        start: new Date('2024-01-01T00:00:00.000Z').getTime(),
       });
 
       if (typeof candles === 'string') {
@@ -104,7 +105,7 @@ export class AppService implements OnApplicationBootstrap {
           ? await this.saveExchangeCandles({
               exchangeId,
               symbolId,
-              timeframe: TIMEFRAME.M1,
+              tf: timeframeMinutes(TIMEFRAME.M1),
               candles,
             })
           : { saved: 0 };
@@ -492,8 +493,8 @@ export class AppService implements OnApplicationBootstrap {
     return `Works ${process.uptime()} ms`;
   }
 
-  async getMaxTimestamp(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
-    const { exchangeId, symbolId, timeframe } = body;
+  async getMaxTimestamp(body: { exchangeId: number; symbolId: number; tf: number }): Promise<Date | null> {
+    const { exchangeId, symbolId, tf } = body;
     try {
       const maxTimestamp = await this.prisma.candle.findFirst({
         select: {
@@ -502,7 +503,7 @@ export class AppService implements OnApplicationBootstrap {
         where: {
           exchangeId,
           symbolId,
-          timeframe,
+          tf,
         },
         orderBy: {
           time: 'desc',
@@ -700,10 +701,10 @@ export class AppService implements OnApplicationBootstrap {
   async saveExchangeCandles(data: {
     exchangeId: number;
     symbolId: number;
-    timeframe: string;
+    tf: number;
     candles: CandleDb[];
   }): Promise<any> {
-    const { exchangeId, symbolId, timeframe, candles } = data;
+    const { exchangeId, symbolId, tf, candles } = data;
 
     if (!candles?.length) {
       return { empty: true };
@@ -716,7 +717,7 @@ export class AppService implements OnApplicationBootstrap {
         where: {
           exchangeId,
           symbolId,
-          timeframe,
+          tf,
           time: {
             in: timestamps,
           },
@@ -727,7 +728,7 @@ export class AppService implements OnApplicationBootstrap {
         ...candle,
         exchangeId,
         symbolId,
-        timeframe,
+        tf,
       }));
 
       return this.prisma.candle.createMany({
@@ -1007,7 +1008,7 @@ export class AppService implements OnApplicationBootstrap {
         maxTimestamp = await this.getMaxTimestamp({
           exchangeId,
           symbolId,
-          timeframe,
+          tf: timeframeMinutes(timeframe),
         });
         if (maxTimestamp) {
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
