@@ -3,7 +3,7 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import * as ccxt from 'ccxt';
 import { Market as ExchangeMarket } from 'ccxt';
 import { Exchange as ExchangeModel, Symbol as SymbolModel } from '@prisma/client';
-import * as topCoins from '../data/coins-top-300.json';
+import * as topCoins from '../data/coins-top-500.json';
 import {
   binanceFetchCandles,
   binanceFindFirstCandle,

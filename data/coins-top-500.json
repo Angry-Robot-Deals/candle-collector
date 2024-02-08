@@ -1,0 +1,5002 @@
+[
+  [
+    "BTC",
+    "Bitcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png",
+    "$45,202.18",
+    "19,622,181 BTC",
+    "$887,012,357,502",
+    "617,612 BTC",
+    "$27,902,012,173"
+  ],
+  [
+    "ETH",
+    "Ethereum",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+    "$2,429.43",
+    "120,180,273 ETH",
+    "$291,976,320,846",
+    "4,410,674 ETH",
+    "$10,710,618,032"
+  ],
+  [
+    "USDT",
+    "Tether USDt",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
+    "$0.9997",
+    "96,186,132,537 USDT",
+    "$96,164,618,459",
+    "44,022,234,956 USDT",
+    "$44,013,492,411"
+  ],
+  [
+    "BNB",
+    "BNB",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png",
+    "$316.98",
+    "149,545,816 BNB",
+    "$47,404,055,233",
+    "3,742,755 BNB",
+    "$1,185,293,089"
+  ],
+  [
+    "SOL",
+    "Solana",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png",
+    "$102.70",
+    "436,863,818 SOL",
+    "$44,866,053,301",
+    "25,880,553 SOL",
+    "$2,655,551,172"
+  ],
+  [
+    "XRP",
+    "XRP",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/52.png",
+    "$0.5159",
+    "54,436,190,886 XRP",
+    "$28,151,846,285",
+    "1,890,675,212 XRP",
+    "$977,585,718"
+  ],
+  [
+    "USDC",
+    "USDC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png",
+    "$0.9999",
+    "27,520,150,027 USDC",
+    "$27,593,019,300",
+    "6,588,461,341 USDC",
+    "$6,587,050,639"
+  ],
+  [
+    "ADA",
+    "Cardano",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png",
+    "$0.5283",
+    "35,438,922,437 ADA",
+    "$18,658,651,074",
+    "1,322,563,609 ADA",
+    "$695,821,992"
+  ],
+  [
+    "AVAX",
+    "Avalanche",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png",
+    "$35.85",
+    "367,457,247 AVAX",
+    "$13,048,232,807",
+    "15,101,309 AVAX",
+    "$535,561,497"
+  ],
+  [
+    "DOGE",
+    "Dogecoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/74.png",
+    "$0.08043",
+    "142,990,006,384 DOGE",
+    "$11,486,986,054",
+    "3,320,997,527 DOGE",
+    "$266,656,153"
+  ],
+  [
+    "TRX",
+    "TRON",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1958.png",
+    "$0.1223",
+    "88,090,706,411 TRX",
+    "$10,774,579,341",
+    "2,726,282,960 TRX",
+    "$333,260,736"
+  ],
+  [
+    "LINK",
+    "Chainlink",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1975.png",
+    "$18.18",
+    "587,099,970 LINK",
+    "$10,670,736,533",
+    "35,650,905 LINK",
+    "$646,761,606"
+  ],
+  [
+    "DOT",
+    "Polkadot",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6636.png",
+    "$7.00",
+    "1,276,581,749 DOT",
+    "$8,980,652,689",
+    "31,794,855 DOT",
+    "$223,491,244"
+  ],
+  [
+    "MATIC",
+    "Polygon",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3890.png",
+    "$0.8332",
+    "9,610,751,551 MATIC",
+    "$8,072,780,105",
+    "383,011,469 MATIC",
+    "$321,563,143"
+  ],
+  [
+    "TON",
+    "Toncoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11419.png",
+    "$2.07",
+    "3,458,151,023 TON",
+    "$7,145,021,532",
+    "15,063,960 TON",
+    "$31,103,841"
+  ],
+  [
+    "ICP",
+    "Internet Computer",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8916.png",
+    "$12.34",
+    "457,790,645 ICP",
+    "$5,620,340,150",
+    "9,237,523 ICP",
+    "$113,297,016"
+  ],
+  [
+    "SHIB",
+    "Shiba Inu",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5994.png",
+    "$0.000009206",
+    "589,290,019,366,697 SHIB",
+    "$5,425,230,623",
+    "17,233,511,960,204 SHIB",
+    "$158,648,851"
+  ],
+  [
+    "DAI",
+    "Dai",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png",
+    "$0.9999",
+    "5,347,888,596 DAI",
+    "$5,348,039,726",
+    "127,197,983 DAI",
+    "$127,188,754"
+  ],
+  [
+    "LTC",
+    "Litecoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2.png",
+    "$68.87",
+    "74,184,013 LTC",
+    "$5,108,503,550",
+    "3,827,725 LTC",
+    "$263,499,757"
+  ],
+  [
+    "BCH",
+    "Bitcoin Cash",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1831.png",
+    "$243.94",
+    "19,636,369 BCH",
+    "$4,789,708,058",
+    "735,823 BCH",
+    "$179,461,348"
+  ],
+  [
+    "UNI",
+    "Uniswap",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7083.png",
+    "$6.35",
+    "598,187,016 UNI",
+    "$3,800,317,579",
+    "11,186,980 UNI",
+    "$71,046,550"
+  ],
+  [
+    "LEO",
+    "UNUS SED LEO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3957.png",
+    "$4.08",
+    "927,632,498 LEO",
+    "$3,779,138,336",
+    "215,973 LEO",
+    "$879,131"
+  ],
+  [
+    "ETC",
+    "Ethereum Classic",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1321.png",
+    "$25.53",
+    "145,452,419 ETC",
+    "$3,712,625,138",
+    "7,505,185 ETC",
+    "$191,357,317"
+  ],
+  [
+    "ATOM",
+    "Cosmos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3794.png",
+    "$9.57",
+    "385,880,129 ATOM",
+    "$3,693,710,393",
+    "15,170,208 ATOM",
+    "$145,142,150"
+  ],
+  [
+    "TIA",
+    "Celestia",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22861.png",
+    "$20.36",
+    "162,961,336 TIA",
+    "$3,318,343,369",
+    "14,884,412 TIA",
+    "$302,451,823"
+  ],
+  [
+    "OP",
+    "Optimism",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11840.png",
+    "$3.34",
+    "957,378,568 OP",
+    "$3,195,495,464",
+    "68,201,932 OP",
+    "$227,110,133"
+  ],
+  [
+    "XLM",
+    "Stellar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/512.png",
+    "$0.1092",
+    "28,379,332,063 XLM",
+    "$3,099,769,661",
+    "610,844,938 XLM",
+    "$66,680,754"
+  ],
+  [
+    "IMX",
+    "Immutable",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10603.png",
+    "$2.25",
+    "1,355,429,364 IMX",
+    "$3,053,138,938",
+    "35,576,721 IMX",
+    "$80,049,278"
+  ],
+  [
+    "NEAR",
+    "NEAR Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6535.png",
+    "$2.92",
+    "1,033,454,918 NEAR",
+    "$3,022,803,329",
+    "60,788,798 NEAR",
+    "$177,457,511"
+  ],
+  [
+    "APT",
+    "Aptos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21794.png",
+    "$8.79",
+    "339,090,483 APT",
+    "$2,981,304,538",
+    "11,395,710 APT",
+    "$100,196,097"
+  ],
+  [
+    "OKB",
+    "OKB",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3897.png",
+    "$49.28",
+    "60,000,000 OKB",
+    "$2,958,149,940",
+    "150,686 OKB",
+    "$7,415,243"
+  ],
+  [
+    "INJ",
+    "Injective",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7226.png",
+    "$33.01",
+    "88,392,222 INJ",
+    "$2,919,091,298",
+    "4,164,619 INJ",
+    "$137,341,787"
+  ],
+  [
+    "KAS",
+    "Kaspa",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20396.png",
+    "$0.1245",
+    "22,615,254,257 KAS",
+    "$2,815,668,206",
+    "615,310,354 KAS",
+    "$76,482,027"
+  ],
+  [
+    "FDUSD",
+    "First Digital USD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/26081.png",
+    "$1.00",
+    "2,681,150,854 FDUSD",
+    "$2,688,632,012",
+    "5,840,182,368 FDUSD",
+    "$5,855,620,533"
+  ],
+  [
+    "FIL",
+    "Filecoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2280.png",
+    "$5.21",
+    "506,008,697 FIL",
+    "$2,638,367,031",
+    "21,355,525 FIL",
+    "$111,228,850"
+  ],
+  [
+    "STX",
+    "Stacks",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4847.png",
+    "$1.81",
+    "1,438,395,237 STX",
+    "$2,599,091,245",
+    "153,825,577 STX",
+    "$278,189,530"
+  ],
+  [
+    "HBAR",
+    "Hedera",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4642.png",
+    "$0.07643",
+    "33,665,267,274 HBAR",
+    "$2,572,776,376",
+    "1,040,263,182 HBAR",
+    "$79,392,352"
+  ],
+  [
+    "LDO",
+    "Lido DAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8000.png",
+    "$2.86",
+    "890,926,717 LDO",
+    "$2,545,802,678",
+    "28,586,134 LDO",
+    "$81,645,682"
+  ],
+  [
+    "ARB",
+    "Arbitrum",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11841.png",
+    "$1.88",
+    "1,275,000,000 ARB",
+    "$2,392,754,803",
+    "235,580,028 ARB",
+    "$441,647,504"
+  ],
+  [
+    "XMR",
+    "Monero",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/328.png",
+    "$123.90",
+    "18,395,140 XMR",
+    "$2,279,054,409",
+    "1,043,928 XMR",
+    "$129,049,303"
+  ],
+  [
+    "CRO",
+    "Cronos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3635.png",
+    "$0.08525",
+    "25,263,013,692 CRO",
+    "$2,153,837,759",
+    "110,862,222 CRO",
+    "$9,433,403"
+  ],
+  [
+    "VET",
+    "VeChain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3077.png",
+    "$0.02885",
+    "72,714,516,834 VET",
+    "$2,097,289,393",
+    "1,189,815,770 VET",
+    "$34,304,559"
+  ],
+  [
+    "MNT",
+    "Mantle",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27075.png",
+    "$0.6116",
+    "3,166,917,893 MNT",
+    "$1,937,163,624",
+    "158,626,240 MNT",
+    "$96,875,711"
+  ],
+  [
+    "MKR",
+    "Maker",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1518.png",
+    "$1,934.45",
+    "922,863 MKR",
+    "$1,785,137,289",
+    "23,277 MKR",
+    "$45,029,779"
+  ],
+  [
+    "SUI",
+    "Sui",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20947.png",
+    "$1.51",
+    "1,165,931,966 SUI",
+    "$1,763,342,626",
+    "222,328,877 SUI",
+    "$335,740,981"
+  ],
+  [
+    "RNDR",
+    "Render",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5690.png",
+    "$4.43",
+    "376,146,336 RNDR",
+    "$1,667,648,325",
+    "18,166,113 RNDR",
+    "$80,448,408"
+  ],
+  [
+    "RUNE",
+    "THORChain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4157.png",
+    "$4.72",
+    "339,784,582 RUNE",
+    "$1,604,471,050",
+    "36,149,300 RUNE",
+    "$170,575,124"
+  ],
+  [
+    "SEI",
+    "Sei",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23149.png",
+    "$0.6411",
+    "2,425,000,000 SEI",
+    "$1,554,721,880",
+    "449,191,238 SEI",
+    "$287,852,335"
+  ],
+  [
+    "GRT",
+    "The Graph",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6719.png",
+    "$0.1617",
+    "9,391,735,931 GRT",
+    "$1,519,580,144",
+    "302,880,187 GRT",
+    "$48,962,481"
+  ],
+  [
+    "BSV",
+    "Bitcoin SV",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3602.png",
+    "$76.43",
+    "19,629,225 BSV",
+    "$1,500,434,234",
+    "1,161,188 BSV",
+    "$88,776,593"
+  ],
+  [
+    "TUSD",
+    "TrueUSD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2563.png",
+    "$0.9824",
+    "1,488,456,472 TUSD",
+    "$1,462,206,496",
+    "111,085,119 TUSD",
+    "$109,085,546"
+  ],
+  [
+    "EGLD",
+    "MultiversX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6892.png",
+    "$53.88",
+    "26,552,375 EGLD",
+    "$1,430,781,612",
+    "932,731 EGLD",
+    "$50,278,111"
+  ],
+  [
+    "ALGO",
+    "Algorand",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4030.png",
+    "$0.1686",
+    "8,046,255,767 ALGO",
+    "$1,357,151,455",
+    "215,033,458 ALGO",
+    "$36,253,630"
+  ],
+  [
+    "ORDI",
+    "ORDI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/25028.png",
+    "$60.75",
+    "21,000,000 ORDI",
+    "$1,275,581,997",
+    "4,568,239 ORDI",
+    "$277,061,130"
+  ],
+  [
+    "AAVE",
+    "Aave",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7278.png",
+    "$85.41",
+    "14,729,846 AAVE",
+    "$1,258,052,225",
+    "1,620,494 AAVE",
+    "$138,311,048"
+  ],
+  [
+    "QNT",
+    "Quant",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3155.png",
+    "$103.40",
+    "12,072,738 QNT",
+    "$1,248,331,415",
+    "157,577 QNT",
+    "$16,283,577"
+  ],
+  [
+    "MINA",
+    "Mina",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8646.png",
+    "$1.19",
+    "1,048,753,382 MINA",
+    "$1,244,503,909",
+    "47,301,910 MINA",
+    "$56,072,735"
+  ],
+  [
+    "FLOW",
+    "Flow",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4558.png",
+    "$0.7891",
+    "1,487,858,625 FLOW",
+    "$1,174,019,127",
+    "57,461,803 FLOW",
+    "$45,122,554"
+  ],
+  [
+    "DYM",
+    "Dymension",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28932.png",
+    "$7.83",
+    "146,000,000 DYM",
+    "$1,142,971,950",
+    "68,540,137 DYM",
+    "$534,595,457"
+  ],
+  [
+    "HNT",
+    "Helium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5665.png",
+    "$7.04",
+    "160,875,442 HNT",
+    "$1,133,617,583",
+    "1,413,297 HNT",
+    "$9,926,583"
+  ],
+  [
+    "FTM",
+    "Fantom",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3513.png",
+    "$0.3703",
+    "2,803,634,836 FTM",
+    "$1,038,910,862",
+    "128,808,828 FTM",
+    "$47,692,696"
+  ],
+  [
+    "SNX",
+    "Synthetix",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2586.png",
+    "$3.37",
+    "304,566,584 SNX",
+    "$1,027,718,026",
+    "9,311,958 SNX",
+    "$31,399,319"
+  ],
+  [
+    "SAND",
+    "The Sandbox",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6210.png",
+    "$0.4502",
+    "2,237,731,926 SAND",
+    "$1,007,312,990",
+    "177,982,661 SAND",
+    "$80,072,797"
+  ],
+  [
+    "ASTR",
+    "Astar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12885.png",
+    "$0.1788",
+    "5,562,814,330 ASTR",
+    "$994,978,194",
+    "113,485,309 ASTR",
+    "$20,282,644"
+  ],
+  [
+    "BTT",
+    "BitTorrent (New)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/16086.png",
+    "$0.000001025",
+    "968,246,428,571,000 BTT",
+    "$992,754,742",
+    "122,517,391,413,980 BTT",
+    "$125,718,281"
+  ],
+  [
+    "THETA",
+    "Theta Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2416.png",
+    "$0.9901",
+    "1,000,000,000 THETA",
+    "$990,089,451",
+    "14,152,422 THETA",
+    "$14,004,117"
+  ],
+  [
+    "AXS",
+    "Axie Infinity",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6783.png",
+    "$7.21",
+    "137,110,589 AXS",
+    "$988,883,915",
+    "7,917,070 AXS",
+    "$57,042,542"
+  ],
+  [
+    "XTZ",
+    "Tezos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2011.png",
+    "$1.01",
+    "970,173,693 XTZ",
+    "$977,376,490",
+    "20,673,094 XTZ",
+    "$20,805,567"
+  ],
+  [
+    "FLR",
+    "Flare",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7950.png",
+    "$0.0297",
+    "32,655,282,669 FLR",
+    "$969,645,507",
+    "897,369,106 FLR",
+    "$26,537,020"
+  ],
+  [
+    "BEAM",
+    "Beam",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28298.png",
+    "$0.01857",
+    "51,167,704,957 BEAM",
+    "$950,290,465",
+    "1,450,092,369 BEAM",
+    "$26,896,743"
+  ],
+  [
+    "KCS",
+    "KuCoin Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2087.png",
+    "$9.83",
+    "96,496,827 KCS",
+    "$948,269,102",
+    "146,765 KCS",
+    "$1,442,377"
+  ],
+  [
+    "1000SATS",
+    "SATS",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28683.png",
+    "$0.0004443",
+    "2,100,000,000,000 1000SATS",
+    "$931,777,670",
+    "93,023,089,412 1000SATS",
+    "$41,234,346"
+  ],
+  [
+    "CHZ",
+    "Chiliz",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4066.png",
+    "$0.1013",
+    "8,888,290,622 CHZ",
+    "$899,967,639",
+    "430,020,486 CHZ",
+    "$43,392,815"
+  ],
+  [
+    "BGB",
+    "Bitget Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11092.png",
+    "$0.6329",
+    "1,400,000,000 BGB",
+    "$885,935,291",
+    "23,016,972 BGB",
+    "$14,605,823"
+  ],
+  [
+    "ETHDYDX",
+    "dYdX (ethDYDX)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11156.png",
+    "$2.80",
+    "309,204,656 ETHDYDX",
+    "$866,107,894",
+    "17,571,990 ETHDYDX",
+    "$49,183,911"
+  ],
+  [
+    "MANA",
+    "Decentraland",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1966.png",
+    "$0.4508",
+    "1,893,095,371 MANA",
+    "$853,490,434",
+    "133,217,234 MANA",
+    "$59,980,131"
+  ],
+  [
+    "CFX",
+    "Conflux",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7334.png",
+    "$0.2246",
+    "3,743,660,265 CFX",
+    "$840,892,972",
+    "325,865,035 CFX",
+    "$73,062,704"
+  ],
+  [
+    "OSMO",
+    "Osmosis",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12220.png",
+    "$1.66",
+    "492,590,761 OSMO",
+    "$819,998,723",
+    "30,178,879 OSMO",
+    "$50,266,668"
+  ],
+  [
+    "NEO",
+    "Neo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1376.png",
+    "$11.60",
+    "70,538,831 NEO",
+    "$817,978,794",
+    "2,401,647 NEO",
+    "$27,833,539"
+  ],
+  [
+    "BLUR",
+    "Blur",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23121.png",
+    "$0.6288",
+    "1,296,737,632 BLUR",
+    "$815,275,129",
+    "190,814,966 BLUR",
+    "$120,313,179"
+  ],
+  [
+    "EOS",
+    "EOS",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1765.png",
+    "$0.7189",
+    "1,116,648,342 EOS",
+    "$802,801,181",
+    "128,317,178 EOS",
+    "$92,232,337"
+  ],
+  [
+    "WEMIX",
+    "WEMIX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7548.png",
+    "$2.22",
+    "361,655,524 WEMIX",
+    "$802,697,431",
+    "1,671,957 WEMIX",
+    "$3,689,526"
+  ],
+  [
+    "KAVA",
+    "Kava",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4846.png",
+    "$0.7193",
+    "1,082,861,773 KAVA",
+    "$778,826,784",
+    "27,517,468 KAVA",
+    "$19,786,910"
+  ],
+  [
+    "ROSE",
+    "Oasis Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7653.png",
+    "$0.1158",
+    "6,713,599,876 ROSE",
+    "$777,355,065",
+    "650,187,761 ROSE",
+    "$75,156,080"
+  ],
+  [
+    "IOTA",
+    "IOTA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1720.png",
+    "$0.2441",
+    "3,133,816,726 IOTA",
+    "$765,063,858",
+    "78,993,276 IOTA",
+    "$19,273,457"
+  ],
+  [
+    "RON",
+    "Ronin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14101.png",
+    "$2.55",
+    "295,560,213 RON",
+    "$754,752,131",
+    "ron 26,221,976",
+    "$67,062,109"
+  ],
+  [
+    "USDD",
+    "USDD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/19891.png",
+    "$0.9964",
+    "725,332,034 USDD",
+    "$722,619,865",
+    "13,303,440 USDD",
+    "$13,258,902"
+  ],
+  [
+    "PYTH",
+    "Pyth Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28177.png",
+    "$0.4795",
+    "1,499,989,237 PYTH",
+    "$719,074,003",
+    "168,275,129 PYTH",
+    "$80,703,979"
+  ],
+  [
+    "JUP",
+    "Jupiter",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/29210.png",
+    "$0.5314",
+    "1,350,000,000 JUP",
+    "$717,425,605",
+    "637,845,290 JUP",
+    "$338,684,249"
+  ],
+  [
+    "KLAY",
+    "Klaytn",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4256.png",
+    "$0.2053",
+    "3,488,802,905 KLAY",
+    "$716,125,326",
+    "67,405,420 KLAY",
+    "$13,830,853"
+  ],
+  [
+    "FXS",
+    "Frax Share",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6953.png",
+    "$9.18",
+    "76,653,457 FXS",
+    "$703,818,439",
+    "4,747,131 FXS",
+    "$43,570,061"
+  ],
+  [
+    "PENDLE",
+    "Pendle",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9481.png",
+    "$2.91",
+    "238,185,588 PENDLE",
+    "$693,391,214",
+    "34,131,468 PENDLE",
+    "$99,200,291"
+  ],
+  [
+    "MANTA",
+    "Manta Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13631.png",
+    "$2.75",
+    "251,000,000 MANTA",
+    "$691,116,333",
+    "92,209,258 MANTA",
+    "$253,546,462"
+  ],
+  [
+    "WOO",
+    "WOO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7501.png",
+    "$0.3675",
+    "1,823,746,987 WOO",
+    "$670,181,561",
+    "38,997,883 WOO",
+    "$14,302,644"
+  ],
+  [
+    "AKT",
+    "Akash Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7431.png",
+    "$2.92",
+    "227,302,745 AKT",
+    "$662,749,238",
+    "1,319,552 AKT",
+    "$3,865,795"
+  ],
+  [
+    "BONK",
+    "Bonk",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23095.png",
+    "$0.00001043",
+    "63,333,513,043,628 BONK",
+    "$660,226,585",
+    "6,481,512,939,337 BONK",
+    "$67,514,146"
+  ],
+  [
+    "GNO",
+    "Gnosis",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1659.png",
+    "$246.57",
+    "2,589,588 GNO",
+    "$638,550,317",
+    "33,747 GNO",
+    "$8,329,292"
+  ],
+  [
+    "ENS",
+    "Ethereum Name Service",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13855.png",
+    "$20.66",
+    "30,780,597 ENS",
+    "$636,349,957",
+    "5,887,162 ENS",
+    "$121,674,633"
+  ],
+  [
+    "GALA",
+    "Gala",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7080.png",
+    "$0.02276",
+    "27,799,861,148 GALA",
+    "$632,766,058",
+    "1,975,783,579 GALA",
+    "$44,919,714"
+  ],
+  [
+    "XEC",
+    "eCash",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10791.png",
+    "$0.00003189",
+    "19,629,585,923,092 XEC",
+    "$625,926,247",
+    "2,530,597,941,001 XEC",
+    "$80,619,555"
+  ],
+  [
+    "LUNC",
+    "Terra Classic",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4172.png",
+    "$0.0001081",
+    "5,777,841,956,343 LUNC",
+    "$624,066,389",
+    "514,177,772,535 LUNC",
+    "$55,462,677"
+  ],
+  [
+    "AXL",
+    "Axelar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17799.png",
+    "$1.05",
+    "560,430,460 AXL",
+    "$591,822,682",
+    "10,653,084 AXL",
+    "$11,232,377"
+  ],
+  [
+    "XDC",
+    "XDC Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2634.png",
+    "$0.04287",
+    "13,896,935,878 XDC",
+    "$590,940,560",
+    "652,299,354 XDC",
+    "$27,698,175"
+  ],
+  [
+    "RPL",
+    "Rocket Pool",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2943.png",
+    "$29.17",
+    "20,066,401 RPL",
+    "$585,345,686",
+    "160,734 RPL",
+    "$4,699,620"
+  ],
+  [
+    "CAKE",
+    "PancakeSwap",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7186.png",
+    "$2.49",
+    "232,598,361 CAKE",
+    "$579,718,824",
+    "27,517,803 CAKE",
+    "$68,552,160"
+  ],
+  [
+    "AR",
+    "Arweave",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5632.png",
+    "$8.39",
+    "65,454,185 AR",
+    "$549,348,706",
+    "1,611,723 AR",
+    "$13,521,467"
+  ],
+  [
+    "CRV",
+    "Curve DAO Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6538.png",
+    "$0.4821",
+    "1,101,740,685 CRV",
+    "$530,996,184",
+    "72,356,219 CRV",
+    "$34,849,340"
+  ],
+  [
+    "FTT",
+    "FTX Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4195.png",
+    "$1.61",
+    "328,895,104 FTT",
+    "$526,955,078",
+    "11,830,485 FTT",
+    "$18,946,625"
+  ],
+  [
+    "APE",
+    "ApeCoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18876.png",
+    "$1.40",
+    "368,593,750 APE",
+    "$516,570,196",
+    "28,032,724 APE",
+    "$39,275,220"
+  ],
+  [
+    "NEXO",
+    "Nexo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2694.png",
+    "$0.9181",
+    "560,000,011 NEXO",
+    "$513,983,001",
+    "4,299,591 NEXO",
+    "$3,945,309"
+  ],
+  [
+    "XAUt",
+    "Tether Gold",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5176.png",
+    "$2,035.82",
+    "246,524 XAUt",
+    "$500,854,990",
+    "2,048 XAUT",
+    "$4,160,871"
+  ],
+  [
+    "SC",
+    "Siacoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1042.png",
+    "$0.00864",
+    "56,423,821,224 SC",
+    "$487,432,324",
+    "723,177,582 SC",
+    "$6,250,487"
+  ],
+  [
+    "TWT",
+    "Trust Wallet Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5964.png",
+    "$1.15",
+    "416,649,900 TWT",
+    "$479,543,202",
+    "10,804,382 TWT",
+    "$12,449,003"
+  ],
+  [
+    "FET",
+    "Fetch.ai",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3773.png",
+    "$0.5591",
+    "831,553,822 FET",
+    "$465,505,414",
+    "71,930,394 FET",
+    "$40,189,707"
+  ],
+  [
+    "1INCH",
+    "1inch Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8104.png",
+    "$0.4071",
+    "1,141,189,314 1INCH",
+    "$464,640,841",
+    "61,478,818 1INCH",
+    "$25,013,567"
+  ],
+  [
+    "GT",
+    "GateToken",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4269.png",
+    "$4.79",
+    "96,486,960 GT",
+    "$462,009,852",
+    "287,820 GT",
+    "$1,377,121"
+  ],
+  [
+    "METIS",
+    "Metis",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9640.png",
+    "$84.80",
+    "5,250,547 METIS",
+    "$445,545,543",
+    "245,437 METIS",
+    "$20,804,955"
+  ],
+  [
+    "CORE",
+    "Core",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23254.png",
+    "$0.5105",
+    "864,517,382 CORE",
+    "$441,666,380",
+    "19,860,333 CORE",
+    "$10,140,804"
+  ],
+  [
+    "NFT",
+    "APENFT",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9816.png",
+    "$0.0...04385",
+    "990,105,682,877,398 NFT",
+    "$434,225,592",
+    "75,541,314,502,384 NFT",
+    "$33,129,205"
+  ],
+  [
+    "COMP",
+    "Compound",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5692.png",
+    "$53.72",
+    "8,071,632 COMP",
+    "$433,621,063",
+    "541,806 COMP",
+    "$29,077,716"
+  ],
+  [
+    "LUNA",
+    "Terra",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20314.png",
+    "$0.6617",
+    "653,648,820 LUNA",
+    "$432,514,040",
+    "81,394,096 LUNA",
+    "$53,866,435"
+  ],
+  [
+    "GMX",
+    "GMX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11857.png",
+    "$45.11",
+    "9,422,758 GMX",
+    "$424,891,418",
+    "253,688 GMX",
+    "$11,436,072"
+  ],
+  [
+    "ELF",
+    "aelf",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2299.png",
+    "$0.5845",
+    "715,063,903 ELF",
+    "$418,041,032",
+    "9,156,745 ELF",
+    "$5,351,573"
+  ],
+  [
+    "BTG",
+    "Bitcoin Gold",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2083.png",
+    "$23.79",
+    "17,513,924 BTG",
+    "$416,719,243",
+    "1,013,925 BTG",
+    "$24,128,884"
+  ],
+  [
+    "PAXG",
+    "PAX Gold",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4705.png",
+    "$2,009.78",
+    "205,758 PAXG",
+    "$413,682,469",
+    "4,041 PAXG",
+    "$8,121,563"
+  ],
+  [
+    "GMT",
+    "GMT",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18069.png",
+    "$0.2451",
+    "1,668,426,522 GMT",
+    "$408,939,144",
+    "135,148,079 GMT",
+    "$33,110,071"
+  ],
+  [
+    "CSPR",
+    "Casper",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5899.png",
+    "$0.03476",
+    "11,779,378,223 CSPR",
+    "$408,282,633",
+    "159,250,420 CSPR",
+    "$5,512,592"
+  ],
+  [
+    "PEPE",
+    "Pepe",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24478.png",
+    "$0.0...09626",
+    "420,689,899,999,995 PEPE",
+    "$404,973,694",
+    "91,054,370,201,758 PEPE",
+    "$87,679,707"
+  ],
+  [
+    "XRD",
+    "Radix",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11948.png",
+    "$0.03895",
+    "10,368,609,082 XRD",
+    "$403,963,629",
+    "62,893,425 XRD",
+    "$2,449,113"
+  ],
+  [
+    "IOTX",
+    "IoTeX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2777.png",
+    "$0.04276",
+    "9,441,378,955 IOTX",
+    "$403,680,981",
+    "166,758,624 IOTX",
+    "$7,119,275"
+  ],
+  [
+    "HT",
+    "Huobi Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2502.png",
+    "$2.46",
+    "162,233,844 HT",
+    "$398,984,671",
+    "3,996,152 HT",
+    "$9,828,623"
+  ],
+  [
+    "ENJ",
+    "Enjin Coin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2130.png",
+    "$0.289",
+    "1,379,841,766 ENJ",
+    "$399,665,455",
+    "42,299,224 ENJ",
+    "$12,219,275"
+  ],
+  [
+    "GAS",
+    "Gas",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1785.png",
+    "$5.73",
+    "66,369,299 GAS",
+    "$380,404,538",
+    "1,972,724 GAS",
+    "$11,301,150"
+  ],
+  [
+    "CELO",
+    "Celo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5567.png",
+    "$0.718",
+    "527,877,912 CELO",
+    "$379,337,063",
+    "19,141,484 CELO",
+    "$13,741,525"
+  ],
+  [
+    "SKL",
+    "SKALE",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5691.png",
+    "$0.07346",
+    "5,156,686,004 SKL",
+    "$378,766,066",
+    "201,331,279 SKL",
+    "$14,774,099"
+  ],
+  [
+    "ALT",
+    "Altlayer",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/29073.png",
+    "$0.339",
+    "1,100,000,000 ALT",
+    "$373,064,842",
+    "556,136,331 ALT",
+    "$188,665,029"
+  ],
+  [
+    "AGIX",
+    "SingularityNET",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2424.png",
+    "$0.2915",
+    "1,252,819,800 AGIX",
+    "$365,552,594",
+    "90,161,592 AGIX",
+    "$26,270,173"
+  ],
+  [
+    "ZIL",
+    "Zilliqa",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2469.png",
+    "$0.02039",
+    "17,372,203,179 ZIL",
+    "$354,243,565",
+    "637,420,122 ZIL",
+    "$12,981,784"
+  ],
+  [
+    "USDP",
+    "Pax Dollar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3330.png",
+    "$0.9986",
+    "352,851,006 USDP",
+    "$352,796,764",
+    "1,372,557 USDP",
+    "$1,372,254"
+  ],
+  [
+    "KSM",
+    "Kusama",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5034.png",
+    "$40.79",
+    "8,470,098 KSM",
+    "$345,533,921",
+    "585,469 KSM",
+    "$23,844,117"
+  ],
+  [
+    "DESO",
+    "Decentralized Social",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10442.png",
+    "$38.30",
+    "8,884,536 DESO",
+    "$340,511,241",
+    "72,022 DESO",
+    "$2,755,686"
+  ],
+  [
+    "ZEC",
+    "Zcash",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1437.png",
+    "$20.76",
+    "16,328,269 ZEC",
+    "$338,574,803",
+    "2,344,218 ZEC",
+    "$48,628,276"
+  ],
+  [
+    "MASK",
+    "Mask Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8536.png",
+    "$3.46",
+    "96,025,000 MASK",
+    "$332,240,540",
+    "19,030,802 MASK",
+    "$65,797,606"
+  ],
+  [
+    "BAT",
+    "Basic Attention Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1697.png",
+    "$0.2225",
+    "1,490,413,701 BAT",
+    "$331,627,655",
+    "55,444,372 BAT",
+    "$12,334,866"
+  ],
+  [
+    "HOT",
+    "Holo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2682.png",
+    "$0.001914",
+    "172,836,322,183 HOT",
+    "$330,728,016",
+    "12,936,158,240 HOT",
+    "$24,758,290"
+  ],
+  [
+    "MAGIC",
+    "Treasure",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14783.png",
+    "$1.24",
+    "258,883,735 MAGIC",
+    "$321,633,455",
+    "54,183,375 MAGIC",
+    "$67,203,598"
+  ],
+  [
+    "ONDO",
+    "Ondo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21159.png",
+    "$0.2331",
+    "1,382,685,493 ONDO",
+    "$321,168,260",
+    "369,963,215 ONDO",
+    "$85,801,166"
+  ],
+  [
+    "GLMR",
+    "Moonbeam",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6836.png",
+    "$0.3851",
+    "827,137,649 GLMR",
+    "$318,348,804",
+    "16,931,883 GLMR",
+    "$6,516,618"
+  ],
+  [
+    "LRC",
+    "Loopring",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1934.png",
+    "$0.2326",
+    "1,366,646,304 LRC",
+    "$317,720,603",
+    "57,953,831 LRC",
+    "$13,476,267"
+  ],
+  [
+    "UMA",
+    "UMA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5617.png",
+    "$4.04",
+    "78,288,046 UMA",
+    "$315,919,144",
+    "8,572,586 UMA",
+    "$34,499,850"
+  ],
+  [
+    "XEM",
+    "NEM",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/873.png",
+    "$0.03479",
+    "8,999,999,999 XEM",
+    "$313,249,440",
+    "181,197,413 XEM",
+    "$6,303,168"
+  ],
+  [
+    "SUPER",
+    "SuperVerse",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8290.png",
+    "$0.6403",
+    "487,776,093 SUPER",
+    "$312,289,346",
+    "18,110,943 SUPER",
+    "$11,600,445"
+  ],
+  [
+    "DASH",
+    "Dash",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/131.png",
+    "$26.71",
+    "11,660,294 DASH",
+    "$311,614,396",
+    "1,529,506 DASH",
+    "$40,842,680"
+  ],
+  [
+    "QTUM",
+    "Qtum",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1684.png",
+    "$2.94",
+    "104,755,842 QTUM",
+    "$307,642,701",
+    "11,565,238 QTUM",
+    "$33,957,432"
+  ],
+  [
+    "PYUSD",
+    "PayPal USD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27772.png",
+    "$0.9979",
+    "301,175,241 PYUSD",
+    "$300,869,566",
+    "13,320,879 PYUSD",
+    "$13,304,143"
+  ],
+  [
+    "XCH",
+    "Chia",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9258.png",
+    "$30.46",
+    "9,833,860 XCH",
+    "$299,739,621",
+    "149,329 XCH",
+    "$4,546,744"
+  ],
+  [
+    "NTRN",
+    "Neutron",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/26680.png",
+    "$1.08",
+    "278,772,725 NTRN",
+    "$299,467,205",
+    "13,363,940 NTRN",
+    "$14,330,649"
+  ],
+  [
+    "MX",
+    "MX TOKEN",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4041.png",
+    "$3.00",
+    "98,959,034 MX",
+    "$297,174,966",
+    "1,152,944 MX",
+    "$3,465,198"
+  ],
+  [
+    "WLD",
+    "Worldcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13502.png",
+    "$2.40",
+    "124,122,440 WLD",
+    "$297,558,093",
+    "23,624,460 WLD",
+    "$56,448,855"
+  ],
+  [
+    "ILV",
+    "Illuvium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8719.png",
+    "$78.02",
+    "3,767,377 ILV",
+    "$294,008,933",
+    "182,084 ILV",
+    "$14,201,956"
+  ],
+  [
+    "SFP",
+    "SafePal",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8119.png",
+    "$0.6975",
+    "420,833,333 SFP",
+    "$293,522,149",
+    "7,342,527 SFP",
+    "$5,122,995"
+  ],
+  [
+    "TRB",
+    "Tellor",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4944.png",
+    "$114.52",
+    "2,550,212 TRB",
+    "$292,036,010",
+    "328,783 TRB",
+    "$37,590,106"
+  ],
+  [
+    "ZETA",
+    "ZetaChain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21259.png",
+    "$1.23",
+    "236,468,750 ZETA",
+    "$290,481,081",
+    "54,292,779 ZETA",
+    "$66,673,933"
+  ],
+  [
+    "CVX",
+    "Convex Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9903.png",
+    "$3.10",
+    "93,481,496 CVX",
+    "$289,580,123",
+    "2,122,647 CVX",
+    "$6,583,172"
+  ],
+  [
+    "ETHW",
+    "EthereumPoW",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21296.png",
+    "$2.69",
+    "107,818,999 ETHW",
+    "$289,935,401",
+    "3,072,942 ETHW",
+    "$8,258,637"
+  ],
+  [
+    "SSV",
+    "ssv.network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12999.png",
+    "$28.70",
+    "10,000,000 SSV",
+    "$286,838,542",
+    "608,946 SSV",
+    "$17,471,029"
+  ],
+  [
+    "TRAC",
+    "OriginTrail",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2467.png",
+    "$0.7082",
+    "402,324,425 TRAC",
+    "$284,483,027",
+    "3,363,471 TRAC",
+    "$2,378,606"
+  ],
+  [
+    "RAY",
+    "Raydium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8526.png",
+    "$1.08",
+    "256,260,027 RAY",
+    "$276,114,666",
+    "13,587,141 RAY",
+    "$14,637,001"
+  ],
+  [
+    "FLOKI",
+    "FLOKI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10804.png",
+    "$0.00002872",
+    "9,565,208,784,013 FLOKI",
+    "$274,608,033",
+    "456,341,948,344 FLOKI",
+    "$13,110,132"
+  ],
+  [
+    "JST",
+    "JUST",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5488.png",
+    "$0.03079",
+    "8,902,080,000 JST",
+    "$274,181,379",
+    "1,398,731,832 JST",
+    "$43,068,203"
+  ],
+  [
+    "KDA",
+    "Kadena",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5647.png",
+    "$1.02",
+    "262,881,995 KDA",
+    "$268,119,098",
+    "5,471,253 KDA",
+    "$5,581,362"
+  ],
+  [
+    "ZRX",
+    "0x Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1896.png",
+    "$0.3155",
+    "847,496,055 ZRX",
+    "$267,379,414",
+    "35,758,786 ZRX",
+    "$11,260,762"
+  ],
+  [
+    "ANT",
+    "Aragon",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1680.png",
+    "$6.16",
+    "43,179,247 ANT",
+    "$266,226,358",
+    "1,353,630 ANT",
+    "$8,339,231"
+  ],
+  [
+    "TFUEL",
+    "Theta Fuel",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3822.png",
+    "$0.04117",
+    "6,442,231,847 TFUEL",
+    "$265,405,165",
+    "89,427,043 TFUEL",
+    "$3,683,294"
+  ],
+  [
+    "JASMY",
+    "JasmyCoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8425.png",
+    "$0.005363",
+    "49,299,999,677 JASMY",
+    "$264,422,409",
+    "6,171,429,705 JASMY",
+    "$33,070,327"
+  ],
+  [
+    "STORJ",
+    "Storj",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1772.png",
+    "$0.6543",
+    "402,329,821 STORJ",
+    "$263,279,555",
+    "43,726,614 STORJ",
+    "$28,639,051"
+  ],
+  [
+    "BAND",
+    "Band Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4679.png",
+    "$1.87",
+    "138,788,424 BAND",
+    "$259,533,006",
+    "4,227,607 BAND",
+    "$7,897,985"
+  ],
+  [
+    "API3",
+    "API3",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7737.png",
+    "$3.01",
+    "86,421,978 API3",
+    "$259,530,031",
+    "14,981,414 API3",
+    "$44,927,946"
+  ],
+  [
+    "SUSHI",
+    "SushiSwap",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6758.png",
+    "$1.10",
+    "232,030,884 SUSHI",
+    "$256,363,995",
+    "16,759,458 SUSHI",
+    "$18,482,112"
+  ],
+  [
+    "OCEAN",
+    "Ocean Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3911.png",
+    "$0.4484",
+    "568,381,103 OCEAN",
+    "$254,850,736",
+    "54,945,120 OCEAN",
+    "$24,625,852"
+  ],
+  [
+    "CHR",
+    "Chromia",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3978.png",
+    "$0.3229",
+    "787,434,439 CHR",
+    "$254,303,969",
+    "47,799,385 CHR",
+    "$15,450,249"
+  ],
+  [
+    "ID",
+    "SPACE ID",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21846.png",
+    "$0.5441",
+    "467,245,041 ID",
+    "$254,388,545",
+    "419,164,924 ID",
+    "$227,523,517"
+  ],
+  [
+    "LCX",
+    "LCX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4950.png",
+    "$0.3312",
+    "771,584,751 LCX",
+    "$255,530,144",
+    "38,485,100 LCX",
+    "$12,593,476"
+  ],
+  [
+    "DCR",
+    "Decred",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1168.png",
+    "$15.80",
+    "15,840,318 DCR",
+    "$250,597,531",
+    "103,152 DCR",
+    "$1,630,534"
+  ],
+  [
+    "CFG",
+    "Centrifuge",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6748.png",
+    "$0.5294",
+    "471,668,786 CFG",
+    "$250,435,162",
+    "1,808,261 CFG",
+    "$958,682"
+  ],
+  [
+    "RVN",
+    "Ravencoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2577.png",
+    "$0.01837",
+    "13,496,176,498 RVN",
+    "$247,904,511",
+    "343,639,119 RVN",
+    "$6,308,873"
+  ],
+  [
+    "T",
+    "Threshold",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17751.png",
+    "$0.02553",
+    "9,591,895,882 T",
+    "$245,066,249",
+    "403,367,494 T",
+    "$10,293,490"
+  ],
+  [
+    "MOBILE",
+    "Helium Mobile",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24600.png",
+    "$0.002946",
+    "82,262,267,398 MOBILE",
+    "$243,776,353",
+    "770,118,315 MOBILE",
+    "$2,276,387"
+  ],
+  [
+    "YFI",
+    "yearn.finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5864.png",
+    "$7,260.01",
+    "33,414 YFI",
+    "$242,586,469",
+    "1,976 YFI",
+    "$14,345,207"
+  ],
+  [
+    "ANKR",
+    "Ankr",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3783.png",
+    "$0.02425",
+    "10,000,000,000 ANKR",
+    "$242,272,094",
+    "458,193,340 ANKR",
+    "$11,098,571"
+  ],
+  [
+    "RBN",
+    "Ribbon Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12387.png",
+    "$0.4472",
+    "537,093,440 RBN",
+    "$239,771,287",
+    "2,002,599 RBN",
+    "$894,985"
+  ],
+  [
+    "WAVES",
+    "Waves",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1274.png",
+    "$2.11",
+    "113,760,358 WAVES",
+    "$239,763,945",
+    "13,682,266 WAVES",
+    "$28,814,874"
+  ],
+  [
+    "BICO",
+    "Biconomy",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9543.png",
+    "$0.3741",
+    "636,532,795 BICO",
+    "$238,167,287",
+    "15,860,941 BICO",
+    "$5,955,803"
+  ],
+  [
+    "XAI",
+    "Xai",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28933.png",
+    "$0.8431",
+    "277,118,150 XAI",
+    "$233,667,602",
+    "81,706,383 XAI",
+    "$68,886,263"
+  ],
+  [
+    "MEME",
+    "Memecoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28301.png",
+    "$0.02257",
+    "10,354,125,346 MEME",
+    "$233,752,205",
+    "977,450,641 MEME",
+    "$22,034,322"
+  ],
+  [
+    "CKB",
+    "Nervos Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4948.png",
+    "$0.005339",
+    "43,494,970,722 CKB",
+    "$232,207,769",
+    "1,958,976,989 CKB",
+    "$10,407,002"
+  ],
+  [
+    "USTC",
+    "TerraClassicUSD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7129.png",
+    "$0.02578",
+    "8,969,623,868 USTC",
+    "$231,268,574",
+    "453,723,467 USTC",
+    "$11,685,467"
+  ],
+  [
+    "WIF",
+    "dogwifhat",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28752.png",
+    "$0.2303",
+    "998,920,173 WIF",
+    "$230,353,993",
+    "291,594,690 WIF",
+    "$67,089,237"
+  ],
+  [
+    "CTSI",
+    "Cartesi",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5444.png",
+    "$0.295",
+    "777,574,283 CTSI",
+    "$229,603,344",
+    "103,321,193 CTSI",
+    "$30,449,816"
+  ],
+  [
+    "LPT",
+    "Livepeer",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3640.png",
+    "$7.31",
+    "30,777,556 LPT",
+    "$225,002,385",
+    "1,827,001 LPT",
+    "$13,345,209"
+  ],
+  [
+    "stETH",
+    "Lido Staked ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8085.png",
+    "$2,431.80",
+    "9,543,279 stETH",
+    "$23,207,770,700",
+    "7,623 STETH",
+    "$18,536,573"
+  ],
+  [
+    "WTRX",
+    "Wrapped TRON",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18579.png",
+    "$0.1221",
+    "88,090,706,411 WTRX",
+    "$10,755,389,370",
+    "49,938,464 WTRX",
+    "$6,097,211"
+  ],
+  [
+    "WBTC",
+    "Wrapped Bitcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3717.png",
+    "$45,062.20",
+    "157,914 WBTC",
+    "$7,117,388,037",
+    "5,341 WBTC",
+    "$240,672,507"
+  ],
+  [
+    "TAO",
+    "Bittensor",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22974.png",
+    "$444.40",
+    "6,206,223 TAO",
+    "$2,755,587,619",
+    "81,176 TAO",
+    "$36,075,042"
+  ],
+  [
+    "WHBAR",
+    "Wrapped HBAR",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24399.png",
+    "$0.07653",
+    "33,665,267,274 WHBAR",
+    "$2,576,557,878",
+    "16,292,709 WHBAR",
+    "$1,246,956"
+  ],
+  [
+    "BTCB",
+    "Bitcoin BEP2",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4023.png",
+    "$45,104.09",
+    "53,959 BTCB",
+    "$2,427,304,952",
+    "11,210 BTCB",
+    "$505,637,500"
+  ],
+  [
+    "WEOS",
+    "Wrapped EOS",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24913.png",
+    "$2.10",
+    "1,110,971,419 WEOS",
+    "$2,332,038,017",
+    0,
+    0
+  ],
+  [
+    "WBETH",
+    "Wrapped Beacon ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24760.png",
+    "$2,499.38",
+    "787,280 WBETH",
+    "$1,969,526,184",
+    "1,958 WBETH",
+    "$4,894,563"
+  ],
+  [
+    "RETH",
+    "Rocket Pool ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15060.png",
+    "$2,663.52",
+    "561,618 RETH",
+    "$1,495,884,503",
+    "14,555 RETH",
+    "$38,884,160"
+  ],
+  [
+    "HEX",
+    "HEX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5015.png",
+    "$0.007782",
+    "173,411,074,413 HEX",
+    "$1,349,506,921",
+    "163,542,552 HEX",
+    "$1,255,556"
+  ],
+  [
+    "CHEEL",
+    "Cheelee",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23054.png",
+    "$16.33",
+    "53,837,996 CHEEL",
+    "$879,193,880",
+    "450,811 CHEEL",
+    "$7,360,240"
+  ],
+  [
+    "WBNB",
+    "Wrapped BNB",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7192.png",
+    "$316.99",
+    "2,111,415 WBNB",
+    "$669,304,406",
+    "440,083 WBNB",
+    "$139,501,555"
+  ],
+  [
+    "FRAX",
+    "Frax",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6952.png",
+    "$0.9986",
+    "649,462,236 FRAX",
+    "$648,543,945",
+    "11,941,068 FRAX",
+    "$11,924,184"
+  ],
+  [
+    "MSOL",
+    "Marinade Staked SOL",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11461.png",
+    "$119.71",
+    "5,338,464 MSOL",
+    "$639,852,087",
+    "239,479 MSOL",
+    "$28,702,634"
+  ],
+  [
+    "vBNB",
+    "Venus BNB",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7961.png",
+    "$7.46",
+    "84,327,095 vBNB",
+    "$629,421,795",
+    "50,409,860 VBNB",
+    "$376,261,804"
+  ],
+  [
+    "STRD",
+    "Stride",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21781.png",
+    "$6.22",
+    "87,825,728 STRD",
+    "$545,743,519",
+    "140,166 STRD",
+    "$871,243"
+  ],
+  [
+    "FTN",
+    "Fasttoken",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22615.png",
+    "$1.68",
+    "304,850,250 FTN",
+    "$512,600,700",
+    "8,403,310 FTN",
+    "$14,129,960"
+  ],
+  [
+    "cbETH",
+    "Coinbase Wrapped Staked ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21535.png",
+    "$2,580.72",
+    "195,671 cbETH",
+    "$503,606,016",
+    "1,083 CBETH",
+    "$2,786,396"
+  ],
+  [
+    "KUJI",
+    "Kujira",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15185.png",
+    "$3.53",
+    "122,349,807 KUJI",
+    "$432,506,752",
+    "460,623 KUJI",
+    "$1,628,115"
+  ],
+  [
+    "RLB",
+    "Rollbit Coin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15271.png",
+    "$0.1273",
+    "3,296,951,621 RLB",
+    "$419,679,249",
+    "28,730,497 RLB",
+    "$3,657,195"
+  ],
+  [
+    "ORBR",
+    "Orbler",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17520.png",
+    "$0.4065",
+    "1,015,586,750 ORBR",
+    "$412,790,292",
+    "757,591 ORBR",
+    "$307,923"
+  ],
+  [
+    "POKT",
+    "Pocket Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11823.png",
+    "$0.2461",
+    "1,521,517,215 POKT",
+    "$374,438,000",
+    "9,767,905 POKT",
+    "$2,406,810"
+  ],
+  [
+    "WKAVA",
+    "Wrapped Kava",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24165.png",
+    "$0.7202",
+    "497,668,960 WKAVA",
+    "$358,443,380",
+    0,
+    0
+  ],
+  [
+    "AZERO",
+    "Aleph Zero",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11976.png",
+    "$1.08",
+    "266,778,951 AZERO",
+    "$287,727,160",
+    "3,032,275 AZERO",
+    "$3,269,664"
+  ],
+  [
+    "BDX",
+    "Beldex",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3987.png",
+    "$0.04332",
+    "6,197,113,111 BDX",
+    "$269,039,592",
+    "57,089,251 BDX",
+    "$2,473,080"
+  ],
+  [
+    "HBTC",
+    "Huobi BTC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6941.png",
+    "$27,793.34",
+    "8,969 HBTC",
+    "$249,292,295",
+    "0 HBTC",
+    "$3,836"
+  ],
+  [
+    "ASM",
+    "Assemble Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6069.png",
+    "$0.1636",
+    "1,465,999,910 ASM",
+    "$239,787,495",
+    "67,473,823 ASM",
+    "$11,036,412"
+  ],
+  [
+    "LYX",
+    "LUKSO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27622.png",
+    "$7.72",
+    "30,535,907 LYX",
+    "$235,774,050",
+    "103,947 LYX",
+    "$799,399"
+  ],
+  [
+    "LSD",
+    "L7",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28047.png",
+    "$5.57",
+    "40,941,582 LSD",
+    "$228,066,769",
+    "297,720 LSD",
+    "$1,658,463"
+  ],
+  [
+    "FNSA",
+    "FINSCHIA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4512.png",
+    "$29.43",
+    "7,577,585 FNSA",
+    "$224,764,571",
+    "62,556 FNSA",
+    "$1,855,508"
+  ],
+  [
+    "GAL",
+    "Galxe",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11877.png",
+    "$2.11",
+    "105,305,665 GAL",
+    "$221,977,597",
+    "6,326,389 GAL",
+    "$13,342,104"
+  ],
+  [
+    "AUDIO",
+    "Audius",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7455.png",
+    "$0.1857",
+    "1,195,882,684 AUDIO",
+    "$221,973,471",
+    "22,338,691 AUDIO",
+    "$4,146,391"
+  ],
+  [
+    "WE",
+    "WeBuy",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20456.png",
+    "$0.6085",
+    "362,031,240 WE",
+    "$220,298,012",
+    "543,706 WE",
+    "$330,848"
+  ],
+  [
+    "PRIME",
+    "Echelon Prime",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23711.png",
+    "$8.30",
+    "26,271,698 PRIME",
+    "$218,162,830",
+    "181,161 PRIME",
+    "$1,504,379"
+  ],
+  [
+    "JTO",
+    "Jito",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28541.png",
+    "$1.85",
+    "117,197,247 JTO",
+    "$216,507,887",
+    "18,218,330 JTO",
+    "$33,633,312"
+  ],
+  [
+    "ICX",
+    "ICON",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2099.png",
+    "$0.2174",
+    "979,183,435 ICX",
+    "$212,666,784",
+    "14,087,916 ICX",
+    "$3,059,476"
+  ],
+  [
+    "GLM",
+    "Golem",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1455.png",
+    "$0.2063",
+    "1,000,000,000 GLM",
+    "$206,801,047",
+    "16,494,777 GLM",
+    "$3,411,000"
+  ],
+  [
+    "TRIBE",
+    "Tribe",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9025.png",
+    "$0.3789",
+    "533,805,125 TRIBE",
+    "$202,561,054",
+    "1,405,172 TRIBE",
+    "$532,416"
+  ],
+  [
+    "ONT",
+    "Ontology",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2566.png",
+    "$0.2297",
+    "875,249,524 ONT",
+    "$201,069,052",
+    "29,321,658 ONT",
+    "$6,734,072"
+  ],
+  [
+    "ADF",
+    "Art de Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24796.png",
+    "$1.65",
+    "121,636,284 ADF",
+    "$200,893,192",
+    "443,157 ADF",
+    "$731,916"
+  ],
+  [
+    "BAL",
+    "Balancer",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5728.png",
+    "$3.65",
+    "54,857,430 BAL",
+    "$200,053,194",
+    "1,201,430 BAL",
+    "$4,381,743"
+  ],
+  [
+    "OAS",
+    "Oasys",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22265.png",
+    "$0.1018",
+    "1,965,093,352 OAS",
+    "$200,031,112",
+    "17,385,304 OAS",
+    "$1,769,849"
+  ],
+  [
+    "ONE",
+    "Harmony",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3945.png",
+    "$0.01442",
+    "13,792,282,986 ONE",
+    "$198,828,426",
+    "345,341,187 ONE",
+    "$4,972,059"
+  ],
+  [
+    "FLUX",
+    "Flux",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3029.png",
+    "$0.5783",
+    "340,901,801 FLUX",
+    "$197,155,537",
+    "13,596,585 FLUX",
+    "$7,863,385"
+  ],
+  [
+    "POND",
+    "Marlin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7497.png",
+    "$0.02401",
+    "8,087,375,977 POND",
+    "$194,047,510",
+    "415,685,257 POND",
+    "$9,978,890"
+  ],
+  [
+    "MOVR",
+    "Moonriver",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9285.png",
+    "$21.94",
+    "8,747,417 MOVR",
+    "$191,856,507",
+    "686,637 MOVR",
+    "$15,061,217"
+  ],
+  [
+    "vBTC",
+    "Venus BTC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7962.png",
+    "$916.82",
+    "205,836 vBTC",
+    "$188,715,279",
+    "531,342 VBTC",
+    "$487,147,207"
+  ],
+  [
+    "ALEX",
+    "ALEX Lab",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22074.png",
+    "$0.3111",
+    "606,489,877 ALEX",
+    "$188,591,826",
+    "19,972,821 ALEX",
+    "$6,213,943"
+  ],
+  [
+    "WAXP",
+    "WAX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2300.png",
+    "$0.05504",
+    "3,407,298,364 WAXP",
+    "$187,130,665",
+    "72,527,025 WAXP",
+    "$3,981,603"
+  ],
+  [
+    "SXP",
+    "Solar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4279.png",
+    "$0.3135",
+    "593,479,200 SXP",
+    "$186,101,903",
+    "34,971,988 SXP",
+    "$10,966,439"
+  ],
+  [
+    "FLEX",
+    "FLEX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5190.png",
+    "$1.87",
+    "98,664,939 FLEX",
+    "$184,885,129",
+    "71,099 FLEX",
+    "$133,230"
+  ],
+  [
+    "ACE",
+    "Fusionist",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28674.png",
+    "$8.37",
+    "21,969,520 ACE",
+    "$183,853,525",
+    "2,434,953 ACE",
+    "$20,374,146"
+  ],
+  [
+    "BTRST",
+    "Braintrust",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11584.png",
+    "$0.7988",
+    "224,274,024 BTRST",
+    "$180,646,051",
+    "561,979 BTRST",
+    "$452,628"
+  ],
+  [
+    "IOST",
+    "IOST",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2405.png",
+    "$0.008375",
+    "21,315,000,000 IOST",
+    "$178,503,531",
+    "807,314,752 IOST",
+    "$6,761,026"
+  ],
+  [
+    "VTHO",
+    "VeThor Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3012.png",
+    "$0.002448",
+    "72,461,671,689 VTHO",
+    "$177,354,805",
+    "1,204,170,493 VTHO",
+    "$2,943,468"
+  ],
+  [
+    "EDU",
+    "Open Campus",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24613.png",
+    "$0.6482",
+    "272,187,500 EDU",
+    "$176,486,874",
+    "17,358,329 EDU",
+    "$11,253,962"
+  ],
+  [
+    "LSK",
+    "Lisk",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1214.png",
+    "$1.36",
+    "128,900,445 LSK",
+    "$175,148,834",
+    "24,343,643 LSK",
+    "$33,077,261"
+  ],
+  [
+    "SFUND",
+    "Seedify.fund",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8972.png",
+    "$2.98",
+    "58,110,985 SFUND",
+    "$173,177,296",
+    "2,134,922 SFUND",
+    "$6,361,036"
+  ],
+  [
+    "OM",
+    "MANTRA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6536.png",
+    "$0.2179",
+    "793,958,032 OM",
+    "$173,275,633",
+    "551,652,223 OM",
+    "$120,210,320"
+  ],
+  [
+    "JOE",
+    "JOE",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11396.png",
+    "$0.4772",
+    "362,259,759 JOE",
+    "$172,872,762",
+    "12,954,408 JOE",
+    "$6,181,929"
+  ],
+  [
+    "AUCTION",
+    "Bounce Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8602.png",
+    "$26.07",
+    "6,500,037 AUCTION",
+    "$169,487,175",
+    "918,263 AUCTION",
+    "$23,936,442"
+  ],
+  [
+    "XVS",
+    "Venus",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7288.png",
+    "$10.79",
+    "15,676,983 XVS",
+    "$169,151,505",
+    "1,999,281 XVS",
+    "$21,575,184"
+  ],
+  [
+    "USDJ",
+    "USDJ",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5446.png",
+    "$1.09",
+    "153,778,892 USDJ",
+    "$167,836,031",
+    "1,053,049 USDJ",
+    "$1,149,319"
+  ],
+  [
+    "BabyDoge",
+    "Baby Doge Coin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10407.png",
+    "$0.0...01165",
+    "143,788,799,573,309,472 BabyDoge",
+    "$167,489,793",
+    "3,331,339,809,196,460 BABYDOGE",
+    "$3,880,231"
+  ],
+  [
+    "ALPH",
+    "Alephium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14878.png",
+    "$2.37",
+    "69,701,118 ALPH",
+    "$165,458,215",
+    "1,191,170 ALPH",
+    "$2,827,610"
+  ],
+  [
+    "C98",
+    "Coin98",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10903.png",
+    "$0.238",
+    "694,999,892 C98",
+    "$165,444,321",
+    "46,634,533 C98",
+    "$11,099,292"
+  ],
+  [
+    "BFIC",
+    "Blockchain Foundation for Innovation & Collaboration",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18736.png",
+    "$15.43",
+    "10,578,424 BFIC",
+    "$163,238,349",
+    "250,181 BFIC",
+    "$3,860,613"
+  ],
+  [
+    "BORG",
+    "SwissBorg",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2499.png",
+    "$0.1657",
+    "984,354,858 BORG",
+    "$162,975,246",
+    "6,635,394 BORG",
+    "$1,099,182"
+  ],
+  [
+    "XYM",
+    "Symbol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8677.png",
+    "$0.02749",
+    "5,863,626,305 XYM",
+    "$161,176,275",
+    "26,412,832 XYM",
+    "$726,041"
+  ],
+  [
+    "MAV",
+    "Maverick Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18037.png",
+    "$0.642",
+    "250,000,000 MAV",
+    "$159,886,739",
+    "32,245,454 MAV",
+    "$20,634,497"
+  ],
+  [
+    "RLC",
+    "iExec RLC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1637.png",
+    "$2.19",
+    "72,382,548 RLC",
+    "$158,565,119",
+    "39,411,524 RLC",
+    "$86,295,527"
+  ],
+  [
+    "GNS",
+    "Gains Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13663.png",
+    "$5.19",
+    "30,453,619 GNS",
+    "$158,138,035",
+    "1,206,915 GNS",
+    "$6,267,177"
+  ],
+  [
+    "CTC",
+    "Creditcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5198.png",
+    "$0.4895",
+    "317,800,709 CTC",
+    "$154,880,030",
+    "27,519,448 CTC",
+    "$13,409,992"
+  ],
+  [
+    "LUSD",
+    "Liquity USD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9566.png",
+    "$0.997",
+    "154,005,391 LUSD",
+    "$153,544,660",
+    "2,169,253 LUSD",
+    "$2,162,763"
+  ],
+  [
+    "POWR",
+    "Powerledger",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2132.png",
+    "$0.2994",
+    "512,375,110 POWR",
+    "$153,361,063",
+    "20,486,163 POWR",
+    "$6,132,849"
+  ],
+  [
+    "ARK",
+    "Ark",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1586.png",
+    "$0.8462",
+    "178,762,054 ARK",
+    "$151,088,262",
+    "15,228,235 ARK",
+    "$13,043,937"
+  ],
+  [
+    "HIVE",
+    "Hive",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5370.png",
+    "$0.3055",
+    "500,749,243 HIVE",
+    "$152,395,354",
+    "4,925,843 HIVE",
+    "$1,499,576"
+  ],
+  [
+    "PYR",
+    "Vulcan Forged (PYR)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9308.png",
+    "$5.58",
+    "27,182,227 PYR",
+    "$151,708,679",
+    "1,050,792 PYR",
+    "$5,862,384"
+  ],
+  [
+    "SNT",
+    "Status",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1759.png",
+    "$0.03873",
+    "3,875,440,739 SNT",
+    "$150,159,454",
+    "81,926,152 SNT",
+    "$3,173,307"
+  ],
+  [
+    "AMP",
+    "Amp",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6945.png",
+    "$0.003546",
+    "42,227,702,186 AMP",
+    "$149,610,414",
+    "1,598,872,076 AMP",
+    "$5,666,272"
+  ],
+  [
+    "GUSD",
+    "Gemini Dollar",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3306.png",
+    "$1.00",
+    "148,251,946 GUSD",
+    "$148,963,999",
+    "374,300 GUSD",
+    "$376,098"
+  ],
+  [
+    "AIOZ",
+    "AIOZ Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9104.png",
+    "$0.1391",
+    "1,071,641,647 AIOZ",
+    "$149,083,558",
+    "10,413,933 AIOZ",
+    "$1,438,311"
+  ],
+  [
+    "XNO",
+    "Nano",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1567.png",
+    "$1.12",
+    "133,248,297 XNO",
+    "$146,756,578",
+    "1,586,523 XNO",
+    "$1,747,432"
+  ],
+  [
+    "AI",
+    "Sleepless AI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28846.png",
+    "$1.13",
+    "130,000,000 AI",
+    "$146,894,774",
+    "45,082,985 AI",
+    "$50,941,897"
+  ],
+  [
+    "NMR",
+    "Numeraire",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1732.png",
+    "$23.71",
+    "6,172,370 NMR",
+    "$146,442,573",
+    "963,926 NMR",
+    "$22,845,257"
+  ],
+  [
+    "GMT",
+    "Gomining",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10180.png",
+    "$0.3626",
+    "401,643,157 GMT",
+    "$145,617,633",
+    "9,684,450 GMT",
+    "$3,525,413"
+  ],
+  [
+    "STRAX",
+    "Stratis",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1343.png",
+    "$0.8969",
+    "157,521,571 STRAX",
+    "$143,503,861",
+    "13,697,055 STRAX",
+    "$12,478,287"
+  ],
+  [
+    "BONE",
+    "Bone ShibaSwap",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11865.png",
+    "$0.6221",
+    "229,923,351 BONE",
+    "$143,032,786",
+    "10,384,812 BONE",
+    "$6,460,366"
+  ],
+  [
+    "BIGTIME",
+    "Big Time",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28230.png",
+    "$0.3409",
+    "414,639,187 BIGTIME",
+    "$141,437,402",
+    "54,218,647 BIGTIME",
+    "$18,454,945"
+  ],
+  [
+    "BORA",
+    "BORA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3801.png",
+    "$0.1384",
+    "993,750,000 BORA",
+    "$140,602,606",
+    "16,655,075 BORA",
+    "$2,356,593"
+  ],
+  [
+    "VVS",
+    "VVS Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14519.png",
+    "$0.000003175",
+    "44,250,701,516,282 VVS",
+    "$140,476,164",
+    "417,806,868,951 VVS",
+    "$1,326,350"
+  ],
+  [
+    "DAO",
+    "DAO Maker",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8420.png",
+    "$0.8847",
+    "156,005,609 DAO",
+    "$138,681,514",
+    "3,273,630 DAO",
+    "$2,910,921"
+  ],
+  [
+    "PORK",
+    "PepeFork",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/29220.png",
+    "$0.0...04194",
+    "330,517,483,807,982 PORK",
+    "$137,772,455",
+    "40,503,409,578,058 PORK",
+    "$16,941,061"
+  ],
+  [
+    "POLY",
+    "Polymath",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2496.png",
+    "$0.1494",
+    "924,998,413 POLY",
+    "$138,219,777",
+    "122,687 POLY",
+    "$18,333"
+  ],
+  [
+    "PEOPLE",
+    "ConstitutionDAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14806.png",
+    "$0.02703",
+    "5,060,137,335 PEOPLE",
+    "$136,796,479",
+    "1,813,608,405 PEOPLE",
+    "$49,019,668"
+  ],
+  [
+    "RIF",
+    "Rootstock Infrastructure Framework",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3701.png",
+    "$0.1367",
+    "1,000,000,000 RIF",
+    "$136,848,657",
+    "40,476,103 RIF",
+    "$5,532,710"
+  ],
+  [
+    "CELR",
+    "Celer Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3814.png",
+    "$0.01765",
+    "7,743,424,107 CELR",
+    "$136,669,768",
+    "361,495,110 CELR",
+    "$6,378,971"
+  ],
+  [
+    "TET",
+    "Tectum",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21964.png",
+    "$27.38",
+    "4,981,934 TET",
+    "$136,405,007",
+    "69,125 TET",
+    "$1,892,636"
+  ],
+  [
+    "NFP",
+    "NFPrompt",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28778.png",
+    "$0.5438",
+    "250,000,000 NFP",
+    "$135,940,527",
+    "34,265,146 NFP",
+    "$18,632,188"
+  ],
+  [
+    "EURS",
+    "STASIS EURO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2989.png",
+    "$1.08",
+    "124,125,940 EURS",
+    "$133,960,272",
+    "567 EURS",
+    "$613"
+  ],
+  [
+    "SYN",
+    "Synapse",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12147.png",
+    "$0.722",
+    "185,598,998 SYN",
+    "$134,753,641",
+    "22,627,118 SYN",
+    "$16,336,477"
+  ],
+  [
+    "YGG",
+    "Yield Guild Games",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10688.png",
+    "$0.4388",
+    "304,836,709 YGG",
+    "$133,798,608",
+    "50,593,234 YGG",
+    "$22,173,882"
+  ],
+  [
+    "DUSK",
+    "Dusk",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4092.png",
+    "$0.3163",
+    "421,164,409 DUSK",
+    "$133,154,576",
+    "50,785,023 DUSK",
+    "$16,058,256"
+  ],
+  [
+    "ACH",
+    "Alchemy Pay",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6958.png",
+    "$0.01822",
+    "7,294,420,305 ACH",
+    "$132,930,479",
+    "395,815,546 ACH",
+    "$7,207,976"
+  ],
+  [
+    "RDNT",
+    "Radiant Capital",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21106.png",
+    "$0.2936",
+    "450,913,942 RDNT",
+    "$132,630,662",
+    "59,874,665 RDNT",
+    "$17,577,959"
+  ],
+  [
+    "CTXC",
+    "Cortex",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2638.png",
+    "$0.6055",
+    "218,536,235 CTXC",
+    "$133,384,658",
+    "18,590,977 CTXC",
+    "$11,256,596"
+  ],
+  [
+    "CQT",
+    "Covalent",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7411.png",
+    "$0.2104",
+    "625,051,477 CQT",
+    "$131,415,952",
+    "4,334,105 CQT",
+    "$911,814"
+  ],
+  [
+    "DGB",
+    "DigiByte",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/109.png",
+    "$0.007768",
+    "16,813,708,050 DGB",
+    "$130,628,116",
+    "392,236,439 DGB",
+    "$3,046,871"
+  ],
+  [
+    "NAKA",
+    "Nakamoto Games",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12749.png",
+    "$1.62",
+    "80,463,652 NAKA",
+    "$130,027,361",
+    "8,061,074 NAKA",
+    "$13,068,212"
+  ],
+  [
+    "BLZ",
+    "Bluzelle",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2505.png",
+    "$0.3058",
+    "426,504,177 BLZ",
+    "$130,415,792",
+    "16,825,633 BLZ",
+    "$5,144,916"
+  ],
+  [
+    "TRIAS",
+    "Trias Token (New)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8936.png",
+    "$13.20",
+    "9,704,042 TRIAS",
+    "$127,960,310",
+    "133,224 TRIAS",
+    "$1,758,045"
+  ],
+  [
+    "NYM",
+    "NYM",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17591.png",
+    "$0.1861",
+    "687,497,057 NYM",
+    "$127,520,786",
+    "14,298,695 NYM",
+    "$2,660,810"
+  ],
+  [
+    "POLYX",
+    "Polymesh",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20362.png",
+    "$0.1569",
+    "815,288,147 POLYX",
+    "$128,030,569",
+    "24,641,295 POLYX",
+    "$3,866,246"
+  ],
+  [
+    "LQTY",
+    "Liquity",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7429.png",
+    "$1.33",
+    "95,043,167 LQTY",
+    "$126,148,590",
+    "12,067,085 LQTY",
+    "$16,005,429"
+  ],
+  [
+    "CYBER",
+    "CyberConnect",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24781.png",
+    "$7.18",
+    "17,343,583 CYBER",
+    "$124,603,034",
+    "2,679,009 CYBER",
+    "$19,230,531"
+  ],
+  [
+    "PROM",
+    "Prom",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4120.png",
+    "$6.81",
+    "18,250,000 PROM",
+    "$124,343,785",
+    "278,833 PROM",
+    "$1,897,862"
+  ],
+  [
+    "RBTC",
+    "Rootstock Smart Bitcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3626.png",
+    "$44,624.71",
+    "2,763 RBTC",
+    "$123,315,493",
+    "8 RBTC",
+    "$336,822"
+  ],
+  [
+    "ZEN",
+    "Horizen",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1698.png",
+    "$8.31",
+    "14,647,313 ZEN",
+    "$121,750,545",
+    "745,462 ZEN",
+    "$6,192,851"
+  ],
+  [
+    "SLP",
+    "Smooth Love Potion",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5824.png",
+    "$0.002892",
+    "41,342,637,164 SLP",
+    "$119,546,618",
+    "3,752,775,225 SLP",
+    "$10,839,859"
+  ],
+  [
+    "RSR",
+    "Reserve Rights",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3964.png",
+    "$0.002328",
+    "50,600,000,000 RSR",
+    "$117,822,023",
+    "1,482,572,392 RSR",
+    "$3,448,815"
+  ],
+  [
+    "KEEP",
+    "Keep Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5566.png",
+    "$0.1223",
+    "951,038,242 KEEP",
+    "$115,722,096",
+    "86,893 KEEP",
+    "$10,628"
+  ],
+  [
+    "ONG",
+    "Ontology Gas",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3217.png",
+    "$0.3125",
+    "370,017,770 ONG",
+    "$115,630,376",
+    "9,347,008 ONG",
+    "$2,921,170"
+  ],
+  [
+    "DKA",
+    "dKargo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5908.png",
+    "$0.03075",
+    "3,653,750,000 DKA",
+    "$112,369,093",
+    "33,857,583 DKA",
+    "$1,041,101"
+  ],
+  [
+    "HFT",
+    "Hashflow",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22461.png",
+    "$0.3245",
+    "344,011,870 HFT",
+    "$111,627,254",
+    "36,332,205 HFT",
+    "$11,772,796"
+  ],
+  [
+    "vUSDC",
+    "Venus USDC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7958.png",
+    "$0.02313",
+    "4,771,015,133 vUSDC",
+    "$110,332,507",
+    "5,175,570,596 VUSDC",
+    "$119,688,088"
+  ],
+  [
+    "HOOK",
+    "Hooked Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22764.png",
+    "$0.8892",
+    "123,764,711 HOOK",
+    "$110,514,347",
+    "7,991,033 HOOK",
+    "$7,105,469"
+  ],
+  [
+    "HONEY",
+    "Hivemapper",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22850.png",
+    "$0.1633",
+    "673,643,581 HONEY",
+    "$110,242,237",
+    "23,537,115 HONEY",
+    "$3,843,485"
+  ],
+  [
+    "ORBS",
+    "Orbs",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3835.png",
+    "$0.03472",
+    "3,167,720,359 ORBS",
+    "$110,100,884",
+    "222,023,102 ORBS",
+    "$7,709,296"
+  ],
+  [
+    "EVER",
+    "Everscale",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7505.png",
+    "$0.05666",
+    "1,938,513,536 EVER",
+    "$109,902,056",
+    "3,568,247 EVER",
+    "$202,181"
+  ],
+  [
+    "COTI",
+    "COTI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3992.png",
+    "$0.07253",
+    "1,516,714,726 COTI",
+    "$110,008,825",
+    "241,458,515 COTI",
+    "$17,462,239"
+  ],
+  [
+    "STG",
+    "Stargate Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18934.png",
+    "$0.5359",
+    "204,338,417 STG",
+    "$109,743,406",
+    "52,741,263 STG",
+    "$28,261,729"
+  ],
+  [
+    "DORA",
+    "Dora Factory",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27966.png",
+    "$0.202",
+    "537,277,116 DORA",
+    "$108,308,547",
+    "1,576,421 DORA",
+    "$318,500"
+  ],
+  [
+    "DFI",
+    "DeFiChain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5804.png",
+    "$0.1259",
+    "854,130,080 DFI",
+    "$108,136,396",
+    "38,154,950 DFI",
+    "$4,803,895"
+  ],
+  [
+    "GF",
+    "GuildFi",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15585.png",
+    "$0.1993",
+    "537,541,605 GF",
+    "$107,359,548",
+    "39,457,650 GF",
+    "$7,862,087"
+  ],
+  [
+    "KNC",
+    "Kyber Network Crystal v2",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png",
+    "$0.5951",
+    "179,396,226 KNC",
+    "$106,828,167",
+    "15,094,679 KNC",
+    "$8,982,950"
+  ],
+  [
+    "DEXE",
+    "DeXe",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7326.png",
+    "$2.93",
+    "36,500,047 DEXE",
+    "$106,896,497",
+    "401,087 DEXE",
+    "$1,171,585"
+  ],
+  [
+    "TEL",
+    "Telcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2394.png",
+    "$0.001227",
+    "86,649,320,414 TEL",
+    "$106,306,963",
+    "375,098,809 TEL",
+    "$460,195"
+  ],
+  [
+    "TRAC",
+    "trac (Ordinals)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/25208.png",
+    "$5.04",
+    "21,000,000 TRAC",
+    "$105,779,618",
+    "207,141 TRAC",
+    "$1,043,394"
+  ],
+  [
+    "SURE",
+    "inSure DeFi",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5113.png",
+    "$0.003922",
+    "26,790,063,175 SURE",
+    "$105,062,664",
+    "48,118,558 SURE",
+    "$188,711"
+  ],
+  [
+    "GOG",
+    "Guild of Guardians",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10630.png",
+    "$0.1997",
+    "523,590,668 GOG",
+    "$104,580,357",
+    "5,304,475 GOG",
+    "$1,059,499"
+  ],
+  [
+    "PUNDIX",
+    "Pundi X (New)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9040.png",
+    "$0.404",
+    "258,491,637 PUNDIX",
+    "$104,419,720",
+    "5,136,304 PUNDIX",
+    "$2,074,328"
+  ],
+  [
+    "LOOM",
+    "Loom Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2588.png",
+    "$0.08469",
+    "1,219,425,698 LOOM",
+    "$103,276,211",
+    "88,259,190 LOOM",
+    "$7,474,891"
+  ],
+  [
+    "ULTIMA",
+    "Ultima",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28293.png",
+    "$6,698.12",
+    "15,339 ULTIMA",
+    "$102,742,489",
+    "467 ULTIMA",
+    "$3,133,284"
+  ],
+  [
+    "PLA",
+    "PlayDapp",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7461.png",
+    "$0.1776",
+    "577,401,393 PLA",
+    "$102,525,242",
+    "12,237,996 PLA",
+    "$2,173,607"
+  ],
+  [
+    "STPT",
+    "STP",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4006.png",
+    "$0.05289",
+    "1,942,420,283 STPT",
+    "$102,703,089",
+    "49,374,802 STPT",
+    "$2,591,679"
+  ],
+  [
+    "vETH",
+    "Venus ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7963.png",
+    "$50.10",
+    "2,033,994 vETH",
+    "$101,903,350",
+    "2,112,346 VETH",
+    "$105,747,439"
+  ],
+  [
+    "MLK",
+    "MiL.k",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5266.png",
+    "$0.3015",
+    "339,190,668 MLK",
+    "$102,267,013",
+    "8,381,990 MLK",
+    "$2,543,057"
+  ],
+  [
+    "SCRT",
+    "Secret",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5604.png",
+    "$0.373",
+    "271,355,295 SCRT",
+    "$101,208,338",
+    "4,186,961 SCRT",
+    "$1,561,809"
+  ],
+  [
+    "DENT",
+    "Dent",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1886.png",
+    "$0.001013",
+    "100,000,000,000 DENT",
+    "$101,443,068",
+    "3,127,765,874 DENT",
+    "$3,162,986"
+  ],
+  [
+    "XPLA",
+    "XPLA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22359.png",
+    "$0.2176",
+    "466,039,186 XPLA",
+    "$98,753,362",
+    "22,824,872 XPLA",
+    "$4,950,339"
+  ],
+  [
+    "SDEX",
+    "SmarDex",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24203.png",
+    "$0.01379",
+    "7,229,356,842 SDEX",
+    "$99,657,541",
+    "120,462,206 SDEX",
+    "$1,661,776"
+  ],
+  [
+    "BAKE",
+    "BakeryToken",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7064.png",
+    "$0.3444",
+    "289,770,513 BAKE",
+    "$99,794,279",
+    "119,700,729 BAKE",
+    "$41,196,581"
+  ],
+  [
+    "BUSD",
+    "BUSD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4687.png",
+    "$1.00",
+    "99,431,323 BUSD",
+    "$99,687,824",
+    "26,760,329 BUSD",
+    "$26,829,362"
+  ],
+  [
+    "OXT",
+    "Orchid",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5026.png",
+    "$0.1018",
+    "979,779,108 OXT",
+    "$99,689,295",
+    "36,462,056 OXT",
+    "$3,702,771"
+  ],
+  [
+    "AURORA",
+    "Aurora",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14803.png",
+    "$0.2378",
+    "417,954,873 AURORA",
+    "$99,454,551",
+    "2,493,952 AURORA",
+    "$593,347"
+  ],
+  [
+    "AVINOC",
+    "AVINOC",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3089.png",
+    "$0.2544",
+    "389,244,472 AVINOC",
+    "$99,049,720",
+    "537,339 AVINOC",
+    "$136,722"
+  ],
+  [
+    "ACA",
+    "Acala Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6756.png",
+    "$0.1027",
+    "962,499,997 ACA",
+    "$98,838,117",
+    "162,412,063 ACA",
+    "$16,699,447"
+  ],
+  [
+    "USDX",
+    "USDX [Kava]",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6651.png",
+    "$0.8851",
+    "111,567,264 USDX",
+    "$98,750,884",
+    "320,784 USDX",
+    "$283,934"
+  ],
+  [
+    "COQ",
+    "Coq Inu",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28675.png",
+    "$0.000001426",
+    "69,420,000,000,000 COQ",
+    "$98,601,298",
+    "7,199,020,811,240 COQ",
+    "$10,228,927"
+  ],
+  [
+    "STEEM",
+    "Steem",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1230.png",
+    "$0.2164",
+    "455,192,843 STEEM",
+    "$98,650,580",
+    "6,751,415 STEEM",
+    "$1,461,156"
+  ],
+  [
+    "AGLD",
+    "Adventure Gold",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11568.png",
+    "$1.27",
+    "77,280,001 AGLD",
+    "$98,349,690",
+    "9,285,788 AGLD",
+    "$11,817,474"
+  ],
+  [
+    "ABT",
+    "Arcblock",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2545.png",
+    "$0.9749",
+    "98,554,305 ABT",
+    "$96,081,901",
+    "11,189,506 ABT",
+    "$11,114,952"
+  ],
+  [
+    "BNT",
+    "Bancor",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1727.png",
+    "$0.7324",
+    "133,061,695 BNT",
+    "$97,452,660",
+    "4,669,019 BNT",
+    "$3,417,882"
+  ],
+  [
+    "GAFI",
+    "GameFi.org",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11783.png",
+    "$8.87",
+    "10,945,063 GAFI",
+    "$97,122,996",
+    "36,860 GAFI",
+    "$327,088"
+  ],
+  [
+    "TOMI",
+    "tomiNet",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23246.png",
+    "$1.08",
+    "89,187,879 TOMI",
+    "$96,422,403",
+    "18,420,320 TOMI",
+    "$19,914,494"
+  ],
+  [
+    "VR",
+    "Victoria VR",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/14822.png",
+    "$0.03403",
+    "2,830,215,885 VR",
+    "$96,304,749",
+    "64,806,610 VR",
+    "$2,205,197"
+  ],
+  [
+    "RAD",
+    "Radworks",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6843.png",
+    "$1.86",
+    "51,555,980 RAD",
+    "$95,796,612",
+    "3,395,942 RAD",
+    "$6,310,030"
+  ],
+  [
+    "MVL",
+    "MVL",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2982.png",
+    "$0.003933",
+    "24,352,958,863 MVL",
+    "$95,789,718",
+    "445,471,922 MVL",
+    "$1,752,295"
+  ],
+  [
+    "MTL",
+    "Metal DAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1788.png",
+    "$1.44",
+    "66,588,888 MTL",
+    "$95,567,197",
+    "3,078,991 MTL",
+    "$4,402,619"
+  ],
+  [
+    "BNX",
+    "BinaryX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23635.png",
+    "$0.2798",
+    "339,487,351 BNX",
+    "$94,995,649",
+    "10,650,875 BNX",
+    "$2,980,032"
+  ],
+  [
+    "DODO",
+    "DODO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7224.png",
+    "$0.1544",
+    "614,617,713 DODO",
+    "$94,741,671",
+    "28,569,680 DODO",
+    "$4,400,431"
+  ],
+  [
+    "WIN",
+    "WINkLink",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4206.png",
+    "$0.00009734",
+    "961,737,300,000 WIN",
+    "$93,612,151",
+    "324,126,053,348 WIN",
+    "$31,545,071"
+  ],
+  [
+    "GEL",
+    "Gelato",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7229.png",
+    "$0.8442",
+    "109,951,523 GEL",
+    "$92,654,311",
+    "837,835 GEL",
+    "$706,031"
+  ],
+  [
+    "0x0",
+    "0x0.ai",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23355.png",
+    "$0.1066",
+    "868,563,455 0x0",
+    "$92,595,203",
+    "8,768,954 0X0",
+    "$933,351"
+  ],
+  [
+    "CVC",
+    "Civic",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1816.png",
+    "$0.09157",
+    "1,000,000,000 CVC",
+    "$91,570,923",
+    "46,919,495 CVC",
+    "$4,287,454"
+  ],
+  [
+    "OGN",
+    "Origin Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5117.png",
+    "$0.1595",
+    "572,071,892 OGN",
+    "$91,221,617",
+    "55,733,033 OGN",
+    "$8,885,023"
+  ],
+  [
+    "ACS",
+    "Access Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23195.png",
+    "$0.002813",
+    "32,380,972,533 ACS",
+    "$91,102,657",
+    "3,557,034,624 ACS",
+    "$10,007,584"
+  ],
+  [
+    "NXRA",
+    "AllianceBlock Nexera",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23825.png",
+    "$0.1163",
+    "768,398,579 NXRA",
+    "$89,337,712",
+    "4,316,787 NXRA",
+    "$501,852"
+  ],
+  [
+    "ERG",
+    "Ergo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1762.png",
+    "$1.21",
+    "73,239,012 ERG",
+    "$88,648,254",
+    "344,146 ERG",
+    "$416,553"
+  ],
+  [
+    "TON",
+    "Tokamak Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6731.png",
+    "$2.02",
+    "43,841,454 TON",
+    "$88,526,967",
+    "855,170 TON",
+    "$1,726,805"
+  ],
+  [
+    "OMG",
+    "OMG Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1808.png",
+    "$0.626",
+    "140,245,398 OMG",
+    "$87,793,428",
+    "20,767,598 OMG",
+    "$12,988,141"
+  ],
+  [
+    "SYS",
+    "Syscoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/541.png",
+    "$0.119",
+    "735,819,755 SYS",
+    "$87,570,915",
+    "18,024,345 SYS",
+    "$2,143,257"
+  ],
+  [
+    "CUDOS",
+    "CUDOS",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8258.png",
+    "$0.01502",
+    "5,843,157,717 CUDOS",
+    "$87,455,409",
+    "51,098,157 CUDOS",
+    "$764,528"
+  ],
+  [
+    "BFC",
+    "Bifrost",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7817.png",
+    "$0.06302",
+    "1,386,638,564 BFC",
+    "$87,387,809",
+    "10,286,092 BFC",
+    "$647,770"
+  ],
+  [
+    "IQ",
+    "IQ",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2930.png",
+    "$0.004934",
+    "17,678,926,356 IQ",
+    "$87,219,832",
+    "368,203,866 IQ",
+    "$1,813,714"
+  ],
+  [
+    "MUBI",
+    "Multibit",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28412.png",
+    "$0.09164",
+    "950,000,000 MUBI",
+    "$87,053,737",
+    "237,618,638 MUBI",
+    "$21,774,306"
+  ],
+  [
+    "UQC",
+    "Uquid Coin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2273.png",
+    "$8.70",
+    "10,000,000 UQC",
+    "$87,057,305",
+    "84,144 UQC",
+    "$731,854"
+  ],
+  [
+    "POL",
+    "Polygon Ecosystem Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28321.png",
+    "$0.8322",
+    "103,504,058 POL",
+    "$86,133,617",
+    "741,623 POL",
+    "$621,778"
+  ],
+  [
+    "WILD",
+    "Wilder World",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9674.png",
+    "$0.3303",
+    "261,200,327 WILD",
+    "$86,264,949",
+    "1,536,832 WILD",
+    "$507,387"
+  ],
+  [
+    "MED",
+    "MediBloc",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2303.png",
+    "$0.0104",
+    "8,285,671,092 MED",
+    "$86,167,266",
+    "98,640,693 MED",
+    "$1,025,871"
+  ],
+  [
+    "DIMO",
+    "DIMO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22837.png",
+    "$0.4163",
+    "204,716,208 DIMO",
+    "$85,179,574",
+    "4,540,903 DIMO",
+    "$1,895,983"
+  ],
+  [
+    "PAAL",
+    "PAAL AI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27178.png",
+    "$0.1092",
+    "782,662,790 PAAL",
+    "$85,432,915",
+    "14,843,528 PAAL",
+    "$1,620,271"
+  ],
+  [
+    "ELON",
+    "Dogelon Mars",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9436.png",
+    "$0.0...01604",
+    "549,652,770,159,583 ELON",
+    "$88,141,105",
+    "95,502,769,079,533 ELON",
+    "$14,933,530"
+  ],
+  [
+    "MRS",
+    "Metars Genesis",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21178.png",
+    "$1.35",
+    "62,850,000 MRS",
+    "$85,143,558",
+    "42,637 MRS",
+    "$57,760"
+  ],
+  [
+    "ARKM",
+    "Arkham",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27565.png",
+    "$0.564",
+    "150,000,000 ARKM",
+    "$84,595,017",
+    "37,024,392 ARKM",
+    "$20,854,459"
+  ],
+  [
+    "XPRT",
+    "Persistence",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7281.png",
+    "$0.4475",
+    "188,404,890 XPRT",
+    "$84,311,805",
+    "1,664,344 XPRT",
+    "$745,055"
+  ],
+  [
+    "REQ",
+    "Request",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2071.png",
+    "$0.08414",
+    "999,664,755 REQ",
+    "$84,108,655",
+    "21,527,980 REQ",
+    "$1,813,043"
+  ],
+  [
+    "CTK",
+    "Shentu",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4807.png",
+    "$0.6454",
+    "130,645,688 CTK",
+    "$84,317,894",
+    "6,015,348 CTK",
+    "$3,874,154"
+  ],
+  [
+    "NKN",
+    "NKN",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2780.png",
+    "$0.1112",
+    "754,831,362 NKN",
+    "$83,926,577",
+    "34,946,525 NKN",
+    "$3,873,209"
+  ],
+  [
+    "POLIS",
+    "Star Atlas DAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11213.png",
+    "$0.3431",
+    "244,318,007 POLIS",
+    "$83,814,584",
+    "1,561,019 POLIS",
+    "$534,093"
+  ],
+  [
+    "POLIS",
+    "Star Atlas DAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11213.png",
+    "$0.3429",
+    "244,318,007 POLIS",
+    "$83,797,874",
+    "1,561,104 POLIS",
+    "$534,093"
+  ],
+  [
+    "ARDR",
+    "Ardor",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1320.png",
+    "$0.08372",
+    "998,999,495 ARDR",
+    "$83,638,583",
+    "22,707,658 ARDR",
+    "$1,898,770"
+  ],
+  [
+    "HELLO",
+    "HELLO Labs",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22320.png",
+    "$0.1319",
+    "630,523,787 HELLO",
+    "$82,957,779",
+    "43,682,263 HELLO",
+    "$5,759,992"
+  ],
+  [
+    "MYRIA",
+    "Myria",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/22289.png",
+    "$0.008021",
+    "10,219,104,294 MYRIA",
+    "$82,267,509",
+    "321,202,028 MYRIA",
+    "$2,576,380"
+  ],
+  [
+    "ankrETH",
+    "Ankr Staked ETH",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8100.png",
+    "$2,781.26",
+    "29,330 ankrETH",
+    "$81,574,485",
+    "3 ANKRETH",
+    "$8,442"
+  ],
+  [
+    "GODS",
+    "Gods Unchained",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10631.png",
+    "$0.2973",
+    "272,638,889 GODS",
+    "$80,730,633",
+    "11,037,169 GODS",
+    "$3,281,551"
+  ],
+  [
+    "ALPHA",
+    "Stella",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7232.png",
+    "$0.09522",
+    "846,000,000 ALPHA",
+    "$80,604,761",
+    "38,683,732 ALPHA",
+    "$3,683,381"
+  ],
+  [
+    "GTC",
+    "Gitcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10052.png",
+    "$1.21",
+    "66,291,054 GTC",
+    "$80,018,464",
+    "11,301,241 GTC",
+    "$13,645,666"
+  ],
+  [
+    "CGPT",
+    "ChainGPT",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23756.png",
+    "$0.2093",
+    "381,922,804 CGPT",
+    "$79,980,987",
+    "42,778,676 CGPT",
+    "$8,952,864"
+  ],
+  [
+    "WMT",
+    "World Mobile Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13769.png",
+    "$0.161",
+    "491,838,755 WMT",
+    "$79,125,772",
+    "11,398,968 WMT",
+    "$1,835,729"
+  ],
+  [
+    "SNEK",
+    "Snek",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/25264.png",
+    "$0.001057",
+    "73,235,343,051 SNEK",
+    "$77,158,970",
+    "1,356,336,456 SNEK",
+    "$1,433,588"
+  ],
+  [
+    "MBOX",
+    "MOBOX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9175.png",
+    "$0.2866",
+    "270,032,226 MBOX",
+    "$77,396,182",
+    "27,501,169 MBOX",
+    "$7,882,704"
+  ],
+  [
+    "VRSC",
+    "VerusCoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5049.png",
+    "$1.02",
+    "75,445,739 VRSC",
+    "$78,350,750",
+    "2,393 VRSC",
+    "$2,451"
+  ],
+  [
+    "WRX",
+    "WazirX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5161.png",
+    "$0.2023",
+    "381,856,872 WRX",
+    "$77,234,151",
+    "5,671,749 WRX",
+    "$1,147,165"
+  ],
+  [
+    "ALICE",
+    "MyNeighborAlice",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8766.png",
+    "$1.14",
+    "67,913,333 ALICE",
+    "$77,422,475",
+    "4,149,449 ALICE",
+    "$4,719,768"
+  ],
+  [
+    "HPO",
+    "Hippocrat",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3600.png",
+    "$0.07653",
+    "993,409,273 HPO",
+    "$80,190,013",
+    "4,724,171 HPO",
+    "$361,563"
+  ],
+  [
+    "ALEPH",
+    "Aleph.im",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5821.png",
+    "$0.3075",
+    "247,220,482 ALEPH",
+    "$76,813,300",
+    "10,111,836 ALEPH",
+    "$3,104,261"
+  ],
+  [
+    "POLS",
+    "Polkastarter",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7208.png",
+    "$0.7557",
+    "99,221,432 POLS",
+    "$74,981,111",
+    "2,969,974 POLS",
+    "$2,244,394"
+  ],
+  [
+    "ROOT",
+    "The Root Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28479.png",
+    "$0.07208",
+    "1,038,925,778 ROOT",
+    "$74,939,236",
+    "27,713,921 ROOT",
+    "$1,997,695"
+  ],
+  [
+    "SUN",
+    "Sun (New)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/10529.png",
+    "$0.007573",
+    "9,822,285,972 SUN",
+    "$74,386,798",
+    "3,780,717,232 SUN",
+    "$28,642,898"
+  ],
+  [
+    "TLOS",
+    "Telos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4660.png",
+    "$0.196",
+    "375,573,675 TLOS",
+    "$73,886,487",
+    "6,611,159 TLOS",
+    "$1,296,117"
+  ],
+  [
+    "NOIA",
+    "Syntropy",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4191.png",
+    "$0.1015",
+    "729,553,097 NOIA",
+    "$74,077,296",
+    "9,749,831 NOIA",
+    "$982,974"
+  ],
+  [
+    "MAP",
+    "MAP Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4956.png",
+    "$0.02753",
+    "2,655,183,690 MAP",
+    "$73,097,299",
+    "84,520,698 MAP",
+    "$2,327,654"
+  ],
+  [
+    "LOOKS",
+    "LooksRare",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17081.png",
+    "$0.0729",
+    "999,941,673 LOOKS",
+    "$72,936,744",
+    "62,266,215 LOOKS",
+    "$4,539,322"
+  ],
+  [
+    "ALI",
+    "Artificial Liquid Intelligence",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/16876.png",
+    "$0.02022",
+    "3,588,163,660 ALI",
+    "$72,775,348",
+    "63,388,197 ALI",
+    "$1,283,706"
+  ],
+  [
+    "XYO",
+    "XYO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2765.png",
+    "$0.005367",
+    "13,476,747,692 XYO",
+    "$72,397,299",
+    "169,399,185 XYO",
+    "$909,179"
+  ],
+  [
+    "PERP",
+    "Perpetual Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6950.png",
+    "$1.10",
+    "66,002,157 PERP",
+    "$72,457,574",
+    "5,963,424 PERP",
+    "$6,530,894"
+  ],
+  [
+    "MBL",
+    "MovieBloc",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4038.png",
+    "$0.004148",
+    "17,388,553,884 MBL",
+    "$72,100,380",
+    "416,429,267 MBL",
+    "$1,727,307"
+  ],
+  [
+    "AEUR",
+    "Anchored Coins AEUR",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28596.png",
+    "$1.08",
+    "66,709,605 AEUR",
+    "$72,339,075",
+    "884,548 AEUR",
+    "$953,393"
+  ],
+  [
+    "HIGH",
+    "Highstreet",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11232.png",
+    "$1.41",
+    "50,365,992 HIGH",
+    "$70,983,868",
+    "3,569,623 HIGH",
+    "$5,026,031"
+  ],
+  [
+    "VANRY",
+    "Vanar Chain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8037.png",
+    "$0.05701",
+    "1,241,967,344 VANRY",
+    "$70,891,615",
+    "52,131,633 VANRY",
+    "$2,972,072"
+  ],
+  [
+    "DEXT",
+    "DEXTools",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5866.png",
+    "$0.8245",
+    "85,851,461 DEXT",
+    "$70,783,792",
+    "422,649 DEXT",
+    "$348,452"
+  ],
+  [
+    "LYRA",
+    "Lyra",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15447.png",
+    "$0.1218",
+    "580,898,201 LYRA",
+    "$70,730,411",
+    "370,259 LYRA",
+    "$45,083"
+  ],
+  [
+    "MBX",
+    "MARBLEX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/18895.png",
+    "$0.6711",
+    "105,196,221 MBX",
+    "$70,207,176",
+    "2,127,436 MBX",
+    "$1,427,560"
+  ],
+  [
+    "STT",
+    "Statter Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/26914.png",
+    "$1.39",
+    "50,344,589 STT",
+    "$69,906,608",
+    "1,226,989 STT",
+    "$1,704,775"
+  ],
+  [
+    "PHA",
+    "Phala Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/6841.png",
+    "$0.1043",
+    "670,164,890 PHA",
+    "$70,181,907",
+    "63,274,579 PHA",
+    "$6,597,679"
+  ],
+  [
+    "ELA",
+    "Elastos",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2492.png",
+    "$3.19",
+    "21,894,369 ELA",
+    "$69,812,277",
+    "131,945 ELA",
+    "$419,224"
+  ],
+  [
+    "AGRS",
+    "Agoras: Currency of Tau",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1037.png",
+    "$3.87",
+    "18,000,000 AGRS",
+    "$69,645,827",
+    "248,314 AGRS",
+    "$960,778"
+  ],
+  [
+    "RSS3",
+    "RSS3",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/17917.png",
+    "$0.1372",
+    "504,046,606 RSS3",
+    "$69,133,199",
+    "43,032,959 RSS3",
+    "$5,891,692"
+  ],
+  [
+    "ARPA",
+    "ARPA",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4039.png",
+    "$0.05541",
+    "1,242,888,889 ARPA",
+    "$68,874,396",
+    "305,846,099 ARPA",
+    "$16,947,348"
+  ],
+  [
+    "LON",
+    "Tokenlon Network Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8083.png",
+    "$0.6656",
+    "103,371,297 LON",
+    "$68,789,455",
+    "983,657 LON",
+    "$654,681"
+  ],
+  [
+    "QKC",
+    "QuarkChain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2840.png",
+    "$0.009886",
+    "6,954,046,184 QKC",
+    "$68,255,341",
+    "125,357,437 QKC",
+    "$1,239,611"
+  ],
+  [
+    "SOV",
+    "Sovryn",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8669.png",
+    "$1.81",
+    "37,811,733 SOV",
+    "$68,594,090",
+    "193,377 SOV",
+    "$350,785"
+  ],
+  [
+    "STMX",
+    "StormX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2297.png",
+    "$0.006847",
+    "10,000,000,000 STMX",
+    "$68,465,462",
+    "694,003,954 STMX",
+    "$4,731,036"
+  ],
+  [
+    "FLIX",
+    "OmniFlix Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24645.png",
+    "$0.273",
+    "250,758,585 FLIX",
+    "$68,447,359",
+    "245,058 FLIX",
+    "$66,863"
+  ],
+  [
+    "DEL",
+    "Decimal",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/12400.png",
+    "$0.009609",
+    "7,134,455,685 DEL",
+    "$68,554,115",
+    "19,050,402 DEL",
+    "$181,563"
+  ],
+  [
+    "SHIDO",
+    "Shido (New)",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28211.png",
+    "$0.008223",
+    "8,277,134,151 SHIDO",
+    "$68,065,586",
+    "171,840,166 SHIDO",
+    "$1,412,665"
+  ],
+  [
+    "VIC",
+    "Viction",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2570.png",
+    "$0.7026",
+    "96,830,754 VIC",
+    "$68,046,031",
+    "4,710,025 VIC",
+    "$3,308,830"
+  ],
+  [
+    "NEON",
+    "Neon EVM",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23015.png",
+    "$1.18",
+    "57,651,000 NEON",
+    "$68,111,729",
+    "3,280,830 NEON",
+    "$3,863,246"
+  ],
+  [
+    "DEP",
+    "DEAPcoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5429.png",
+    "$0.003219",
+    "21,048,521,512 DEP",
+    "$68,003,824",
+    "385,972,730 DEP",
+    "$1,242,830"
+  ],
+  [
+    "RARE",
+    "SuperRare",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11294.png",
+    "$0.1042",
+    "648,300,637 RARE",
+    "$67,533,426",
+    "17,403,622 RARE",
+    "$1,812,988"
+  ],
+  [
+    "OZO",
+    "Ozone Chain",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28076.png",
+    "$0.222",
+    "303,375,000 OZO",
+    "$67,350,494",
+    "1,713,076 OZO",
+    "$380,284"
+  ],
+  [
+    "DAG",
+    "Constellation",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2868.png",
+    "$0.05307",
+    "1,266,911,931 DAG",
+    "$67,236,579",
+    "28,763,867 DAG",
+    "$1,528,515"
+  ],
+  [
+    "ASTRAFER",
+    "Astrafer",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/20886.png",
+    "$0.4283",
+    "156,417,090 ASTRAFER",
+    "$66,988,662",
+    "1,775 ASTRAFER",
+    "$760"
+  ],
+  [
+    "SWEAT",
+    "Sweat Economy",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21351.png",
+    "$0.01015",
+    "6,577,046,866 SWEAT",
+    "$66,774,186",
+    "505,413,904 SWEAT",
+    "$5,133,843"
+  ],
+  [
+    "QI",
+    "BENQI",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9288.png",
+    "$0.01544",
+    "4,293,991,217 QI",
+    "$66,302,385",
+    "197,448,801 QI",
+    "$3,039,692"
+  ],
+  [
+    "XCAD",
+    "XCAD Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9868.png",
+    "$1.39",
+    "47,726,796 XCAD",
+    "$66,252,953",
+    "4,429,918 XCAD",
+    "$6,126,910"
+  ],
+  [
+    "NIZA",
+    "Niza Global",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28244.png",
+    "$0.01877",
+    "3,523,443,272 NIZA",
+    "$66,359,770",
+    "70,467,619 NIZA",
+    "$1,313,439"
+  ],
+  [
+    "ATOR",
+    "ATOR Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23757.png",
+    "$0.7351",
+    "88,446,446 ATOR",
+    "$65,179,827",
+    "1,242,228 ATOR",
+    "$911,731"
+  ],
+  [
+    "HIFI",
+    "Hifi Finance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23037.png",
+    "$0.5682",
+    "114,536,246 HIFI",
+    "$65,078,050",
+    "7,305,497 HIFI",
+    "$4,125,337"
+  ],
+  [
+    "SLND",
+    "Solend",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/13524.png",
+    "$1.76",
+    "36,386,088 SLND",
+    "$64,144,239",
+    "58,106 SLND",
+    "$102,895"
+  ],
+  [
+    "WNXM",
+    "Wrapped NXM",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5939.png",
+    "$50.20",
+    "1,278,534 WNXM",
+    "$64,186,733",
+    "42,857 WNXM",
+    "$2,157,353"
+  ],
+  [
+    "COREUM",
+    "Coreum",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/16399.png",
+    "$0.1668",
+    "384,792,048 COREUM",
+    "$64,172,232",
+    "10,989,810 COREUM",
+    "$1,832,784"
+  ],
+  [
+    "PLANET",
+    "PLANET",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/26585.png",
+    "$0.00007538",
+    "851,450,035,658 PLANET",
+    "$64,185,360",
+    "211,134,203,073 PLANET",
+    "$15,825,304"
+  ],
+  [
+    "ROUTE",
+    "Router Protocol",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8292.png",
+    "$4.35",
+    "14,499,793 ROUTE",
+    "$63,062,093",
+    "592,147 ROUTE",
+    "$2,548,833"
+  ],
+  [
+    "BZR",
+    "Bazaars",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/24554.png",
+    "$5.35",
+    "11,672,346 BZR",
+    "$62,398,581",
+    "41,207 BZR",
+    "$220,286"
+  ],
+  [
+    "SOLO",
+    "Sologenic",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5279.png",
+    "$0.1567",
+    "399,947,699 SOLO",
+    "$62,685,813",
+    "18,539,170 SOLO",
+    "$2,892,511"
+  ],
+  [
+    "UOS",
+    "Ultra",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/4189.png",
+    "$0.1731",
+    "360,188,328 UOS",
+    "$62,358,806",
+    "13,073,467 UOS",
+    "$2,250,354"
+  ],
+  [
+    "COPI",
+    "Cornucopias",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/15563.png",
+    "$0.07223",
+    "848,670,162 COPI",
+    "$61,303,481",
+    "3,080,070 COPI",
+    "$224,127"
+  ],
+  [
+    "BADGER",
+    "Badger DAO",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7859.png",
+    "$3.29",
+    "18,711,977 BADGER",
+    "$61,546,484",
+    "1,564,048 BADGER",
+    "$5,161,336"
+  ],
+  [
+    "ZIG",
+    "Zignaly",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9260.png",
+    "$0.04284",
+    "1,433,308,739 ZIG",
+    "$61,404,164",
+    "244,550,519 ZIG",
+    "$10,512,364"
+  ],
+  [
+    "CBK",
+    "Cobak Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8107.png",
+    "$0.7557",
+    "81,320,473 CBK",
+    "$61,450,653",
+    "2,299,849 CBK",
+    "$1,736,995"
+  ],
+  [
+    "ATLAS",
+    "Star Atlas",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11212.png",
+    "$0.004086",
+    "15,014,864,499 ATLAS",
+    "$61,350,687",
+    "429,230,292 ATLAS",
+    "$1,752,343"
+  ],
+  [
+    "CAGA",
+    "Crypto Asset Governance Alliance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28395.png",
+    "$0.0009859",
+    "61,492,072,802 CAGA",
+    "$60,627,461",
+    "2,701,584,769 CAGA",
+    "$2,666,386"
+  ],
+  [
+    "FUN",
+    "FUNToken",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1757.png",
+    "$0.005531",
+    "10,962,808,529 FUN",
+    "$60,637,752",
+    "210,091,123 FUN",
+    "$1,160,110"
+  ],
+  [
+    "EWT",
+    "Energy Web Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5268.png",
+    "$2.01",
+    "30,062,138 EWT",
+    "$60,407,327",
+    "361,741 EWT",
+    "$726,669"
+  ],
+  [
+    "vBUSD",
+    "Venus BUSD",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7959.png",
+    "$0.02236",
+    "2,694,770,470 vBUSD",
+    "$60,264,188",
+    "68,079,706 VBUSD",
+    "$1,522,493"
+  ],
+  [
+    "STIK",
+    "Staika",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/23951.png",
+    "$2.08",
+    "28,807,734 STIK",
+    "$60,004,127",
+    "163,443 STIK",
+    "$338,881"
+  ],
+  [
+    "MOB",
+    "MobileCoin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7878.png",
+    "$0.3064",
+    "195,286,109 MOB",
+    "$59,836,007",
+    "4,534,837 MOB",
+    "$1,390,629"
+  ],
+  [
+    "KYVE",
+    "KYVE Network",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27766.png",
+    "$0.1245",
+    "482,173,629 KYVE",
+    "$60,016,873",
+    "563,549 KYVE",
+    "$70,144"
+  ],
+  [
+    "ABEL",
+    "Abelian",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/25232.png",
+    "$0.9262",
+    "65,021,952 ABEL",
+    "$60,224,230",
+    "149,018 ABEL",
+    "$137,097"
+  ],
+  [
+    "TKO",
+    "Toko Token",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9020.png",
+    "$0.3535",
+    "169,669,456 TKO",
+    "$59,969,682",
+    "15,621,256 TKO",
+    "$5,507,402"
+  ],
+  [
+    "ZTX",
+    "ZTX",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28249.png",
+    "$0.02893",
+    "2,078,487,000 ZTX",
+    "$60,130,504",
+    "55,548,496 ZTX",
+    "$1,596,249"
+  ],
+  [
+    "MPLX",
+    "Metaplex",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/21870.png",
+    "$0.2392",
+    "248,745,041 MPLX",
+    "$59,501,114",
+    "5,224,133 MPLX",
+    "$1,250,611"
+  ],
+  [
+    "MEME",
+    "MEMETOON",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28111.png",
+    "$0.01043",
+    "5,631,405,859 MEME",
+    "$58,722,987",
+    "264,165,894 MEME",
+    "$2,754,107"
+  ],
+  [
+    "MYRO",
+    "Myro",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/28382.png",
+    "$0.06234",
+    "944,203,815 MYRO",
+    "$58,860,114",
+    "712,626,211 MYRO",
+    "$44,173,342"
+  ],
+  [
+    "META",
+    "Metadium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3418.png",
+    "$0.03432",
+    "1,703,608,720 META",
+    "$58,472,560",
+    "15,873,520 META",
+    "$544,852"
+  ],
+  [
+    "FX",
+    "Function X",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3884.png",
+    "$0.143",
+    "408,520,357 FX",
+    "$58,414,533",
+    "2,625,895 FX",
+    "$375,183"
+  ],
+  [
+    "MDX",
+    "Mdex",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/8335.png",
+    "$0.06106",
+    "950,246,937 MDX",
+    "$58,018,098",
+    "58,640,958 MDX",
+    "$3,580,831"
+  ],
+  [
+    "BTCP",
+    "Bitcoin Palladium",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1674.png",
+    "$23.42",
+    "2,476,893 BTCP",
+    "$57,997,015",
+    "77 BTCP",
+    "$1,799"
+  ],
+  [
+    "AERGO",
+    "Aergo",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3637.png",
+    "$0.1288",
+    "445,000,000 AERGO",
+    "$57,329,198",
+    "8,776,011 AERGO",
+    "$1,130,530"
+  ],
+  [
+    "RVF",
+    "RocketX exchange",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9176.png",
+    "$0.575",
+    "99,300,000 RVF",
+    "$57,096,015",
+    "666,158 RVF",
+    "$383,340"
+  ],
+  [
+    "REN",
+    "Ren",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/2539.png",
+    "$0.05653",
+    "999,127,500 REN",
+    "$56,483,028",
+    "128,313,778 REN",
+    "$7,250,525"
+  ],
+  [
+    "KIN",
+    "Kin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/1993.png",
+    "$0.00001923",
+    "2,935,737,051,545 KIN",
+    "$56,466,056",
+    "22,588,066,468 KIN",
+    "$434,240"
+  ],
+  [
+    "DPI",
+    "DeFi Pulse Index",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/7055.png",
+    "$100.87",
+    "558,983 DPI",
+    "$56,382,231",
+    "1,975 DPI",
+    "$199,108"
+  ],
+  [
+    "ABBC",
+    "ABBC Coin",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/3437.png",
+    "$0.03277",
+    "1,718,982,817 ABBC",
+    "$56,326,544",
+    "175,505,222 ABBC",
+    "$5,712,724"
+  ],
+  [
+    "MTRG",
+    "Meter Governance",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/5919.png",
+    "$2.50",
+    "22,333,188 MTRG",
+    "$55,751,409",
+    "222,168 MTRG",
+    "$554,935"
+  ],
+  [
+    "MPL",
+    "Maple",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/9417.png",
+    "$12.53",
+    "4,417,986 MPL",
+    "$55,348,405",
+    "51,816 MPL",
+    "$651,470"
+  ],
+  [
+    "UNIBOT",
+    "UniBot",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/27009.png",
+    "$55.23",
+    "1,000,000 UNIBOT",
+    "$55,231,924",
+    "68,139 UNIBOT",
+    "$3,766,903"
+  ],
+  [
+    "BRISE",
+    "Bitgert",
+    "https://s2.coinmarketcap.com/static/img/coins/64x64/11079.png",
+    "$0.0...01385",
+    "395,688,215,721,653 BRISE",
+    "$54,804,898",
+    "13,384,149,739,634 BRISE",
+    "$1,854,384"
+  ]
+]
