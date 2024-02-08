@@ -210,7 +210,7 @@ export class AppService implements OnApplicationBootstrap {
 
     // await this.prisma.aTHL.deleteMany({});
 
-    console.log('Select:', results.length, Date.now() - start, 'ms');
+    console.log('ATHL SELECT:', results.length, Date.now() - start, 'ms');
 
     let i = 0;
     // for each symbolId and exchangeId
@@ -380,7 +380,7 @@ export class AppService implements OnApplicationBootstrap {
           where: {
             exchangeId: exchange.id,
             symbolId: market.symbolId,
-            timeframe: TIMEFRAME.D1,
+            tf: timeframeMinutes(TIMEFRAME.D1),
           },
           orderBy: {
             time: 'desc',
@@ -440,7 +440,7 @@ export class AppService implements OnApplicationBootstrap {
           where: {
             exchangeId: exchange.id,
             symbolId: market.symbolId,
-            timeframe: TIMEFRAME.MN1,
+            tf: timeframeMinutes(TIMEFRAME.MN1),
           },
           orderBy: {
             time: 'desc',
@@ -520,7 +520,7 @@ export class AppService implements OnApplicationBootstrap {
     }
   }
 
-  async getMaxTimestampD1(body: { exchangeId: number; symbolId: number; timeframe: string }): Promise<Date | null> {
+  async getMaxTimestampD1(body: { exchangeId: number; symbolId: number; timeframe: TIMEFRAME }): Promise<Date | null> {
     const { exchangeId, symbolId, timeframe } = body;
     try {
       const maxTimestamp = await this.prisma.candleD1.findFirst({
@@ -530,7 +530,7 @@ export class AppService implements OnApplicationBootstrap {
         where: {
           exchangeId,
           symbolId,
-          timeframe,
+          tf: timeframeMinutes(timeframe),
         },
         orderBy: {
           time: 'desc',
@@ -748,7 +748,7 @@ export class AppService implements OnApplicationBootstrap {
   async saveExchangeCandlesD1(data: {
     exchangeId: number;
     symbolId: number;
-    timeframe: string;
+    timeframe: TIMEFRAME;
     candles: CandleDb[];
   }): Promise<any> {
     const { exchangeId, symbolId, timeframe, candles } = data;
@@ -759,18 +759,18 @@ export class AppService implements OnApplicationBootstrap {
         where: {
           exchangeId,
           symbolId,
-          timeframe,
+          tf: timeframeMinutes(timeframe),
           time: {
             in: timestamps,
           },
         },
       });
 
-      const candlesToSave = candles.map((candle) => ({
+      const candlesToSave = candles.map((candle: CandleDb) => ({
         ...candle,
         exchangeId,
         symbolId,
-        timeframe,
+        tf: timeframeMinutes(timeframe),
       }));
 
       return this.prisma.candleD1.createMany({
@@ -1182,7 +1182,7 @@ export class AppService implements OnApplicationBootstrap {
         where
             a.time < current_date and
             a.time > current_date - interval '3 days' and
-            a.timeframe = ${TIMEFRAME.D1} and
+            a.tf = ${timeframeMinutes(TIMEFRAME.D1)} and
             (
                 s."name" LIKE '%/USDT' or
                 s."name" LIKE '%/BUSD' or

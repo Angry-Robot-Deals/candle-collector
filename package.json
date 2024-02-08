@@ -1,7 +1,7 @@
 {
   "name": "candles",
-  "version": "0.0.1",
-  "description": "Fetch candles from exchanges and store them in a database",
+  "version": "0.0.2",
+  "description": "Fetch candles from crypto exchanges and store them in a database",
   "author": "Pavel Valentov",
   "private": true,
   "license": "MIT",

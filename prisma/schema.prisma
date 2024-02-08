@@ -104,7 +104,7 @@ model CandleD1 {
   id         Int      @id @default(autoincrement())
   symbolId   Int
   exchangeId Int
-  timeframe  String
+  tf         Int      @default(1440)
   time       DateTime
   open       Float
   high       Float
@@ -115,8 +115,8 @@ model CandleD1 {
   exchange   Exchange @relation(fields: [exchangeId], references: [id])
   symbol     Symbol   @relation(fields: [symbolId], references: [id])
 
-  @@unique([symbolId, exchangeId, timeframe, time])
-  @@index([symbolId, exchangeId, timeframe])
+  @@unique([symbolId, exchangeId, tf, time])
+  @@index([symbolId, exchangeId, tf])
   @@index([symbolId, exchangeId])
 }
 

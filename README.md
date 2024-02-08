@@ -1,4 +1,4 @@
-# Fetch crypto exchanges candles (klines) and save to Postgres database 
+# Fetches crypto exchanges candles (K-lines) and saves it to a Postgres database 
 
 ## Supported exchanges
 * Binance
