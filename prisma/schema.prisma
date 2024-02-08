@@ -23,28 +23,28 @@ model TopCoin {
 }
 
 model Symbol {
-  id              Int      @id @default(autoincrement())
-  name            String   @unique
-  disabled        Boolean  @default(false)
-  ExportCandle    ExportCandle[]
-  Candle          Candle[]
-  CandleD1        CandleD1[]
-  Market          Market[]
-  ATHL            ATHL[]
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  disabled     Boolean        @default(false)
+  ATHL         ATHL[]
+  Candle       Candle[]
+  CandleD1     CandleD1[]
+  ExportCandle ExportCandle[]
+  Market       Market[]
 }
 
 model Exchange {
-  id              Int      @id @default(autoincrement())
-  name            String   @unique
-  apiUri          String?
-  candlesUri      String?
-  disabled        Boolean  @default(false)
-  priority        Int      @default(999)
-  ExportCandle    ExportCandle[]
-  Candle          Candle[]
-  CandleD1        CandleD1[]
-  Market          Market[]
-  ATHL            ATHL[]
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  apiUri       String?
+  candlesUri   String?
+  disabled     Boolean        @default(false)
+  priority     Int            @default(999)
+  ATHL         ATHL[]
+  Candle       Candle[]
+  CandleD1     CandleD1[]
+  ExportCandle ExportCandle[]
+  Market       Market[]
 }
 
 model Market {
@@ -91,8 +91,8 @@ model ExportCandle {
   tf         Int
   time       DateTime
   till       DateTime
-  symbol     Symbol   @relation(fields: [symbolId], references: [id])
   exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
 
   @@unique([symbolId, exchangeId, tf, time])
   @@index([symbolId, exchangeId, tf])
@@ -121,22 +121,22 @@ model CandleD1 {
 }
 
 model ATHL {
-  id          Int       @id @default(autoincrement())
-  symbolId    Int
-  exchangeId  Int
-  high        Float
-  highTime    DateTime  @default(now())
-  low         Float
-  lowTime     DateTime  @default(now())
-  start       Float     // start price
-  startTime   DateTime  @default(now())
-  close       Float     // close current price
-  closeTime   DateTime  @default(now())
-  index       Float     @default(0)
-  position    Float     @default(0)
-  ath         Float     @default(0)
-  exchange    Exchange  @relation(fields: [exchangeId], references: [id])
-  symbol      Symbol    @relation(fields: [symbolId], references: [id])
+  id         Int      @id @default(autoincrement())
+  symbolId   Int
+  exchangeId Int
+  high       Float
+  low        Float
+  start      Float
+  close      Float
+  index      Float    @default(0)
+  position   Float    @default(0)
+  ath        Float    @default(0)
+  closeTime  DateTime @default(now())
+  highTime   DateTime @default(now())
+  lowTime    DateTime @default(now())
+  startTime  DateTime @default(now())
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
 
   @@unique([symbolId, exchangeId])
 }
