@@ -110,7 +110,11 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { saved: 0 };
 
-        Logger.log(`[binance] Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}`);
+        if (candles?.length) {
+          Logger.log(
+            `[binance] Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}: ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
+          );
+        }
 
         if (candles?.length <= 3) {
           this.delayCoin[coin.coin] = Date.now();
