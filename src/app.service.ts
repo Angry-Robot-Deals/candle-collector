@@ -1218,8 +1218,8 @@ export class AppService implements OnApplicationBootstrap {
           name: coin[1],
           logo: coin[2],
           price:
-            typeof coin[3] === 'string' && +coin[3].replaceAll('$', '').replaceAll(',', '')
-              ? +coin[3].replaceAll('$', '').replaceAll(',', '')
+            typeof coin[3] === 'string' && +coin[3].replaceAll('$', '').replaceAll(',', '').replaceAll('...', '')
+              ? +coin[3].replaceAll('$', '').replaceAll(',', '').replaceAll('...', '')
               : coin[3],
           volumeCap:
             typeof coin[4] === 'string' && +coin[4].replace(` ${coin[0]}`, '').replaceAll(',', '').trim()
@@ -1252,7 +1252,7 @@ export class AppService implements OnApplicationBootstrap {
 
         // console.log(savedCoin);
       } catch (e) {
-        console.error(e.message);
+        Logger.error(`Error update Top Coins: ${e.message}. ${JSON.stringify(coin)}`, 'updateTopCoins');
       }
     }
 
