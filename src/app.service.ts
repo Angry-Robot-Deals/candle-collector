@@ -23,7 +23,6 @@ import {
   HUOBI_TIMEFRAME,
   OKX_TIMEFRAME,
   POLONIEX_TIMEFRAME,
-  STABLES,
 } from './exchange.constant';
 import { isCorrectSymbol, mapLimit } from './utils';
 import { PrismaService } from './prisma.service';
@@ -59,45 +58,45 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchTopCoinsM1Candles() {
-    const coins = (await this.getTopCoins()) || [];
+    const coins = (await this.prisma.getTopCoinFirstExchange()) || [];
     if (!coins?.length) {
       Logger.error('Error loading top coins', 'fetchTopCoinsM1Candles');
       return;
     }
 
     // for (const coin of coins.slice(0, 150) || []) {
-    for (const coin of coins) {
-      if (this.badCoins.includes(coin.coin)) {
+    for (const row of coins) {
+      if (this.badCoins.includes(row.coin)) {
         continue;
       }
 
-      if (this.delayCoin?.[coin.coin] && Date.now() - this.delayCoin?.[coin.coin] < FETCH_DELAY) {
+      if (this.delayCoin?.[row.coin] && Date.now() - this.delayCoin?.[row.coin] < FETCH_DELAY) {
         continue;
       }
 
-      if (this.badSymbols['binance'] && this.badSymbols['binance'].includes(`${coin.coin}/USDT`)) {
+      if (this.badSymbols[row.exchange] && this.badSymbols[row.exchange].includes(row.symbol)) {
         continue;
       }
 
       const candles = await this.fetchCandles({
-        exchange: 'binance',
-        symbol: `${coin.coin}/USDT`,
+        exchange: row.exchange,
+        symbol: row.symbol,
         timeframe: TIMEFRAME.M1,
-        limit: 1000,
+        limit: 60,
       });
 
       if (typeof candles === 'string') {
         Logger.error(candles, 'fetchTopCoinsM1Candles');
-        this.badCoins.push(coin.coin);
+        this.badCoins.push(row.coin);
       } else {
-        const exchangeId = await this.getExchangeId('binance');
+        const exchangeId = await this.getExchangeId(row.exchange);
         if (!exchangeId) {
-          return `Error get an exchange id 'binance'`;
+          return `Error get an exchange id [${row.exchange}]`;
         }
 
-        const symbolId = await this.getSymbolId(`${coin.coin}/USDT`);
+        const symbolId = await this.getSymbolId(row.symbol);
         if (!symbolId) {
-          return `Error get a symbol id ${coin.coin}/USDT`;
+          return `Error get a symbol id ${row.symbol}`;
         }
 
         const saved = candles?.length
@@ -111,13 +110,13 @@ export class AppService implements OnApplicationBootstrap {
 
         if (candles?.length) {
           Logger.log(
-            `[binance] Saved ${TIMEFRAME.M1} ${coin.coin} ${JSON.stringify(saved)}: ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
+            `[${row.exchange}] Saved ${TIMEFRAME.M1} ${row.coin} ${JSON.stringify(saved)}: ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
           );
         }
 
         if (candles?.length <= 3) {
-          this.delayCoin[coin.coin] = Date.now();
-          Logger.warn(`Delay COIN ${coin.coin} ${candles.length}`);
+          this.delayCoin[row.coin] = Date.now();
+          Logger.warn(`Delay COIN ${row.coin} ${candles.length}`);
         }
       }
 
@@ -1017,7 +1016,7 @@ export class AppService implements OnApplicationBootstrap {
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
           Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         } else {
-          maxTimestamp = new Date('2023-01-01T00:00:00.000Z');
+          maxTimestamp = new Date('2022-01-01T00:00:00.000Z');
         }
       }
     }
@@ -1108,23 +1107,6 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     return candles.map((candle) => ({ ...candle, time: getCandleHumanTime(timeframe, candle.time) }));
-  }
-
-  async getTopCoins(): Promise<any[]> {
-    // select top coins form prisma, which is not in the array STABLES, limit 30 records
-    return this.prisma.topCoin.findMany({
-      where: {
-        NOT: {
-          coin: {
-            in: STABLES,
-          },
-        },
-      },
-      orderBy: {
-        cost24: 'desc',
-      },
-      // take: 30,
-    });
   }
 
   async getATHL(): Promise<any[]> {

@@ -9,11 +9,12 @@ function getCandleURI(data: {
   synonym: string;
   timeframe: keyof typeof MEXC_TIMEFRAME;
   start: number; // milliseconds, include a candle with this value
+  end: number; // milliseconds, include a candle with this value
   limit: number; // milliseconds, include a candle with this value
 }): string {
-  const { synonym, timeframe, start, limit } = data;
+  const { synonym, timeframe, start, end, limit } = data;
 
-  return `https://api.mexc.com/api/v3/klines?symbol=${synonym}&interval=${timeframe}&startTime=${start}&limit=${limit}`;
+  return `https://api.mexc.com/api/v3/klines?symbol=${synonym}&interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`;
 }
 
 async function fetchCandles(data: {
@@ -24,11 +25,18 @@ async function fetchCandles(data: {
 }): Promise<OHLCV_Mexc[] | string> {
   const { synonym, timeframe, start, limit } = data;
 
-  return await fetch(getCandleURI({ synonym, timeframe, start, limit }))
+  const end = start + limit * timeframeMSeconds(timeframe);
+
+  console.log(data, getCandleURI({ synonym, timeframe, start, end, limit }));
+
+  return await fetch(getCandleURI({ synonym, timeframe, start, end, limit }))
     .then((res) => res.json())
     .then((res) => {
       if (!res || !Array.isArray(res)) {
-        Logger.error(`[mexc] bad response: ${getCandleURI({ synonym, timeframe, start, limit })}`, 'fetchCandles.mexc');
+        Logger.error(
+          `[mexc] bad response: ${getCandleURI({ synonym, timeframe, start, end, limit })}`,
+          'fetchCandles.mexc',
+        );
 
         return `Bad response ${JSON.stringify(res || {})}`;
       }

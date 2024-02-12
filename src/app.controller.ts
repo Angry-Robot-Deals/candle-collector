@@ -33,7 +33,18 @@ export class AppController {
 
   @Get('getTopCoins')
   async getTopCoins(): Promise<any[]> {
-    return this.appService.getTopCoins();
+    return this.prisma.getTopCoins();
+  }
+
+  @Get('getTopCoinMarkets')
+  async getTopCoinMarkets(): Promise<any[]> {
+    return this.prisma.getTopCoinMarkets();
+  }
+
+  @Get('getTopCoinFirstExchange')
+  async getTopCoinFirstExchange(): Promise<any> {
+    const data = await this.prisma.getTopCoinFirstExchange();
+    return { count: (data as any[]).length, data };
   }
 
   @CacheTTL(300000) // 5 minutes
