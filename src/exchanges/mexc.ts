@@ -21,13 +21,10 @@ async function fetchCandles(data: {
   synonym: string;
   timeframe: keyof typeof MEXC_TIMEFRAME;
   start: number; // milliseconds, include a candle with this value
+  end: number; // milliseconds, include a candle with this value
   limit: number; // milliseconds, include a candle with this value
 }): Promise<OHLCV_Mexc[] | string> {
-  const { synonym, timeframe, start, limit } = data;
-
-  const end = start + limit * timeframeMSeconds(timeframe);
-
-  console.log(data, getCandleURI({ synonym, timeframe, start, end, limit }));
+  const { synonym, timeframe, start, end, limit } = data;
 
   return await fetch(getCandleURI({ synonym, timeframe, start, end, limit }))
     .then((res) => res.json())
@@ -50,19 +47,28 @@ async function fetchCandles(data: {
     });
 }
 
-export async function mexcFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | string> {
-  const { synonym } = data;
+export async function mexcFindFirstCandle(data: {
+  synonym: string;
+  timeframe: TIMEFRAME;
+  startTime?: number;
+}): Promise<Date | string> {
+  const { synonym, startTime } = data;
   const timeframe = MEXC_TIMEFRAME[data.timeframe];
 
   const limit = 999;
 
-  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z').getTime());
+  let start = getCandleTime(data.timeframe, new Date(startTime || '2017-01-01T00:00:00.000Z').getTime());
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   while (start < end) {
-    const candles = await fetchCandles({ synonym, timeframe, start, limit });
+    Logger.debug(
+      `[mexc] find first candle ${synonym} ${data.timeframe} start ${new Date(start).toISOString()} end ${new Date(end).toISOString()}`,
+      'mexcFindFirstCandle',
+    );
+
+    const candles = await fetchCandles({ synonym, timeframe, start, end, limit });
     if (typeof candles === 'string') {
       return candles;
     }
@@ -97,6 +103,7 @@ export async function mexcFetchCandles(data: {
   synonym: string;
   timeframe: TIMEFRAME;
   start: number; // milliseconds, include a candle with this value
+  end: number; // milliseconds, include a candle with this value
   limit: number; // milliseconds, include a candle with this value
 }): Promise<CandleDb[] | string> {
   const timeframe = MEXC_TIMEFRAME[data.timeframe];

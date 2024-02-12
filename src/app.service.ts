@@ -82,7 +82,6 @@ export class AppService implements OnApplicationBootstrap {
         exchange: row.exchange,
         symbol: row.symbol,
         timeframe: TIMEFRAME.M1,
-        limit: 60,
       });
 
       if (typeof candles === 'string') {
@@ -1012,11 +1011,30 @@ export class AppService implements OnApplicationBootstrap {
           symbolId,
           tf: timeframeMinutes(timeframe),
         });
+
         if (maxTimestamp) {
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
           Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
         } else {
-          maxTimestamp = new Date('2022-01-01T00:00:00.000Z');
+          if (exchange === 'mexc') {
+            const firstResMexc = await mexcFindFirstCandle({
+              synonym,
+              timeframe,
+              startTime: new Date('2022-01-01T00:00:00.000Z').getTime(),
+            });
+
+            if (typeof firstResMexc === 'string') {
+              if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
+                Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+              }
+              return [];
+            }
+
+            maxTimestamp = firstResMexc;
+          } else {
+            maxTimestamp = new Date('2022-01-01T00:00:00.000Z');
+          }
         }
       }
     }
@@ -1072,11 +1090,13 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'mexc':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        endTime = startTime + (limit || 999) * timeframeMSeconds(timeframe);
+
         if (startTime >= endTime) {
           return [];
         }
 
-        candles = await mexcFetchCandles({ synonym, timeframe, start: startTime, limit: limit || 999 });
+        candles = await mexcFetchCandles({ synonym, timeframe, start: startTime, end: endTime, limit: limit || 999 });
         break;
       case 'bybit':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;

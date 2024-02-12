@@ -41,7 +41,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     const query = Prisma.sql`
       WITH RankedExchanges AS (
         SELECT
-          tc.coin,
+          tc.coin AS coin,
           s.id AS "symbolId",
           s.name AS symbol,
           e.id AS "exchangeId",
@@ -64,6 +64,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       WHERE
         rn = 1
         AND NOT coin IN (${Prisma.join(STABLES)})
+      ORDER BY coin ASC
     `;
 
     return this.$queryRaw(query);
