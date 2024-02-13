@@ -1050,8 +1050,8 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'okx':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
-        endTime = Math.min(startTime + (limit || 64) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
-        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime, limit || 64);
+        endTime = Math.min(startTime + (limit || 100) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
+        candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime, limit || 100);
         break;
       case 'huobi':
         candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);
