@@ -113,7 +113,7 @@ export class AppService implements OnApplicationBootstrap {
           );
         }
 
-        if (candles?.length <= 3) {
+        if (candles?.length <= 10) {
           this.delayCoin[row.coin] = Date.now();
           Logger.warn(`Delay COIN ${row.coin} ${candles.length}`);
         }
