@@ -4,6 +4,7 @@ import { timeframeMSeconds } from '../timeseries.constant';
 import { TIMEFRAME } from '../timeseries.interface';
 import { CandleDb } from '../interface';
 import { MEXC_TIMEFRAME, OHLCV_Mexc } from './mexc.interface';
+import { START_FETCH_TIME } from '../app.constant';
 
 function getCandleURI(data: {
   synonym: string;
@@ -57,7 +58,7 @@ export async function mexcFindFirstCandle(data: {
 
   const limit = 999;
 
-  let start = getCandleTime(data.timeframe, new Date(startTime || '2017-01-01T00:00:00.000Z').getTime());
+  let start = getCandleTime(data.timeframe, new Date(startTime || START_FETCH_TIME.getTime()).getTime());
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));

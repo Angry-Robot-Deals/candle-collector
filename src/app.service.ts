@@ -29,7 +29,7 @@ import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
-import { CALCULATE_ATHL_PERIOD, FETCH_DELAY } from './app.constant';
+import { CALCULATE_ATHL_PERIOD, FETCH_DELAY, START_FETCH_TIME } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 
@@ -952,7 +952,8 @@ export class AppService implements OnApplicationBootstrap {
               break;
             case 'okx':
               maxTimestamp = await okxFindFirstCandle({ synonym, timeframe });
-              // console.log('okxFindFirstCandle', symbol, maxTimestamp);
+
+              console.log('okxFindFirstCandle', symbol, new Date(maxTimestamp || 0).toISOString());
 
               if (!maxTimestamp) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
@@ -1020,7 +1021,7 @@ export class AppService implements OnApplicationBootstrap {
             const firstResMexc = await mexcFindFirstCandle({
               synonym,
               timeframe,
-              startTime: new Date('2024-01-01T00:00:00.000Z').getTime(),
+              startTime: START_FETCH_TIME.getTime(),
             });
 
             if (typeof firstResMexc === 'string') {
@@ -1033,7 +1034,7 @@ export class AppService implements OnApplicationBootstrap {
 
             maxTimestamp = firstResMexc;
           } else {
-            maxTimestamp = new Date('2024-01-01T00:00:00.000Z');
+            maxTimestamp = START_FETCH_TIME;
           }
         }
       }
@@ -1126,7 +1127,11 @@ export class AppService implements OnApplicationBootstrap {
       return `Error fetch candles ${exchange} ${symbol}} ${timeframe}`;
     }
 
-    return candles.map((candle) => ({ ...candle, time: getCandleHumanTime(timeframe, candle.time) }));
+    return candles
+      .map((candle) => ({ ...candle, time: getCandleHumanTime(timeframe, candle.time) }))
+      .sort((a, b) => {
+        return a.time.getTime() - b.time.getTime();
+      });
   }
 
   async getATHL(): Promise<any[]> {

@@ -17,6 +17,7 @@ import { CandleDb, OHLCV_Binance, OHLCV_Bybit, OHLCV_Huobi, OHLCV_Okx, OHLCV_Pol
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
+import { START_FETCH_TIME } from './app.constant';
 
 export async function binanceFetchCandles(
   synonym: string,
@@ -169,7 +170,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
   // const synonym = 'BTC-USDT';
   const timeframe = BINANCE_TIMEFRAME[data.timeframe];
 
-  let start = new Date('2017-01-01T00:00:00.000Z').getTime();
+  let start = START_FETCH_TIME.getTime();
   // add 64 candles to start
   let end = Math.min(start + timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
@@ -219,7 +220,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
 
   const limit = 64;
 
-  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z'));
+  let start = getCandleTime(data.timeframe, START_FETCH_TIME);
   // let start = getCandleTime(data.timeframe, Date.now()) - 100 * timeframeMSeconds(data.timeframe);
   // let start = getCandleTime(data.timeframe, 1517443200000) - 100 * timeframeMSeconds(data.timeframe);
 
@@ -288,7 +289,7 @@ export async function poloniexFindFirstCandle(data: { synonym: string; timeframe
   const { synonym } = data;
   const timeframe = POLONIEX_TIMEFRAME[data.timeframe];
 
-  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z').getTime());
+  let start = getCandleTime(data.timeframe, START_FETCH_TIME.getTime());
 
   // add 64 candles to start
   let end = Math.min(start + 500 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
@@ -328,7 +329,7 @@ export async function bybitFindFirstCandle(data: { synonym: string; timeframe: T
 
   const limit = 999;
 
-  let start = getCandleTime(data.timeframe, new Date('2017-01-01T00:00:00.000Z').getTime());
+  let start = getCandleTime(data.timeframe, START_FETCH_TIME.getTime());
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));

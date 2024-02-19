@@ -51,7 +51,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         INNER JOIN public."Symbol" AS s ON s."name" = tc.coin || '/USDT'
         INNER JOIN public."Market" AS m ON m."symbolId" = s.id
         INNER JOIN public."Exchange" AS e ON m."exchangeId" = e.id
-        WHERE s.disabled != true AND LOWER(e.name) IN (${Prisma.join(TOP_COIN_EXCHANGES.map((exchange) => exchange.toLowerCase()))})
+        WHERE s.disabled != true AND m.disabled != true AND LOWER(e.name) IN (${Prisma.join(TOP_COIN_EXCHANGES.map((exchange) => exchange.toLowerCase()))})
         order by tc."cost24" desc
       )
       SELECT
