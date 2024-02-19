@@ -1020,7 +1020,7 @@ export class AppService implements OnApplicationBootstrap {
             const firstResMexc = await mexcFindFirstCandle({
               synonym,
               timeframe,
-              startTime: new Date('2022-01-01T00:00:00.000Z').getTime(),
+              startTime: new Date('2024-01-01T00:00:00.000Z').getTime(),
             });
 
             if (typeof firstResMexc === 'string') {
@@ -1033,7 +1033,7 @@ export class AppService implements OnApplicationBootstrap {
 
             maxTimestamp = firstResMexc;
           } else {
-            maxTimestamp = new Date('2022-01-01T00:00:00.000Z');
+            maxTimestamp = new Date('2024-01-01T00:00:00.000Z');
           }
         }
       }
