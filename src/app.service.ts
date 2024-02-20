@@ -389,7 +389,7 @@ export class AppService implements OnApplicationBootstrap {
             getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1) ||
             getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.D1, 1)
           ) {
-            limit = 1;
+            limit = 2;
           }
         }
       }
@@ -411,6 +411,7 @@ export class AppService implements OnApplicationBootstrap {
           if (!this.delayMarket[exchange.id]) {
             this.delayMarket[exchange.id] = {};
           }
+
           Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
           this.delayMarket[exchange.id][market.symbolId] = Date.now();
         }
@@ -483,7 +484,7 @@ export class AppService implements OnApplicationBootstrap {
               })
             : { fetched: 0 };
 
-          Logger.log(`Saved Month ${exchange.name} ${market.symbol.name} ${JSON.stringify(saved)}`);
+          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.M1: ${saved?.count || 0}`);
         }
       }
     }
