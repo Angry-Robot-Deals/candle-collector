@@ -109,7 +109,7 @@ export class AppService implements OnApplicationBootstrap {
 
         if (candles?.length) {
           Logger.log(
-            `[${row.exchange}] Saved ${TIMEFRAME.M1} ${row.coin} ${JSON.stringify(saved)}: ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
+            `Saved [${row.exchange}] ${row.coin}.${TIMEFRAME.M1}: ${saved?.count || 0} – ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
           );
         }
 
@@ -340,7 +340,6 @@ export class AppService implements OnApplicationBootstrap {
         synonym: 'asc',
       },
     });
-
     // console.log('markets', exchange, markets.length);
     if (!markets?.length) {
       Logger.warn(`[${exchange.name}] No markets`, 'fetchAllSymbolD1Candles');
@@ -425,7 +424,7 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { fetched: 0 };
 
-        Logger.log(`[${exchange.name}] Saved ${market.symbol.name}.D1 ${JSON.stringify(saved)}`);
+        Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`);
       }
 
       // 1-month candles
@@ -737,8 +736,7 @@ export class AppService implements OnApplicationBootstrap {
         skipDuplicates: true,
       });
     } catch (error) {
-      // Обработка ошибки, например, логирование или возврат ошибки
-      console.error(error);
+      console.error('Save Exchange Candles: ', error);
       return [];
     }
   }
