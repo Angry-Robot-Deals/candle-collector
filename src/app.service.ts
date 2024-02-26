@@ -1159,7 +1159,8 @@ export class AppService implements OnApplicationBootstrap {
         },
       },
       orderBy: {
-        position: 'desc',
+        closeTime: 'desc',
+        ath: 'desc',
       },
     });
   }
