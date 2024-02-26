@@ -19,7 +19,7 @@ export function poloniexCandleToCandleModel(candle: OHLCV_Poloniex): CandleDb {
     high: +candle[1],
     low: +candle[0],
     close: +candle[3],
-    volume: +candle[4],
+    volume: +candle[5],
     trades: candle[8],
   };
 }

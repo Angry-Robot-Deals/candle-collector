@@ -47,14 +47,14 @@ export class AppController {
     return { count: (data as any[]).length, data };
   }
 
-  @CacheTTL(300000) // 5 minutes
+  @CacheTTL(300) // 5 minutes
   @UseInterceptors(CacheInterceptor)
   @Get('getATHL')
   async getATHL(): Promise<any[]> {
     return this.appService.getATHL();
   }
 
-  @CacheTTL(300000) // 5 minutes
+  @CacheTTL(300) // 5 minutes
   @UseInterceptors(CacheInterceptor)
   @Get('getTopTradeCoins') // show top coins by turnover in USD
   // example: http://localhost:3000/getTopTradeCoins?turnover=1000000
