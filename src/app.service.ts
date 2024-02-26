@@ -1209,7 +1209,7 @@ export class AppService implements OnApplicationBootstrap {
         LastCandles
       WHERE
         rn = 1
-        and "cost" > ${minTurnover || 500000}
+        and "cost" > ${minTurnover || 10000}
       ORDER BY
         cost desc;
     `;
