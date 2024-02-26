@@ -1158,10 +1158,13 @@ export class AppService implements OnApplicationBootstrap {
           },
         },
       },
-      orderBy: {
-        closeTime: 'desc',
-        ath: 'desc',
-      },
+      orderBy: [
+        { symbol: { name: 'asc' } }, // Сортировка по имени символа
+        { exchange: { name: 'asc' } }, // Сортировка по имени биржи
+        { closeTime: 'desc' },
+        { ath: 'desc' },
+        { position: 'desc' },
+      ],
     });
   }
 
