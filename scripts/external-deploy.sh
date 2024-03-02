@@ -9,7 +9,7 @@ else
   exit 1
 fi
 
-scp -i "$APP_SERVER_SSH_KEY" ./.env.production "$APP_SERVER_USER":/repos/candle-collector/
+scp -i "$APP_SERVER_SSH_KEY" ./.env.production "$APP_SERVER_USER":/repos/candle-collector/.env
 
 ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
