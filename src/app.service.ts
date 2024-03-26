@@ -320,11 +320,17 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
-    const envExchanges = process.env.DAY_CANDLE_FETCH_EXCHANGES?.split(',').map((e) => e.trim()) || [];
+    const envExchanges =
+      process.env.DAY_CANDLE_FETCH_EXCHANGES?.split(',')
+        .map((e) => e.trim())
+        .filter((e) => !!e) || [];
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
-      Logger.warn(`[${exchange.name}] Exchange is not enabled`, 'fetchAllSymbolD1Candles');
+      Logger.warn(
+        `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
+        'fetchAllSymbolD1Candles',
+      );
       return;
     }
 
