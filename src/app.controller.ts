@@ -51,6 +51,11 @@ export class AppController {
     return this.appService.getATHL();
   }
 
+  @Get('getATHL/:symbol')
+  async getATHLSymbol(@Param('symbol') symbol: string): Promise<any> {
+    return this.appService.getATHLSymbol(symbol);
+  }
+
   @Get('getTopTradeCoins') // show top coins by turnover in USD
   // example: http://localhost:3000/getTopTradeCoins?turnover=1000000
   async getTopTradeCoins(@Query('turnover') turnover: string): Promise<any[]> {

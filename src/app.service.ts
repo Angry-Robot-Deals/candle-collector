@@ -1177,6 +1177,40 @@ export class AppService implements OnApplicationBootstrap {
     });
   }
 
+  async getATHLSymbol(symbol: string): Promise<any> {
+    // select top coins form prisma, which is not in the array STABLES, limit 30 records
+    return this.prisma.aTHL.findMany({
+      select: {
+        exchange: {
+          select: { name: true },
+        },
+        symbol: {
+          select: { name: true },
+        },
+        highTime: true,
+        lowTime: true,
+        startTime: true,
+        closeTime: true,
+        index: true,
+        position: true,
+        ath: true,
+      },
+      where: {
+        symbol: {
+          name: {
+            endsWith: symbol.toUpperCase().replace('-', '/'),
+          },
+        },
+      },
+      orderBy: [
+        { symbol: { name: 'asc' } }, // Сортировка по имени символа
+        { closeTime: 'desc' },
+        { ath: 'desc' },
+        { position: 'desc' },
+      ],
+    });
+  }
+
   async getTopTradeCoins(minTurnover?: number): Promise<any[]> {
     return this.prisma.$queryRaw`
       WITH LastCandles AS (
