@@ -1,18 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as process from 'node:process';
+import { AppModule } from './app.module';
+import { Logger } from '@nestjs/common';
 
 const dotenv = import('dotenv');
 
-async function bootstrap() {
+(async function () {
   (await dotenv).configDotenv();
 
-  /// <reference types="node" />
-  process.setMaxListeners(15);
-
-  // console.log('PrismaService init', process.env.DATABASE_URL);
-
   const app = await NestFactory.create(AppModule);
-  await app.listen(14444);
-}
-bootstrap();
+  await app.listen(process.env.API_PORT);
+
+  Logger.log(`🚀 http://localhost:${process.env.API_PORT}`);
+})();

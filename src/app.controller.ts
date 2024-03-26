@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query, UseInterceptors } from '@nestjs/common';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Exchange as ExchangeModel, Market as MarketModel } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { AppService } from './app.service';
 import { TIMEFRAME } from './timeseries.interface';
-import { Exchange as ExchangeModel, Market as MarketModel } from '@prisma/client';
 
 @Controller()
 export class AppController {
@@ -47,15 +46,11 @@ export class AppController {
     return { count: (data as any[]).length, data };
   }
 
-  @CacheTTL(300) // 5 minutes
-  @UseInterceptors(CacheInterceptor)
   @Get('getATHL')
   async getATHL(): Promise<any[]> {
     return this.appService.getATHL();
   }
 
-  @CacheTTL(300) // 5 minutes
-  @UseInterceptors(CacheInterceptor)
   @Get('getTopTradeCoins') // show top coins by turnover in USD
   // example: http://localhost:3000/getTopTradeCoins?turnover=1000000
   async getTopTradeCoins(@Query('turnover') turnover: string): Promise<any[]> {
