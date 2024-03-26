@@ -1198,7 +1198,7 @@ export class AppService implements OnApplicationBootstrap {
       where: {
         symbol: {
           name: {
-            endsWith: symbol.toUpperCase().replace('-', '/'),
+            equals: symbol.toUpperCase().replace('-', '/'),
           },
         },
       },
