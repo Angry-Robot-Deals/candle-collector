@@ -128,6 +128,7 @@ export class AppService implements OnApplicationBootstrap {
   async fetchAllSymbolD1Candles() {
     const exchanges = await this.getExchanges();
     if (!exchanges?.length) {
+      Logger.error('No exchanges found', 'fetchAllSymbolD1Candles');
       return;
     }
 
@@ -208,7 +209,7 @@ export class AppService implements OnApplicationBootstrap {
 
     // await this.prisma.aTHL.deleteMany({});
 
-    console.log('ATHL SELECT:', results.length, Date.now() - start, 'ms');
+    Logger.log(`ATHL selected ${results.length} for ${Date.now() - start} ms`);
 
     let i = 0;
     // for each symbolId and exchangeId
@@ -323,8 +324,11 @@ export class AppService implements OnApplicationBootstrap {
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
+      Logger.warn(`[${exchange.name}] Exchange is not enabled`, 'fetchAllSymbolD1Candles');
       return;
     }
+
+    Logger.debug(`[${exchange.name}] Prepare to fetch D1 candles`, 'fetchAllSymbolD1Candles');
 
     const markets = await this.prisma.market.findMany({
       select: {
