@@ -242,6 +242,28 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
+      const quantiles: Record<string, string | number> = await this.prisma.$queryRaw`
+        select
+        s."name" as symbol,
+        e."name" as exchange,
+        max(high) as "ath",
+        min(low) as "atl",
+        percentile_cont(0.236) WITHIN GROUP (ORDER BY close) as "quantile236",
+        percentile_cont(0.382) WITHIN GROUP (ORDER BY close) as "quantile382",
+        percentile_cont(0.50) WITHIN GROUP (ORDER BY close) as "quantile50",
+        percentile_cont(0.618) WITHIN GROUP (ORDER BY close) as "quantile618",
+        percentile_cont(0.786) WITHIN GROUP (ORDER BY close) as "quantile786"
+        FROM public."CandleD1" c
+          INNER JOIN public."Symbol" s ON s.id = c."symbolId"
+          INNER JOIN public."Exchange" e on e.id = c."exchangeId"
+        WHERE
+          e.id = ${symbol.exchangeId} AND
+          s.id = ${symbol.symbolId}
+        GROUP BY "symbol", "exchange"
+        HAVING max(high) > 0.000000000001 AND min(low) > 0.000000000001
+      `;
+      // console.log(symbol.exchangeId, symbol.symbolId, quantiles);
+
       const highRange = symbol._max.high - firstCandle.open;
       // const lowRange = firstCandle.open - symbol._min.low || symbol._max.high / 2;
       const zeroRange = firstCandle.open || symbol._max.high / 2;
@@ -277,6 +299,11 @@ export class AppService implements OnApplicationBootstrap {
           highTime: symbol.highTime,
           low: symbol._min.low,
           lowTime: symbol.lowTime,
+          quantile236: +quantiles?.quantile236 || 0,
+          quantile382: +quantiles?.quantile382 || 0,
+          quantile50: +quantiles?.quantile50 || 0,
+          quantile618: +quantiles?.quantile618 || 0,
+          quantile786: +quantiles?.quantile786 || 0,
           start: firstCandle.open,
           startTime: firstCandle.time,
           close: lastCandle.close,
@@ -290,6 +317,11 @@ export class AppService implements OnApplicationBootstrap {
           highTime: symbol.highTime,
           low: symbol._min.low,
           lowTime: symbol.lowTime,
+          quantile236: +quantiles?.quantile236 || 0,
+          quantile382: +quantiles?.quantile382 || 0,
+          quantile50: +quantiles?.quantile50 || 0,
+          quantile618: +quantiles?.quantile618 || 0,
+          quantile786: +quantiles?.quantile786 || 0,
           start: firstCandle.open,
           startTime: firstCandle.time,
           close: lastCandle.close,
