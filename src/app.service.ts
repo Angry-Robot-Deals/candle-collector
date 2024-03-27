@@ -177,8 +177,6 @@ export class AppService implements OnApplicationBootstrap {
 
     // console.log('daySymbols', daySymbols);
 
-    const jobSaveATHL = [];
-
     const results = await mapLimit(daySymbols, 3, async (symbol) => {
       const lowTime = await this.prisma.candleD1.findFirst({
         where: {
@@ -287,8 +285,8 @@ export class AppService implements OnApplicationBootstrap {
 
       const ath = lastCandle.close / symbol._max.high - 1;
 
-      jobSaveATHL.push(
-        this.prisma.aTHL.upsert({
+      await this.prisma.aTHL
+        .upsert({
           where: {
             symbolId_exchangeId: {
               symbolId: symbol.symbolId,
@@ -333,8 +331,13 @@ export class AppService implements OnApplicationBootstrap {
             position,
             ath,
           },
-        }),
-      );
+        })
+        .catch((err) => {
+          Logger.error(
+            `Error calculate all ATHL [${quantiles?.[0]?.exchange}] ${quantiles?.[0]?.symbol}: ${err.message}`,
+            'calculateAllATHL',
+          );
+        });
 
       if (i % 10 === 0) {
         console.log(
@@ -353,10 +356,6 @@ export class AppService implements OnApplicationBootstrap {
         );
       }
     }
-
-    await Promise.all(jobSaveATHL).catch((err) => {
-      Logger.error(`Error calculate all ATHL: ${err.message}`, 'calculateAllATHL');
-    });
 
     setTimeout(() => this.calculateAllATHL(), CALCULATE_ATHL_PERIOD);
   }
