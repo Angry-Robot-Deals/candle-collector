@@ -344,7 +344,7 @@ export class AppService implements OnApplicationBootstrap {
           daySymbols.length,
           quantiles?.[0]?.exchange,
           quantiles?.[0]?.symbol,
-          +quantiles?.[0]?.quantile618 || -1,
+          +quantiles?.[0]?.quantile618,
           quantiles?.[0]?.ath,
           results.length,
           Date.now() - start,
