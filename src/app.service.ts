@@ -177,7 +177,9 @@ export class AppService implements OnApplicationBootstrap {
 
     // console.log('daySymbols', daySymbols);
 
-    const results = await mapLimit(daySymbols, 5, async (symbol) => {
+    const jobSaveATHL = [];
+
+    const results = await mapLimit(daySymbols, 3, async (symbol) => {
       const lowTime = await this.prisma.candleD1.findFirst({
         where: {
           symbolId: symbol.symbolId,
@@ -242,7 +244,7 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
-      const quantiles: Record<string, string | number> = await this.prisma.$queryRaw`
+      const quantiles: Record<string, string | number>[] = await this.prisma.$queryRaw`
         select
         s."name" as symbol,
         e."name" as exchange,
@@ -285,68 +287,75 @@ export class AppService implements OnApplicationBootstrap {
 
       const ath = lastCandle.close / symbol._max.high - 1;
 
-      const athl = await this.prisma.aTHL.upsert({
-        where: {
-          symbolId_exchangeId: {
+      jobSaveATHL.push(
+        this.prisma.aTHL.upsert({
+          where: {
+            symbolId_exchangeId: {
+              symbolId: symbol.symbolId,
+              exchangeId: symbol.exchangeId,
+            },
+          },
+          create: {
             symbolId: symbol.symbolId,
             exchangeId: symbol.exchangeId,
+            high: symbol._max.high,
+            highTime: symbol.highTime,
+            low: symbol._min.low,
+            lowTime: symbol.lowTime,
+            quantile236: +quantiles?.[0]?.quantile236 || -1,
+            quantile382: +quantiles?.[0]?.quantile382 || -1,
+            quantile50: +quantiles?.[0]?.quantile50 || -1,
+            quantile618: +quantiles?.[0]?.quantile618 || -1,
+            quantile786: +quantiles?.[0]?.quantile786 || -1,
+            start: firstCandle.open,
+            startTime: firstCandle.time,
+            close: lastCandle.close,
+            closeTime: lastCandle.time,
+            index,
+            position,
+            ath,
           },
-        },
-        create: {
-          symbolId: symbol.symbolId,
-          exchangeId: symbol.exchangeId,
-          high: symbol._max.high,
-          highTime: symbol.highTime,
-          low: symbol._min.low,
-          lowTime: symbol.lowTime,
-          quantile236: +quantiles?.quantile236 || 0,
-          quantile382: +quantiles?.quantile382 || 0,
-          quantile50: +quantiles?.quantile50 || 0,
-          quantile618: +quantiles?.quantile618 || 0,
-          quantile786: +quantiles?.quantile786 || 0,
-          start: firstCandle.open,
-          startTime: firstCandle.time,
-          close: lastCandle.close,
-          closeTime: lastCandle.time,
-          index,
-          position,
-          ath,
-        },
-        update: {
-          high: symbol._max.high,
-          highTime: symbol.highTime,
-          low: symbol._min.low,
-          lowTime: symbol.lowTime,
-          quantile236: +quantiles?.quantile236 || 0,
-          quantile382: +quantiles?.quantile382 || 0,
-          quantile50: +quantiles?.quantile50 || 0,
-          quantile618: +quantiles?.quantile618 || 0,
-          quantile786: +quantiles?.quantile786 || 0,
-          start: firstCandle.open,
-          startTime: firstCandle.time,
-          close: lastCandle.close,
-          closeTime: lastCandle.time,
-          index,
-          position,
-          ath,
-        },
-      });
+          update: {
+            high: symbol._max.high,
+            highTime: symbol.highTime,
+            low: symbol._min.low,
+            lowTime: symbol.lowTime,
+            quantile236: +quantiles?.[0]?.quantile236 || -1,
+            quantile382: +quantiles?.[0]?.quantile382 || -1,
+            quantile50: +quantiles?.[0]?.quantile50 || -1,
+            quantile618: +quantiles?.[0]?.quantile618 || -1,
+            quantile786: +quantiles?.[0]?.quantile786 || -1,
+            start: firstCandle.open,
+            startTime: firstCandle.time,
+            close: lastCandle.close,
+            closeTime: lastCandle.time,
+            index,
+            position,
+            ath,
+          },
+        }),
+      );
 
       if (i % 10 === 0) {
         console.log(
+          'ATHL',
           i,
           '/',
           daySymbols.length,
+          quantiles?.[0]?.exchange,
+          quantiles?.[0]?.symbol,
+          +quantiles?.[0]?.quantile618 || -1,
+          quantiles?.[0]?.ath,
           results.length,
-          'index',
-          athl.index * 100,
-          'pos',
-          athl.position * 100,
           Date.now() - start,
           'ms',
         );
       }
     }
+
+    await Promise.all(jobSaveATHL).catch((err) => {
+      Logger.error(`Error calculate all ATHL: ${err.message}`, 'calculateAllATHL');
+    });
 
     setTimeout(() => this.calculateAllATHL(), CALCULATE_ATHL_PERIOD);
   }
@@ -1185,6 +1194,13 @@ export class AppService implements OnApplicationBootstrap {
         symbol: {
           select: { name: true },
         },
+        high: true,
+        low: true,
+        quantile236: true,
+        quantile382: true,
+        quantile50: true,
+        quantile618: true,
+        quantile786: true,
         highTime: true,
         lowTime: true,
         startTime: true,
@@ -1219,6 +1235,13 @@ export class AppService implements OnApplicationBootstrap {
         symbol: {
           select: { name: true },
         },
+        high: true,
+        low: true,
+        quantile236: true,
+        quantile382: true,
+        quantile50: true,
+        quantile618: true,
+        quantile786: true,
         highTime: true,
         lowTime: true,
         startTime: true,
