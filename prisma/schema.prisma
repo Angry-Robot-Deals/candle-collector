@@ -121,22 +121,27 @@ model CandleD1 {
 }
 
 model ATHL {
-  id         Int      @id @default(autoincrement())
-  symbolId   Int
-  exchangeId Int
-  high       Float
-  low        Float
-  start      Float
-  close      Float
-  index      Float    @default(0)
-  position   Float    @default(0)
-  ath        Float    @default(0)
-  closeTime  DateTime @default(now())
-  highTime   DateTime @default(now())
-  lowTime    DateTime @default(now())
-  startTime  DateTime @default(now())
-  exchange   Exchange @relation(fields: [exchangeId], references: [id])
-  symbol     Symbol   @relation(fields: [symbolId], references: [id])
+  id          Int      @id @default(autoincrement())
+  symbolId    Int
+  exchangeId  Int
+  high        Float
+  low         Float
+  quantile236 Float    @default(0)
+  quantile382 Float    @default(0)
+  quantile50  Float    @default(0)
+  quantile618 Float    @default(0)
+  quantile786 Float    @default(0)
+  start       Float
+  close       Float
+  index       Float    @default(0)
+  position    Float    @default(0)
+  ath         Float    @default(0)
+  closeTime   DateTime @default(now())
+  highTime    DateTime @default(now())
+  lowTime     DateTime @default(now())
+  startTime   DateTime @default(now())
+  exchange    Exchange @relation(fields: [exchangeId], references: [id])
+  symbol      Symbol   @relation(fields: [symbolId], references: [id])
 
   @@unique([symbolId, exchangeId])
 }
