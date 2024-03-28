@@ -1110,9 +1110,13 @@ export class AppService implements OnApplicationBootstrap {
       case 'poloniex':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
         endTime = Math.min(startTime + (limit || 499) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
+
         if (startTime >= endTime) {
-          return [];
+          // always fetch last candle
+          startTime = getCandleTimeByShift(timeframe, 1);
+          // return [];
         }
+
         candles = await poloniexFetchCandles(synonym, POLONIEX_TIMEFRAME[timeframe], startTime, endTime, limit || 500);
         break;
       case 'gateio':
@@ -1123,7 +1127,9 @@ export class AppService implements OnApplicationBootstrap {
           Math.ceil(getCandleTime(timeframe) / 1000),
         );
         if (startTime >= endTime) {
-          return [];
+          // always fetch last candle
+          startTime = Math.ceil(getCandleTimeByShift(timeframe, 1) / 1000); // seconds
+          // return [];
         }
         candles = await gateioFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
 
@@ -1144,7 +1150,9 @@ export class AppService implements OnApplicationBootstrap {
         endTime = startTime + (limit || 999) * timeframeMSeconds(timeframe);
 
         if (startTime >= endTime) {
-          return [];
+          // always fetch the last candle
+          startTime = getCandleTimeByShift(timeframe, 1);
+          // return [];
         }
 
         candles = await mexcFetchCandles({ synonym, timeframe, start: startTime, end: endTime, limit: limit || 999 });
@@ -1152,7 +1160,9 @@ export class AppService implements OnApplicationBootstrap {
       case 'bybit':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
         if (startTime >= endTime) {
-          return [];
+          // always fetch the last candle
+          startTime = getCandleTimeByShift(timeframe, 1);
+          // return [];
         }
         candles = await bybitFetchCandles(synonym, BYBIT_TIMEFRAME[timeframe], startTime, limit || 999);
         break;
