@@ -29,9 +29,10 @@ import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
-import { CALCULATE_ATHL_PERIOD, FETCH_DELAY, START_FETCH_TIME } from './app.constant';
+import { CALCULATE_ATHL_PERIOD, FETCH_DELAY, getStartFetchTime } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
+import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -1000,6 +1001,15 @@ export class AppService implements OnApplicationBootstrap {
                 return [];
               }
               break;
+            case 'kucoin':
+              maxTimestamp = await kucoinFindFirstCandle({ synonym, timeframe });
+
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                // await this.disableMarket({ exchangeId, symbolId });
+                return [];
+              }
+              break;
             case 'okx':
               maxTimestamp = await okxFindFirstCandle({ synonym, timeframe });
 
@@ -1071,7 +1081,7 @@ export class AppService implements OnApplicationBootstrap {
             const firstResMexc = await mexcFindFirstCandle({
               synonym,
               timeframe,
-              startTime: START_FETCH_TIME.getTime(),
+              startTime: getStartFetchTime(timeframe).getTime(),
             });
 
             if (typeof firstResMexc === 'string') {
@@ -1084,7 +1094,7 @@ export class AppService implements OnApplicationBootstrap {
 
             maxTimestamp = firstResMexc;
           } else {
-            maxTimestamp = START_FETCH_TIME;
+            maxTimestamp = getStartFetchTime(timeframe);
           }
         }
       }
@@ -1103,6 +1113,11 @@ export class AppService implements OnApplicationBootstrap {
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
         endTime = Math.min(startTime + (limit || 100) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
         candles = await okxFetchCandles(synonym, OKX_TIMEFRAME[timeframe], startTime, endTime, limit || 100);
+        break;
+      case 'kucoin':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        endTime = Math.min(startTime + (limit || 1500) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
+        candles = await kucoinFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
         break;
       case 'huobi':
         candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);

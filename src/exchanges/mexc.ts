@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { getCandleHumanTime, getCandleTime } from '../timeseries';
 import { timeframeMSeconds } from '../timeseries.constant';
+import { getStartFetchTime } from '../app.constant';
 import { TIMEFRAME } from '../timeseries.interface';
 import { CandleDb } from '../interface';
 import { MEXC_TIMEFRAME, OHLCV_Mexc } from './mexc.interface';
-import { START_FETCH_TIME } from '../app.constant';
 
 function getCandleURI(data: {
   synonym: string;
@@ -58,7 +58,10 @@ export async function mexcFindFirstCandle(data: {
 
   const limit = 999;
 
-  let start = getCandleTime(data.timeframe, new Date(startTime || START_FETCH_TIME.getTime()).getTime());
+  let start = getCandleTime(
+    data.timeframe,
+    new Date(startTime || getStartFetchTime(data.timeframe).getTime()).getTime(),
+  );
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));

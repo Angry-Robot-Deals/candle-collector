@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { getCandleHumanTime, getCandleTime } from '../timeseries';
+import { getStartFetchTime } from '../app.constant';
 import { timeframeSeconds } from '../timeseries.constant';
 import { TIMEFRAME } from '../timeseries.interface';
 import { CandleDb } from '../interface';
 import { GATEIO_TIMEFRAME, OHLCV_Gateio } from './gateio.interface';
-import { START_FETCH_TIME } from '../app.constant';
 
 function getCandleURI(data: {
   synonym: string;
@@ -54,7 +54,7 @@ export async function gateioFindFirstCandle(data: { synonym: string; timeframe: 
 
   const limit = 500;
 
-  let start = Math.ceil(getCandleTime(data.timeframe, START_FETCH_TIME.getTime()) / 1000);
+  let start = Math.ceil(getCandleTime(data.timeframe, getStartFetchTime(data.timeframe).getTime()) / 1000);
   let end = Math.min(
     start + limit * timeframeSeconds(data.timeframe),
     Math.ceil(getCandleTime(data.timeframe, Date.now()) / 1000),

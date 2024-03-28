@@ -17,7 +17,7 @@ import { CandleDb, OHLCV_Binance, OHLCV_Bybit, OHLCV_Huobi, OHLCV_Okx, OHLCV_Pol
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
-import { START_FETCH_TIME } from './app.constant';
+import { getStartFetchTime } from './app.constant';
 
 export async function binanceFetchCandles(
   synonym: string,
@@ -123,18 +123,18 @@ export async function bybitFetchCandles(
       return null;
     });
 
-  if (res?.retCode !== 0 || !res.result?.list || !Array.isArray(res.result.list)) {
+  if (res?.['retCode'] !== 0 || !res.result?.['list'] || !Array.isArray(res.result['list'])) {
     console.log(
       `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
     );
     return `Bad response ${JSON.stringify(res || {})}`;
   }
 
-  if (!res.result.list.length) {
+  if (!res.result['list'].length) {
     return [];
   }
 
-  return res.result.list.map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
+  return res.result['list'].map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
 }
 
 export async function huobiFetchCandles(
@@ -170,7 +170,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
   // const synonym = 'BTC-USDT';
   const timeframe = BINANCE_TIMEFRAME[data.timeframe];
 
-  let start = START_FETCH_TIME.getTime();
+  let start = getStartFetchTime(data.timeframe).getTime();
   // add 64 candles to start
   let end = Math.min(start + timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
@@ -220,7 +220,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
 
   const limit = 64;
 
-  let start = getCandleTime(data.timeframe, START_FETCH_TIME);
+  let start = getCandleTime(data.timeframe, getStartFetchTime(data.timeframe));
   // let start = getCandleTime(data.timeframe, Date.now()) - 100 * timeframeMSeconds(data.timeframe);
   // let start = getCandleTime(data.timeframe, 1517443200000) - 100 * timeframeMSeconds(data.timeframe);
 
@@ -289,7 +289,7 @@ export async function poloniexFindFirstCandle(data: { synonym: string; timeframe
   const { synonym } = data;
   const timeframe = POLONIEX_TIMEFRAME[data.timeframe];
 
-  let start = getCandleTime(data.timeframe, START_FETCH_TIME.getTime());
+  let start = getCandleTime(data.timeframe, getStartFetchTime(data.timeframe).getTime());
 
   // add 64 candles to start
   let end = Math.min(start + 500 * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
@@ -329,7 +329,7 @@ export async function bybitFindFirstCandle(data: { synonym: string; timeframe: T
 
   const limit = 999;
 
-  let start = getCandleTime(data.timeframe, START_FETCH_TIME.getTime());
+  let start = getCandleTime(data.timeframe, getStartFetchTime(data.timeframe).getTime());
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
@@ -343,8 +343,13 @@ export async function bybitFindFirstCandle(data: { synonym: string; timeframe: T
         return null;
       });
 
-    if (res?.retCode === 0 && res.result?.list && Array.isArray(res.result.list) && res.result.list.length) {
-      const minTime = Math.min(...res.result.list.map((candle: OHLCV_Bybit) => +candle[0]));
+    if (
+      res?.['retCode'] === 0 &&
+      res.result?.['list'] &&
+      Array.isArray(res.result['list']) &&
+      res.result['list'].length
+    ) {
+      const minTime = Math.min(...res.result['list'].map((candle: OHLCV_Bybit) => +candle[0]));
 
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
 

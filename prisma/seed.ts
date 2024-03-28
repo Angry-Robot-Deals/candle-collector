@@ -25,7 +25,7 @@ const exchangeData = [
   },
   {
     name: 'kucoin',
-    apiUri: 'https://docs.kucoin.com/#get-klines',
+    apiUri: 'https://www.kucoin.com/docs/rest/spot-trading/market-data/get-klines',
   },
   {
     name: 'mexc',
@@ -41,7 +41,7 @@ const exchangeData = [
   },
   {
     name: 'coinbasepro',
-    apiUri: 'https://api.kucoin.com/api/v2/symbols',
+    apiUri: '',
   },
 ];
 
