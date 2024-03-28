@@ -29,7 +29,7 @@ import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
-import { CALCULATE_ATHL_PERIOD, FETCH_DELAY, getStartFetchTime } from './app.constant';
+import { BAD_SYMBOL_CHARS, CALCULATE_ATHL_PERIOD, FETCH_DELAY, getStartFetchTime } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
@@ -45,6 +45,8 @@ export class AppService implements OnApplicationBootstrap {
   constructor(private readonly prisma: PrismaService) {}
 
   async onApplicationBootstrap(): Promise<void> {
+    setTimeout(() => this.fetchAllMarkets(), Math.random() * 3000);
+
     if (process.env.ENABLE_DAY_CANDLE_FETCH === 'true' || process.env.ENABLE_DAY_CANDLE_FETCH === '1') {
       setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 10000);
     }
@@ -637,7 +639,7 @@ export class AppService implements OnApplicationBootstrap {
       newSymbol = await this.prisma.symbol.create({
         data: {
           name: symbol,
-          disabled: ['-', ';', ',', ':', '.'].some((s) => symbol.includes(s)),
+          disabled: BAD_SYMBOL_CHARS.some((s) => symbol.includes(s)),
         },
       });
     } catch (e) {
@@ -924,6 +926,7 @@ export class AppService implements OnApplicationBootstrap {
             symbolId: sym.id,
             synonym: market.id,
             exchangeId: exc.id,
+            disabled: BAD_SYMBOL_CHARS.some((s) => market.id.includes(s)),
           },
           update: { synonym: market.id },
         });
@@ -1406,5 +1409,17 @@ export class AppService implements OnApplicationBootstrap {
     }
 
     return coins.map((coin) => coin[0]);
+  }
+
+  async fetchAllMarkets(): Promise<void> {
+    const envExchanges =
+      process.env.FETCH_EXCHANGES?.split(',')
+        .map((e) => e.trim())
+        .filter((e) => !!e) || [];
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+
+    for (const exchange of enabledExchanges) {
+      await this.fetchMarkets(exchange);
+    }
   }
 }

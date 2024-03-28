@@ -25,3 +25,5 @@ export const getStartFetchTime = (timeframe: TIMEFRAME): Date => {
       return START_FETCH_TIME_M1;
   }
 };
+
+export const BAD_SYMBOL_CHARS = ['-', ';', ',', ':', '.', '$', '%', '^', '&', '*'];
