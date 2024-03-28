@@ -387,6 +387,10 @@ export class AppService implements OnApplicationBootstrap {
       where: {
         exchangeId: exchange.id,
         disabled: false,
+        symbol: {
+          // Фильтрация по связанной таблице Symbol
+          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+        },
       },
       orderBy: {
         synonym: 'asc',
@@ -614,7 +618,7 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async addSymbol(data: { symbol: string }): Promise<SymbolModel> {
-    const { symbol } = data;
+    const symbol = data.symbol.trim().toUpperCase().replace('-', '/');
 
     const exists = await this.prisma.symbol.findUnique({
       where: {
@@ -626,11 +630,20 @@ export class AppService implements OnApplicationBootstrap {
       return exists;
     }
 
-    const newSymbol = await this.prisma.symbol.create({
-      data: {
-        name: symbol,
-      },
-    });
+    let newSymbol = null;
+    try {
+      Logger.log(`A new symbol [${symbol}]`, 'addSymbol');
+
+      newSymbol = await this.prisma.symbol.create({
+        data: {
+          name: symbol,
+          disabled: ['-', ';', ',', ':', '.'].some((s) => symbol.includes(s)),
+        },
+      });
+    } catch (e) {
+      Logger.error(`Error add symbol [${symbol}]: ${e.message}`, 'addSymbol');
+      return null;
+    }
 
     // const value = await this.prisma.symbol.upsert({
     //   where: {
@@ -641,8 +654,6 @@ export class AppService implements OnApplicationBootstrap {
     //   },
     //   update: {},
     // });
-
-    Logger.log('Saved symbol:', newSymbol);
 
     return newSymbol;
   }
@@ -872,6 +883,11 @@ export class AppService implements OnApplicationBootstrap {
     for (const market of Object.values(markets)) {
       symbols.push(market.symbol);
       const sym = await this.addSymbol({ symbol: market.symbol });
+      if (!sym) {
+        Logger.error(`Error loading symbol for [${exchangeName}] ${market.symbol}`, 'fetchMarkets');
+        return;
+      }
+
       counter++;
 
       if (!sym?.id) {
