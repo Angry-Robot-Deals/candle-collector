@@ -1258,6 +1258,7 @@ export class AppService implements OnApplicationBootstrap {
           name: {
             endsWith: '/USDT',
           },
+          disabled: false,
         },
       },
       orderBy: [
@@ -1299,6 +1300,7 @@ export class AppService implements OnApplicationBootstrap {
           name: {
             equals: symbol.toUpperCase().replace('-', '/'),
           },
+          disabled: false,
         },
       },
       orderBy: [
