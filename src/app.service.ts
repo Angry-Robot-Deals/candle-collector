@@ -47,7 +47,7 @@ export class AppService implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllMarkets(), Math.random() * 3000);
 
-    if (process.env.ENABLE_DAY_CANDLE_FETCH === 'true' || process.env.ENABLE_DAY_CANDLE_FETCH === '1') {
+    if (process.env.ENABLE_CANDLE_D1_FETCH === 'true' || process.env.ENABLE_CANDLE_D1_FETCH === '1') {
       setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 10000);
     }
 
