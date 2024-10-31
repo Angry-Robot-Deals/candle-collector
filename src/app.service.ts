@@ -33,6 +33,7 @@ import {
   BAD_SYMBOL_CHARS,
   CALC_ALL_ATHL_TIMEOUT,
   CALCULATE_ATHL_PERIOD,
+  DAY_MSEC,
   FETCH_DELAY,
   getStartFetchTime,
   MARKET_UPDATE_TIMEOUT,
@@ -148,6 +149,17 @@ export class AppService implements OnApplicationBootstrap {
 
     const jobs = [];
     for (const exchange of exchanges) {
+      const lastFetchAllSymbolD1Candles = await this.global.getGlobalVariableTime(
+        `LastFetchAllSymbolD1Candles_${exchange.name}`,
+      );
+      if (lastFetchAllSymbolD1Candles && Date.now() - lastFetchAllSymbolD1Candles < DAY_MSEC) {
+        Logger.warn(
+          `Delay fetch all symbol D1 candles ${Date.now() - lastFetchAllSymbolD1Candles} ms`,
+          'fetchAllSymbolD1Candles',
+        );
+        return;
+      }
+
       jobs.push(this.fetchExchangeAllSymbolD1Candles(exchange));
     }
 
@@ -229,7 +241,7 @@ export class AppService implements OnApplicationBootstrap {
 
     // await this.prisma.aTHL.deleteMany({});
 
-    Logger.log(`ATHL selected ${results.length} for ${Date.now() - start} ms`);
+    Logger.log(`ATHL selected ${results.length} for ${(Date.now() - start) / 1000} sec`, 'calculateAllATHL');
 
     let i = 0;
     // for each symbolId and exchangeId
@@ -371,8 +383,8 @@ export class AppService implements OnApplicationBootstrap {
           quantiles?.[0]?.symbol,
           +quantiles?.[0]?.quantile618,
           quantiles?.[0]?.ath,
-          Date.now() - start,
-          'ms',
+          (Date.now() - start) / 1000 / 60,
+          'min',
         );
       }
     }
@@ -565,6 +577,8 @@ export class AppService implements OnApplicationBootstrap {
         }
       }
     }
+
+    await this.global.setGlobalVariable(`LastFetchAllSymbolD1Candles_${exchange.name}`, Date.now());
   }
 
   getHello(): string {
