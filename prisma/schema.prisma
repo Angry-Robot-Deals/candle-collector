@@ -145,3 +145,9 @@ model ATHL {
 
   @@unique([symbolId, exchangeId])
 }
+
+model GlobalVar {
+  id   String   @id @unique
+  val  Float
+  time DateTime @updatedAt // Обновляется автоматически при создании или изменении записи
+}
