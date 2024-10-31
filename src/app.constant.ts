@@ -1,8 +1,9 @@
 import { TIMEFRAME } from './timeseries.interface';
 
+export const CALC_ALL_ATHL_TIMEOUT: number = 1000 * 60 * 60 * 24 * 7; // 1 week
 export const MARKET_UPDATE_TIMEOUT: number = 1000 * 60 * 60 * 24 * 7; // 1 week
 export const FETCH_DELAY: number = 1000 * 60 * 60 * 2; // 2 hours
-export const CALCULATE_ATHL_PERIOD: number = 1000 * 60 * 60; // 1 hour
+export const CALCULATE_ATHL_PERIOD: number = 1000 * 60 * 60 * 24; // 1 day
 
 export const START_FETCH_TIME_M1 = new Date('2024-01-01T00:00:00Z');
 export const START_FETCH_TIME_M5 = new Date('2023-01-01T00:00:00Z');

@@ -31,6 +31,7 @@ import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
 import {
   BAD_SYMBOL_CHARS,
+  CALC_ALL_ATHL_TIMEOUT,
   CALCULATE_ATHL_PERIOD,
   FETCH_DELAY,
   getStartFetchTime,
@@ -158,6 +159,12 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async calculateAllATHL() {
+    const lastCalculateAllATHL = await this.global.getGlobalVariableTime(`LastCalculateAllATHL`);
+    if (lastCalculateAllATHL && Date.now() - lastCalculateAllATHL < CALC_ALL_ATHL_TIMEOUT) {
+      Logger.warn(`Delay calculate all ATHL ${Date.now() - lastCalculateAllATHL} ms`, 'calculateAllATHL');
+      return;
+    }
+
     const start = Date.now();
     // select unique symbolId and exchangeId from candleD1
     const daySymbols = await this.prisma.candleD1.groupBy({
@@ -369,6 +376,8 @@ export class AppService implements OnApplicationBootstrap {
         );
       }
     }
+
+    await this.global.setGlobalVariable(`LastCalculateAllATHL`, 1);
 
     setTimeout(() => this.calculateAllATHL(), CALCULATE_ATHL_PERIOD);
   }
