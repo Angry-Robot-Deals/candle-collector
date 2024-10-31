@@ -39,9 +39,9 @@ export async function binanceFetchCandles(
   if (!candles) {
     return 'No candles';
   }
-  if (!Array.isArray(candles) || !candles.length) {
-    Logger.error(`[binance] error: ${JSON.stringify(candles)}`, 'binanceFetchCandles');
-    return [];
+  if (!Array.isArray(candles)) {
+    Logger.error(`[binance] ${synonym}.${timeframe} error: ${JSON.stringify(candles)}`, 'binanceFetchCandles');
+    return `Bad response ${JSON.stringify(candles || {})}`;
   }
 
   return candles.map((candle: OHLCV_Binance) => binanceCandleToCandleModel(candle));
