@@ -39,6 +39,10 @@ export async function binanceFetchCandles(
   if (!candles) {
     return 'No candles';
   }
+  if (!Array.isArray(candles) || !candles.length) {
+    Logger.error(`Candles not found: ${JSON.stringify(candles)}`);
+    return [];
+  }
 
   return candles.map((candle: OHLCV_Binance) => binanceCandleToCandleModel(candle));
 }
