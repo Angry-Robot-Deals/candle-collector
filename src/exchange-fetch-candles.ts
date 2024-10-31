@@ -40,7 +40,7 @@ export async function binanceFetchCandles(
     return 'No candles';
   }
   if (!Array.isArray(candles) || !candles.length) {
-    Logger.error(`Candles not found: ${JSON.stringify(candles)}`);
+    Logger.error(`[binance] error: ${JSON.stringify(candles)}`, 'binanceFetchCandles');
     return [];
   }
 
