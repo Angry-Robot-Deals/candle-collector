@@ -359,7 +359,7 @@ export class AppService implements OnApplicationBootstrap {
           );
         });
 
-      if (i % 10 === 0) {
+      if (i % 100 === 0) {
         console.log(
           'ATHL',
           i,
