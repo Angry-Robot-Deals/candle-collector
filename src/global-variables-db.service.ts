@@ -32,6 +32,6 @@ export class GlobalVariablesDBService {
       where: { id },
       select: { time: true },
     });
-    return variable ? Math.floor(variable.time.getTime() / 1000) : null; // Преобразование в UNIX timestamp
+    return variable ? Math.floor(variable.time.getTime()) : null; // Преобразование в UNIX timestamp
   }
 }

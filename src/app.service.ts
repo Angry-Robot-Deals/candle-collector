@@ -29,10 +29,17 @@ import { PrismaService } from './prisma.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
-import { BAD_SYMBOL_CHARS, CALCULATE_ATHL_PERIOD, FETCH_DELAY, getStartFetchTime } from './app.constant';
+import {
+  BAD_SYMBOL_CHARS,
+  CALCULATE_ATHL_PERIOD,
+  FETCH_DELAY,
+  getStartFetchTime,
+  MARKET_UPDATE_TIMEOUT,
+} from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
+import { GlobalVariablesDBService } from './global-variables-db.service';
 
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
@@ -42,7 +49,10 @@ export class AppService implements OnApplicationBootstrap {
 
   private delayMarket = {};
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly global: GlobalVariablesDBService,
+  ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     setTimeout(() => this.fetchAllMarkets(), Math.random() * 3000);
@@ -882,15 +892,16 @@ export class AppService implements OnApplicationBootstrap {
 
     let counter = 0;
     const symbols = [];
+
     for (const market of Object.values(markets)) {
+      counter++;
+
       symbols.push(market.symbol);
       const sym = await this.addSymbol({ symbol: market.symbol });
       if (!sym) {
         Logger.error(`Error loading symbol for [${exchangeName}] ${market.symbol}`, 'fetchMarkets');
         return;
       }
-
-      counter++;
 
       if (!sym?.id) {
         Logger.error(
@@ -912,13 +923,15 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       if (!existData) {
-        Logger.log(`A new market ${exchangeName} ${market.symbol}: ${counter}/${totalMarkets}`, 'fetchMarkets');
+        Logger.log(
+          `A new market [${exchangeName}] symbol: ${market.symbol}, synonym: ${market.id} – ${counter}/${totalMarkets}`,
+          'fetchMarkets',
+        );
 
         await this.prisma.market.upsert({
           where: {
-            symbolId_synonym_exchangeId: {
+            symbolId_exchangeId: {
               symbolId: sym.id,
-              synonym: market.id,
               exchangeId: exc.id,
             },
           },
@@ -1421,7 +1434,15 @@ export class AppService implements OnApplicationBootstrap {
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
 
     for (const exchange of enabledExchanges) {
+      const lastMarketsUpdate = await this.global.getGlobalVariableTime(`LastMarketsUpdate_${exchange}`);
+      if (lastMarketsUpdate && Date.now() - lastMarketsUpdate < MARKET_UPDATE_TIMEOUT) {
+        Logger.warn(`[${exchange}] Delay fetch markets`, 'fetchAllMarkets');
+        continue;
+      }
+
       await this.fetchMarkets(exchange);
+
+      await this.global.setGlobalVariable(`LastMarketsUpdate_${exchange}`, 1);
     }
   }
 }

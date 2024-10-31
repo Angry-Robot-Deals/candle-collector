@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GlobalVariablesDbService } from './global-variables-db.service';
+import { GlobalVariablesDBService } from './global-variables-db.service';
 
 describe('GlobalVariablesDbService', () => {
-  let service: GlobalVariablesDbService;
+  let service: GlobalVariablesDBService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GlobalVariablesDbService],
+      providers: [GlobalVariablesDBService],
     }).compile();
 
-    service = module.get<GlobalVariablesDbService>(GlobalVariablesDbService);
+    service = module.get<GlobalVariablesDBService>(GlobalVariablesDBService);
   });
 
   it('should be defined', () => {
