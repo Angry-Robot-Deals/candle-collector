@@ -31,12 +31,12 @@ import { CandleDb } from './interface';
 import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeseries.constant';
 import {
   BAD_SYMBOL_CHARS,
-  CALC_ALL_ATHL_TIMEOUT,
   CALCULATE_ATHL_PERIOD,
   DAY_MSEC,
   FETCH_DELAY,
   getStartFetchTime,
   MARKET_UPDATE_TIMEOUT,
+  MIN_MSEC,
 } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
@@ -172,8 +172,9 @@ export class AppService implements OnApplicationBootstrap {
 
   async calculateAllATHL() {
     const lastCalculateAllATHL = await this.global.getGlobalVariableTime(`LastCalculateAllATHL`);
-    if (lastCalculateAllATHL && Date.now() - lastCalculateAllATHL < CALC_ALL_ATHL_TIMEOUT) {
+    if (lastCalculateAllATHL && Date.now() - lastCalculateAllATHL < CALCULATE_ATHL_PERIOD) {
       Logger.warn(`Delay calculate all ATHL ${Date.now() - lastCalculateAllATHL} ms`, 'calculateAllATHL');
+      setTimeout(() => this.calculateAllATHL(), MIN_MSEC);
       return;
     }
 
@@ -391,7 +392,7 @@ export class AppService implements OnApplicationBootstrap {
 
     await this.global.setGlobalVariable(`LastCalculateAllATHL`, 1);
 
-    setTimeout(() => this.calculateAllATHL(), CALCULATE_ATHL_PERIOD);
+    setTimeout(() => this.calculateAllATHL(), MIN_MSEC);
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
