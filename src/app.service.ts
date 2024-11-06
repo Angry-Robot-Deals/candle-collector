@@ -754,7 +754,11 @@ export class AppService implements OnApplicationBootstrap {
         },
       });
 
-      return { id: row?.id, name: row.name } || null;
+      if (!row) {
+        return null; // Возвращаем null, если row не найден
+      }
+
+      return { id: row.id, name: row.name };
     } catch (error) {
       Logger.error(`Error get an exchange id: ${error.message}`, 'getExchangeId');
       return null;
