@@ -1,8 +1,8 @@
-FROM node:21-alpine AS base
+FROM node:22-alpine AS base
 
 #RUN apt update; npm i -g npm@latest; npm i -g @nestjs/cli
 RUN apk update && \
-    npm i -g npm@latest && \
+    npm i -g npm@11 && \
     npm i -g @nestjs/cli
 
 WORKDIR /usr/app
