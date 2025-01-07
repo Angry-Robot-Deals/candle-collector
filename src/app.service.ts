@@ -9,7 +9,7 @@ import {
   binanceFindFirstCandle,
   bybitFetchCandles,
   bybitFindFirstCandle,
-  huobiFetchCandles,
+  htxFetchCandles,
   okxFetchCandles,
   okxFindFirstCandle,
   poloniexFetchCandles,
@@ -20,7 +20,7 @@ import {
   BINANCE_TIMEFRAME,
   BYBIT_TIMEFRAME,
   ENABLED_EXCHANGES,
-  HUOBI_TIMEFRAME,
+  HTX_TIMEFRAME,
   OKX_TIMEFRAME,
   POLONIEX_TIMEFRAME,
 } from './exchange.constant';
@@ -276,24 +276,29 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       const quantiles: Record<string, string | number>[] = await this.prisma.$queryRaw`
-        select
-        s."name" as symbol,
-        e."name" as exchange,
-        max(high) as "ath",
-        min(low) as "atl",
-        percentile_cont(0.236) WITHIN GROUP (ORDER BY close) as "quantile236",
-        percentile_cont(0.382) WITHIN GROUP (ORDER BY close) as "quantile382",
-        percentile_cont(0.50) WITHIN GROUP (ORDER BY close) as "quantile50",
-        percentile_cont(0.618) WITHIN GROUP (ORDER BY close) as "quantile618",
-        percentile_cont(0.786) WITHIN GROUP (ORDER BY close) as "quantile786"
+        select s."name"  as           symbol,
+               e."name"  as           exchange,
+               max(high) as           "ath",
+               min(low)  as           "atl",
+               percentile_cont(0.236) WITHIN GROUP (ORDER BY close) as "quantile236",
+        percentile_cont(0.382) WITHIN
+        GROUP (ORDER BY close) as "quantile382",
+          percentile_cont(0.50) WITHIN
+        GROUP (ORDER BY close) as "quantile50",
+          percentile_cont(0.618) WITHIN
+        GROUP (ORDER BY close) as "quantile618",
+          percentile_cont(0.786) WITHIN
+        GROUP (ORDER BY close) as "quantile786"
         FROM public."CandleD1" c
-          INNER JOIN public."Symbol" s ON s.id = c."symbolId"
+          INNER JOIN public."Symbol" s
+        ON s.id = c."symbolId"
           INNER JOIN public."Exchange" e on e.id = c."exchangeId"
         WHERE
-          e.id = ${symbol.exchangeId} AND
+          e.id = ${symbol.exchangeId}
+          AND
           s.id = ${symbol.symbolId}
         GROUP BY "symbol", "exchange"
-        HAVING max(high) > 0.000000000001 AND min(low) > 0.000000000001
+        HAVING max (high) > 0.000000000001 AND min (low) > 0.000000000001
       `;
       // console.log(symbol.exchangeId, symbol.symbolId, quantiles);
 
@@ -459,7 +464,7 @@ export class AppService implements OnApplicationBootstrap {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       let limit: number = 0;
-      if (exchange.name === 'huobi') {
+      if (exchange.name === 'htx') {
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
             time: true,
@@ -519,7 +524,7 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       // 1-month candles
-      if (exchange.name === 'huobi') {
+      if (exchange.name === 'htx') {
         limit = 0;
         const lastCandle = await this.prisma.candleD1.findFirst({
           select: {
@@ -1120,7 +1125,7 @@ export class AppService implements OnApplicationBootstrap {
 
               maxTimestamp = firstResGateio;
               break;
-            case 'huobi':
+            case 'htx':
               break;
             default:
               return [];
@@ -1179,8 +1184,8 @@ export class AppService implements OnApplicationBootstrap {
         endTime = Math.min(startTime + (limit || 1500) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
         candles = await kucoinFetchCandles({ synonym, timeframe, start: startTime, end: endTime });
         break;
-      case 'huobi':
-        candles = await huobiFetchCandles(synonym, HUOBI_TIMEFRAME[timeframe], limit || 2000);
+      case 'htx':
+        candles = await htxFetchCandles(synonym, HTX_TIMEFRAME[timeframe], limit || 2000);
         break;
       case 'poloniex':
         startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
@@ -1355,52 +1360,44 @@ export class AppService implements OnApplicationBootstrap {
 
   async getTopTradeCoins(minTurnover?: number): Promise<any[]> {
     return this.prisma.$queryRaw`
-      WITH LastCandles AS (
-        SELECT
-          a."time",
-          a."symbolId",
-          s."name" as symbol,
-          a."exchangeId",
-          e."name" as exchange,
-          "exchangeId",
-          "close",
-          volume,
-          "close" * volume AS cost,
-          trades,
-          ROW_NUMBER() OVER (PARTITION BY "symbolId", "exchangeId" ORDER BY "time" DESC) AS rn
-        FROM
-          public."CandleD1" as a
-        INNER JOIN "Symbol" s
-            ON s.id = a."symbolId"
-        INNER JOIN "Exchange" e
-            ON e.id = a."exchangeId"
-        where
-            a.time < current_date and
-            a.time > current_date - interval '3 days' and
-            a.tf = ${timeframeMinutes(TIMEFRAME.D1)} and
-            (
-                s."name" LIKE '%/USDT' or
-                s."name" LIKE '%/BUSD' or
-                s."name" LIKE '%/USDC' or
-                s."name" LIKE '%/TUSD' or
-                s."name" LIKE '%/USD'
-            )
-      )
-      SELECT
-        "symbol",
-        "exchange",
-        "time",
-        "close",
-        volume,
-        cost,
-        trades
-      FROM
-        LastCandles
-      WHERE
-        rn = 1
+      WITH LastCandles AS (SELECT a."time",
+                                  a."symbolId",
+                                  s."name"         as symbol,
+                                  a."exchangeId",
+                                  e."name"         as exchange,
+                                  "exchangeId",
+                                  "close",
+                                  volume,
+                                  "close" * volume AS cost,
+                                  trades,
+                                  ROW_NUMBER()        OVER (PARTITION BY "symbolId", "exchangeId" ORDER BY "time" DESC) AS rn
+                           FROM public."CandleD1" as a
+                                  INNER JOIN "Symbol" s
+                                             ON s.id = a."symbolId"
+                                  INNER JOIN "Exchange" e
+                                             ON e.id = a."exchangeId"
+                           where a.time < current_date
+                             and a.time > current_date - interval '3 days' and
+        a.tf = ${timeframeMinutes(TIMEFRAME.D1)} and
+        (
+        s."name" LIKE '%/USDT' or
+        s."name" LIKE '%/BUSD' or
+        s."name" LIKE '%/USDC' or
+        s."name" LIKE '%/TUSD' or
+        s."name" LIKE '%/USD'
+        )
+        )
+      SELECT "symbol",
+             "exchange",
+             "time",
+             "close",
+             volume,
+             cost,
+             trades
+      FROM LastCandles
+      WHERE rn = 1
         and "cost" > ${minTurnover || 1000}
-      ORDER BY
-        cost desc;
+      ORDER BY cost desc;
     `;
   }
 

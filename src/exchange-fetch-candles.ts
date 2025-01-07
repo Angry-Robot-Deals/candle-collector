@@ -2,18 +2,18 @@ import { Logger } from '@nestjs/common';
 import {
   binanceCandleToCandleModel,
   bybitCandleToCandleModel,
-  huobiCandleToCandleModel,
+  htxCandleToCandleModel,
   okxCandleToCandleModel,
   poloniexCandleToCandleModel,
 } from './exchange-dto';
 import {
   BINANCE_TIMEFRAME,
   BYBIT_TIMEFRAME,
-  HUOBI_TIMEFRAME,
+  HTX_TIMEFRAME,
   OKX_TIMEFRAME,
   POLONIEX_TIMEFRAME,
 } from './exchange.constant';
-import { CandleDb, OHLCV_Binance, OHLCV_Bybit, OHLCV_Huobi, OHLCV_Okx, OHLCV_Poloniex } from './interface';
+import { CandleDb, OHLCV_Binance, OHLCV_Bybit, OHLCV_HTX, OHLCV_Okx, OHLCV_Poloniex } from './interface';
 import { timeframeMSeconds } from './timeseries.constant';
 import { getCandleHumanTime, getCandleTime } from './timeseries';
 import { TIMEFRAME } from './timeseries.interface';
@@ -141,9 +141,9 @@ export async function bybitFetchCandles(
   return res.result['list'].map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
 }
 
-export async function huobiFetchCandles(
+export async function htxFetchCandles(
   synonym: string,
-  timeframe: keyof typeof HUOBI_TIMEFRAME,
+  timeframe: keyof typeof HTX_TIMEFRAME,
   limit: number, // milliseconds, include a candle with this value
 ): Promise<any[] | string> {
   // console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
@@ -153,7 +153,7 @@ export async function huobiFetchCandles(
   )
     .then((res) => res.json())
     .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`, 'huobiFetchCandles');
+      Logger.error(`Error fetch candles: ${e.message}`, 'htxFetchCandles');
       return null;
     });
 
@@ -166,7 +166,7 @@ export async function huobiFetchCandles(
     return [];
   }
 
-  return candles.data.map((candle: OHLCV_Huobi) => huobiCandleToCandleModel(candle));
+  return candles.data.map((candle: OHLCV_HTX) => htxCandleToCandleModel(candle));
 }
 
 export async function binanceFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {

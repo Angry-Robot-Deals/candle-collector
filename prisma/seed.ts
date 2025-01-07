@@ -20,7 +20,7 @@ const exchangeData = [
     apiUri: 'https://docs.poloniex.com/#public-endpoints-market-data-candles',
   },
   {
-    name: 'huobi',
+    name: 'htx',
     apiUri: 'https://huobiapi.github.io/docs/spot/v1/en/#get-klines-candles',
   },
   {

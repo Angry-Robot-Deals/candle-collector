@@ -1,7 +1,17 @@
 import { TIMEFRAME } from './timeseries.interface';
 
-export const ENABLED_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'huobi', 'bybit', 'mexc', 'gateio', 'kucoin'];
-export const TOP_COIN_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'bybit', 'mexc', 'kucoin'];
+export const ENABLED_EXCHANGES: string[] = [
+  'binance',
+  'okx',
+  'poloniex',
+  'bybit',
+  'mexc',
+  'gateio',
+  'kucoin',
+  'htx',
+  'bitget',
+];
+export const TOP_COIN_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'bybit', 'mexc', 'kucoin', 'htx', 'bitget'];
 
 export const BINANCE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1m',
@@ -18,7 +28,7 @@ export const COINBASE_TIMEFRAME = {
   [TIMEFRAME.D1]: '1day',
 };
 
-export const HUOBI_TIMEFRAME = {
+export const HTX_TIMEFRAME = {
   [TIMEFRAME.M1]: '1min',
   [TIMEFRAME.H1]: '60min',
   [TIMEFRAME.D1]: '1day',

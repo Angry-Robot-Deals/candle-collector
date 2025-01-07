@@ -116,7 +116,7 @@ export type OHLCV_Bybit = [
 // low	float	The low price
 // high	float	The high price
 // vol	float	Accumulated trading value, in quote currency
-export type OHLCV_Huobi = {
+export type OHLCV_HTX = {
   id: number; // timestamp seconds
   open: 49056.37; // open
   close: 49025.51; // close
