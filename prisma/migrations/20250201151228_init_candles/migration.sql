@@ -51,7 +51,7 @@ CREATE TABLE "Market" (
 
 -- CreateTable
 CREATE TABLE "Candle" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "symbolId" INTEGER NOT NULL,
     "exchangeId" INTEGER NOT NULL,
     "time" TIMESTAMP(3) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE "Candle" (
 
 -- CreateTable
 CREATE TABLE "ExportCandle" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "symbolId" INTEGER NOT NULL,
     "exchangeId" INTEGER NOT NULL,
     "tf" INTEGER NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE "ExportCandle" (
 
 -- CreateTable
 CREATE TABLE "CandleD1" (
-    "id" SERIAL NOT NULL,
+    "id" BIGSERIAL NOT NULL,
     "symbolId" INTEGER NOT NULL,
     "exchangeId" INTEGER NOT NULL,
     "tf" INTEGER NOT NULL DEFAULT 1440,
@@ -102,6 +102,11 @@ CREATE TABLE "ATHL" (
     "exchangeId" INTEGER NOT NULL,
     "high" DOUBLE PRECISION NOT NULL,
     "low" DOUBLE PRECISION NOT NULL,
+    "quantile236" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "quantile382" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "quantile50" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "quantile618" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "quantile786" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "start" DOUBLE PRECISION NOT NULL,
     "close" DOUBLE PRECISION NOT NULL,
     "index" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -113,6 +118,15 @@ CREATE TABLE "ATHL" (
     "startTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ATHL_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GlobalVar" (
+    "id" TEXT NOT NULL,
+    "val" DOUBLE PRECISION NOT NULL,
+    "time" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GlobalVar_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -168,6 +182,9 @@ CREATE UNIQUE INDEX "CandleD1_symbolId_exchangeId_tf_time_key" ON "CandleD1"("sy
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ATHL_symbolId_exchangeId_key" ON "ATHL"("symbolId", "exchangeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GlobalVar_id_key" ON "GlobalVar"("id");
 
 -- AddForeignKey
 ALTER TABLE "Market" ADD CONSTRAINT "Market_exchangeId_fkey" FOREIGN KEY ("exchangeId") REFERENCES "Exchange"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
