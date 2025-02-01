@@ -64,7 +64,7 @@ model Market {
 }
 
 model Candle {
-  id         Int      @id @default(autoincrement())
+  id         BigInt   @id @default(autoincrement())
   symbolId   Int
   exchangeId Int
   time       DateTime
@@ -85,7 +85,7 @@ model Candle {
 }
 
 model ExportCandle {
-  id         Int      @id @default(autoincrement())
+  id         BigInt   @id @default(autoincrement())
   symbolId   Int
   exchangeId Int
   tf         Int
@@ -101,7 +101,7 @@ model ExportCandle {
 }
 
 model CandleD1 {
-  id         Int      @id @default(autoincrement())
+  id         BigInt   @id @default(autoincrement())
   symbolId   Int
   exchangeId Int
   tf         Int      @default(1440)
