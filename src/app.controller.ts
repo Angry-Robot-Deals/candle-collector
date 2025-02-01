@@ -62,6 +62,12 @@ export class AppController {
     return this.appService.getTopTradeCoins(+turnover || undefined);
   }
 
+  @Get('market/fetch-all')
+  async fetchAllMarkets(): Promise<string[]> {
+    await this.appService.fetchAllMarkets();
+    return ['ok'];
+  }
+
   @Get('market/fetch/:exchange')
   async fetchMarkets(@Param('exchange') exchange: string): Promise<string[]> {
     return this.appService.fetchMarkets(exchange);

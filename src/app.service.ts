@@ -1471,6 +1471,8 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
+      Logger.log(`[${exchange}] Fetching markets`, 'fetchAllMarkets');
+
       await this.fetchMarkets(exchange);
 
       await this.global.setGlobalVariable(`LastMarketsUpdate_${exchange}`, 1);
