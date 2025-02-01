@@ -119,6 +119,12 @@ export class AppService implements OnApplicationBootstrap {
               symbolId,
               tf: timeframeMinutes(TIMEFRAME.M1),
               candles,
+            }).catch((err) => {
+              Logger.error(
+                `[${row.exchange}] ${row.symbol}.${TIMEFRAME.M1} Error save candles: ${err.message}`,
+                'fetchTopCoinsM1Candles',
+              );
+              return { saved: 0 };
             })
           : { saved: 0 };
 
