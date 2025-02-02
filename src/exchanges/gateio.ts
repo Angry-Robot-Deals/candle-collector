@@ -74,6 +74,7 @@ export async function gateioFindFirstCandle(data: { synonym: string; timeframe: 
 
         Logger.log(
           `[gateio] ${synonym} first candle time ${firstCandleTime.getTime()}, ${firstCandleTime.toISOString()}`,
+          'gateioFindFirstCandle',
         );
 
         return firstCandleTime;

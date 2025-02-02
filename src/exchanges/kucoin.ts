@@ -82,11 +82,12 @@ export async function kucoinFindFirstCandle(data: {
 
         Logger.log(
           `[kucoin] ${synonym} first candle time ${firstCandleTime.getTime()}, ${firstCandleTime.toISOString()}`,
+          'kucoinFindFirstCandle',
         );
 
         return firstCandleTime;
       } catch (err) {
-        Logger.error(`[kucoin] Error parse first candle time: ${err.message}`);
+        Logger.error(`[kucoin] Error parse first candle time: ${err.message}`, 'kucoinFindFirstCandle');
         return null;
       }
     }

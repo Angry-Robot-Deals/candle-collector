@@ -203,7 +203,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     if (res?.length) {
       const minTime = Math.min(...res.map((candle: OHLCV_Binance) => +candle[0]));
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
-      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime.toISOString()}`);
+      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime.toISOString()}`, 'binanceFindFirstCandle');
       return firstCandleTime;
     }
 

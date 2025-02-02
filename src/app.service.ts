@@ -79,6 +79,8 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
+    console.log('+++++ fetchTopCoinsM1Candles', coins.length);
+
     // for (const coin of coins.slice(0, 150) || []) {
     for (const row of coins) {
       if (this.badCoins.includes(row.coin)) {
@@ -131,6 +133,7 @@ export class AppService implements OnApplicationBootstrap {
         if (candles?.length) {
           Logger.log(
             `Saved [${row.exchange}] ${row.coin}.${TIMEFRAME.M1}: ${saved?.count || 0} – ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
+            'fetchTopCoinsM1Candles',
           );
         }
 
@@ -526,7 +529,10 @@ export class AppService implements OnApplicationBootstrap {
             })
           : { fetched: 0 };
 
-        Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`);
+        Logger.log(
+          `Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`,
+          'fetchExchangeAllSymbolD1Candles',
+        );
       }
 
       // 1-month candles
@@ -585,7 +591,10 @@ export class AppService implements OnApplicationBootstrap {
               })
             : { fetched: 0 };
 
-          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.M1: ${saved?.count || 0}`);
+          Logger.log(
+            `Saved [${exchange.name}] ${market.symbol.name}.M1: ${saved?.count || 0}`,
+            'fetchExchangeAllSymbolD1Candles',
+          );
         }
       }
     }
@@ -1050,7 +1059,10 @@ export class AppService implements OnApplicationBootstrap {
         });
         if (maxTimestamp) {
           maxTimestamp = getCandleHumanTime(TIMEFRAME.D1, maxTimestamp);
-          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
+          Logger.debug(
+            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`,
+            'fetchCandles',
+          );
         }
         if (!maxTimestamp) {
           switch (exchange) {
@@ -1146,7 +1158,10 @@ export class AppService implements OnApplicationBootstrap {
 
         if (maxTimestamp) {
           maxTimestamp = getCandleHumanTime(timeframe, maxTimestamp);
-          Logger.debug(`${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`);
+          Logger.debug(
+            `${exchange} ${symbol} ${timeframe} continue from ${maxTimestamp?.toISOString()}`,
+            'fetchCandles',
+          );
         } else {
           if (exchange === 'mexc') {
             const firstResMexc = await mexcFindFirstCandle({
