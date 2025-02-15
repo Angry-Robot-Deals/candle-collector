@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { getCandleHumanTime, getCandleTime } from '../timeseries';
+import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from '../timeseries';
 import { getStartFetchTime } from '../app.constant';
 import { timeframeSeconds } from '../timeseries.constant';
 import { TIMEFRAME } from '../timeseries.interface';
@@ -36,7 +36,7 @@ async function fetchCandles(data: {
           'fetchCandles.gateio',
         );
 
-        return `Bad response ${JSON.stringify(res || {})}`;
+        return `[gateio] Bad response ${JSON.stringify(res || {})}`;
       }
 
       return res;
@@ -63,6 +63,14 @@ export async function gateioFindFirstCandle(data: { synonym: string; timeframe: 
   while (start < end) {
     const candles = await fetchCandles({ synonym, timeframe, start, end });
     if (typeof candles === 'string') {
+      if (candles.includes('Candlestick too long ago')) {
+        start = Math.ceil(getCandleTimeByShift(data.timeframe, 9999) / 1000);
+        end = Math.min(
+          start + limit * timeframeSeconds(data.timeframe),
+          Math.ceil(getCandleTime(data.timeframe, Date.now()) / 1000),
+        );
+        continue;
+      }
       return candles;
     }
 

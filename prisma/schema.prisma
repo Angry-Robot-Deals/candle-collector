@@ -28,6 +28,8 @@ model Symbol {
   disabled     Boolean        @default(false)
   ATHL         ATHL[]
   Candle       Candle[]
+  CandleM15    CandleM15[]
+  CandleH1     CandleH1[]
   CandleD1     CandleD1[]
   ExportCandle ExportCandle[]
   Market       Market[]
@@ -42,6 +44,8 @@ model Exchange {
   priority     Int            @default(999)
   ATHL         ATHL[]
   Candle       Candle[]
+  CandleM15    CandleM15[]
+  CandleH1     CandleH1[]
   CandleD1     CandleD1[]
   ExportCandle ExportCandle[]
   Market       Market[]
@@ -98,6 +102,46 @@ model ExportCandle {
   @@index([symbolId, exchangeId, tf])
   @@index([symbolId, exchangeId])
   @@index([time])
+}
+
+model CandleM15 {
+  id         BigInt   @id @default(autoincrement())
+  symbolId   Int
+  exchangeId Int
+  tf         Int      @default(1440)
+  time       DateTime
+  open       Float
+  high       Float
+  low        Float
+  close      Float
+  volume     Float
+  trades     Int      @default(0)
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([symbolId, exchangeId, tf, time])
+  @@index([symbolId, exchangeId, tf])
+  @@index([symbolId, exchangeId])
+}
+
+model CandleH1 {
+  id         BigInt   @id @default(autoincrement())
+  symbolId   Int
+  exchangeId Int
+  tf         Int      @default(1440)
+  time       DateTime
+  open       Float
+  high       Float
+  low        Float
+  close      Float
+  volume     Float
+  trades     Int      @default(0)
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  symbol     Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([symbolId, exchangeId, tf, time])
+  @@index([symbolId, exchangeId, tf])
+  @@index([symbolId, exchangeId])
 }
 
 model CandleD1 {

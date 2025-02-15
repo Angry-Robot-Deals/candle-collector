@@ -35,6 +35,7 @@ import {
   DAY_MSEC,
   FETCH_DELAY,
   getStartFetchTime,
+  HOUR_MSEC,
   MARKET_UPDATE_TIMEOUT,
   MIN_MSEC,
 } from './app.constant';
@@ -61,6 +62,17 @@ export class AppService implements OnApplicationBootstrap {
 
     if (process.env.ENABLE_CANDLE_D1_FETCH === 'true' || process.env.ENABLE_CANDLE_D1_FETCH === '1') {
       setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 10000);
+    }
+
+    if (process.env.ENABLE_CANDLE_H1_FETCH === 'true' || process.env.ENABLE_CANDLE_H1_FETCH === '1') {
+      setTimeout(() => this.fetchAllSymbolH1Candles(), Math.random() * 10000);
+    }
+
+    if (process.env.ENABLE_CANDLE_M15_FETCH === 'true' || process.env.ENABLE_CANDLE_M15_FETCH === '1') {
+      setTimeout(
+        () => this.fetchAllSymbolM15Candles(),
+        process.env.NODE_ENV === 'development' ? 1 : Math.random() * 10000,
+      );
     }
 
     if (process.env.ENABLE_TOP_COIN_FETCH === 'true' || process.env.ENABLE_TOP_COIN_FETCH === '1') {
@@ -177,6 +189,66 @@ export class AppService implements OnApplicationBootstrap {
     });
 
     setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 1000 * 60 * 60);
+  }
+
+  async fetchAllSymbolH1Candles() {
+    const exchanges = await this.getExchanges();
+    if (!exchanges?.length) {
+      Logger.error('No exchanges found', 'fetchAllSymbolH1Candles');
+      return;
+    }
+
+    const jobs = [];
+    for (const exchange of exchanges) {
+      const lastFetchAllSymbolH1Candles = await this.global.getGlobalVariableTime(
+        `LastFetchAllSymbolH1Candles_${exchange.name}`,
+      );
+      if (lastFetchAllSymbolH1Candles && Date.now() - lastFetchAllSymbolH1Candles < HOUR_MSEC) {
+        Logger.warn(
+          `Delay fetch all symbol H1 candles ${Date.now() - lastFetchAllSymbolH1Candles} ms`,
+          `fetchAllSymbolH1Candles_${exchange.name}`,
+        );
+        return;
+      }
+
+      jobs.push(this.fetchExchangeAllSymbolH1Candles(exchange));
+    }
+
+    await Promise.all(jobs).catch((err) => {
+      Logger.error(`Error fetch all symbol H1 candles: ${err.message}`, 'fetchAllSymbolH1Candles');
+    });
+
+    setTimeout(() => this.fetchAllSymbolH1Candles(), Math.random() * 1000 * 60);
+  }
+
+  async fetchAllSymbolM15Candles() {
+    const exchanges = await this.getExchanges();
+    if (!exchanges?.length) {
+      Logger.error('No exchanges found', 'fetchAllSymbolM15Candles');
+      return;
+    }
+
+    const jobs = [];
+    for (const exchange of exchanges) {
+      const lastFetchAllSymbolM15Candles = await this.global.getGlobalVariableTime(
+        `LastFetchAllSymbolM15Candles_${exchange.name}`,
+      );
+      if (lastFetchAllSymbolM15Candles && Date.now() - lastFetchAllSymbolM15Candles < MIN_MSEC * 15) {
+        Logger.warn(
+          `Delay fetch all symbol M15 candles ${Date.now() - lastFetchAllSymbolM15Candles} ms`,
+          `fetchAllSymbolM15Candles_${exchange.name}`,
+        );
+        return;
+      }
+
+      jobs.push(this.fetchExchangeAllSymbolM15Candles(exchange));
+    }
+
+    await Promise.all(jobs).catch((err) => {
+      Logger.error(`Error fetch all symbol M15 candles: ${err.message}`, 'fetchAllSymbolM15Candles');
+    });
+
+    setTimeout(() => this.fetchAllSymbolM15Candles(), Math.random() * 1000 * 60);
   }
 
   async calculateAllATHL() {
@@ -602,6 +674,266 @@ export class AppService implements OnApplicationBootstrap {
     await this.global.setGlobalVariable(`LastFetchAllSymbolD1Candles_${exchange.name}`, Date.now());
   }
 
+  async fetchExchangeAllSymbolH1Candles(exchange: { id: number; name: string }): Promise<void> {
+    const envExchanges =
+      process.env.HOUR_CANDLE_FETCH_EXCHANGES?.split(',')
+        .map((e) => e.trim())
+        .filter((e) => !!e) || [];
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+
+    if (!enabledExchanges.includes(exchange.name)) {
+      Logger.warn(
+        `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
+        'fetchAllSymbolH1Candles',
+      );
+      return;
+    }
+
+    Logger.debug(`[${exchange.name}] Prepare to fetch H1 candles`, 'fetchAllSymbolH1Candles');
+
+    const markets = await this.prisma.market.findMany({
+      select: {
+        symbol: true,
+        symbolId: true,
+        synonym: true,
+      },
+      where: {
+        exchangeId: exchange.id,
+        disabled: false,
+        symbol: {
+          // Фильтрация по связанной таблице Symbol
+          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+        },
+      },
+      orderBy: {
+        synonym: 'asc',
+      },
+    });
+    // console.log('markets', exchange, markets.length);
+    if (!markets?.length) {
+      Logger.warn(`[${exchange.name}] No markets`, 'fetchAllSymbolH1Candles');
+      return;
+    }
+
+    Logger.log(`[${exchange.name}] Fetching markets: ${markets.length}`, 'fetchAllSymbolH1Candles');
+
+    for (const market of markets) {
+      if (
+        this.delayMarket?.[exchange.id]?.[market.symbolId] &&
+        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
+      ) {
+        continue;
+      }
+
+      if (!isCorrectSymbol(market.symbol.name)) {
+        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolH1Candles');
+        continue;
+      }
+
+      if (this.badSymbols[exchange.id] && this.badSymbols[exchange.id].includes(market.symbol.name)) {
+        continue;
+      }
+
+      // delay
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      let limit: number = 0;
+      if (exchange.name === 'htx') {
+        const lastCandle = await this.prisma.candleH1.findFirst({
+          select: {
+            time: true,
+          },
+          where: {
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            tf: timeframeMinutes(TIMEFRAME.H1),
+          },
+          orderBy: {
+            time: 'desc',
+          },
+        });
+
+        if (lastCandle?.time) {
+          if (
+            getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTime(TIMEFRAME.H1) ||
+            getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.H1, 1)
+          ) {
+            limit = 2;
+          }
+        }
+      }
+
+      const candles = await this.fetchCandles({
+        exchange: exchange.name,
+        exchangeId: exchange.id,
+        symbol: market.symbol.name,
+        symbolId: market.symbolId,
+        synonym: market.synonym,
+        timeframe: TIMEFRAME.H1,
+        limit,
+      });
+
+      if (typeof candles === 'string') {
+        Logger.error(candles, 'fetchExchangeAllSymbolH1Candles');
+      } else {
+        if (candles.length <= 3) {
+          if (!this.delayMarket[exchange.id]) {
+            this.delayMarket[exchange.id] = {};
+          }
+
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
+          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+        }
+
+        const saved = candles?.length
+          ? await this.saveExchangeCandlesH1({
+              exchangeId: exchange.id,
+              symbolId: market.symbolId,
+              timeframe: TIMEFRAME.H1,
+              candles,
+            })
+          : { fetched: 0 };
+
+        Logger.log(
+          `Saved [${exchange.name}] ${market.symbol.name}.H1: ${saved?.count || 0}`,
+          'fetchExchangeAllSymbolH1Candles',
+        );
+      }
+    }
+
+    await this.global.setGlobalVariable(`LastFetchAllSymbolH1Candles_${exchange.name}`, Date.now());
+  }
+
+  async fetchExchangeAllSymbolM15Candles(exchange: { id: number; name: string }): Promise<void> {
+    const envExchanges =
+      process.env.M15_CANDLE_FETCH_EXCHANGES?.split(',')
+        .map((e) => e.trim())
+        .filter((e) => !!e) || [];
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+
+    if (!enabledExchanges.includes(exchange.name)) {
+      Logger.warn(
+        `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
+        'fetchAllSymbolM15Candles',
+      );
+      return;
+    }
+
+    Logger.debug(`[${exchange.name}] Prepare to fetch M15 candles`, 'fetchAllSymbolM15Candles');
+
+    const markets = await this.prisma.market.findMany({
+      select: {
+        symbol: true,
+        symbolId: true,
+        synonym: true,
+      },
+      where: {
+        exchangeId: exchange.id,
+        disabled: false,
+        symbol: {
+          // Фильтрация по связанной таблице Symbol
+          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+        },
+      },
+      orderBy: {
+        synonym: 'asc',
+      },
+    });
+    // console.log('markets', exchange, markets.length);
+    if (!markets?.length) {
+      Logger.warn(`[${exchange.name}] No markets`, 'fetchAllSymbolM15Candles');
+      return;
+    }
+
+    Logger.log(`[${exchange.name}] Fetching markets: ${markets.length}`, 'fetchAllSymbolM15Candles');
+
+    for (const market of markets) {
+      if (
+        this.delayMarket?.[exchange.id]?.[market.symbolId] &&
+        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
+      ) {
+        continue;
+      }
+
+      if (!isCorrectSymbol(market.symbol.name)) {
+        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolH1Candles');
+        continue;
+      }
+
+      if (this.badSymbols[exchange.id] && this.badSymbols[exchange.id].includes(market.symbol.name)) {
+        continue;
+      }
+
+      // delay
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      let limit: number = 0;
+      if (exchange.name === 'htx') {
+        const lastCandle = await this.prisma.candleM15.findFirst({
+          select: {
+            time: true,
+          },
+          where: {
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            tf: timeframeMinutes(TIMEFRAME.M15),
+          },
+          orderBy: {
+            time: 'desc',
+          },
+        });
+
+        if (lastCandle?.time) {
+          if (
+            getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTime(TIMEFRAME.M15) ||
+            getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.M15, 1)
+          ) {
+            limit = 2;
+          }
+        }
+      }
+
+      const candles = await this.fetchCandles({
+        exchange: exchange.name,
+        exchangeId: exchange.id,
+        symbol: market.symbol.name,
+        symbolId: market.symbolId,
+        synonym: market.synonym,
+        timeframe: TIMEFRAME.M15,
+        limit,
+      });
+
+      if (typeof candles === 'string') {
+        Logger.error(candles, 'fetchExchangeAllSymbolM15Candles');
+      } else {
+        if (candles.length <= 3) {
+          if (!this.delayMarket[exchange.id]) {
+            this.delayMarket[exchange.id] = {};
+          }
+
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
+          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+        }
+
+        const saved = candles?.length
+          ? await this.saveExchangeCandlesH1({
+              exchangeId: exchange.id,
+              symbolId: market.symbolId,
+              timeframe: TIMEFRAME.M15,
+              candles,
+            })
+          : { fetched: 0 };
+
+        Logger.log(
+          `Saved [${exchange.name}] ${market.symbol.name}.M15: ${saved?.count || 0}`,
+          'fetchExchangeAllSymbolM15Candles',
+        );
+      }
+    }
+
+    await this.global.setGlobalVariable(`LastFetchAllSymbolM15Candles_${exchange.name}`, Date.now());
+  }
+
   getHello(): string {
     return `Works ${process.uptime()} ms`;
   }
@@ -626,6 +958,30 @@ export class AppService implements OnApplicationBootstrap {
       return maxTimestamp?.time || null;
     } catch (error) {
       Logger.error(`Error get a max timestamp: ${error.message}`, 'getMaxTimestamp');
+      return null;
+    }
+  }
+
+  async getMaxTimestampH1(body: { exchangeId: number; symbolId: number; timeframe: TIMEFRAME }): Promise<Date | null> {
+    const { exchangeId, symbolId, timeframe } = body;
+    try {
+      const maxTimestamp = await this.prisma.candleH1.findFirst({
+        select: {
+          time: true,
+        },
+        where: {
+          exchangeId,
+          symbolId,
+          tf: timeframeMinutes(timeframe),
+        },
+        orderBy: {
+          time: 'desc',
+        },
+      });
+
+      return maxTimestamp?.time || null;
+    } catch (error) {
+      Logger.error(`Error get a max timestamp: ${error.message}`, 'getMaxTimestampH1');
       return null;
     }
   }
@@ -862,6 +1218,45 @@ export class AppService implements OnApplicationBootstrap {
     } catch (error) {
       console.error('Save Exchange Candles: ', error);
       return [];
+    }
+  }
+
+  async saveExchangeCandlesH1(data: {
+    exchangeId: number;
+    symbolId: number;
+    timeframe: TIMEFRAME;
+    candles: CandleDb[];
+  }): Promise<any> {
+    const { exchangeId, symbolId, timeframe, candles } = data;
+    try {
+      const timestamps = candles.map((candle) => candle.time);
+
+      await this.prisma.candleH1.deleteMany({
+        where: {
+          exchangeId,
+          symbolId,
+          tf: timeframeMinutes(timeframe),
+          time: {
+            in: timestamps,
+          },
+        },
+      });
+
+      const candlesToSave = candles.map((candle: CandleDb) => ({
+        ...candle,
+        exchangeId,
+        symbolId,
+        tf: timeframeMinutes(timeframe),
+      }));
+
+      return this.prisma.candleH1.createMany({
+        data: candlesToSave,
+        skipDuplicates: true,
+      });
+    } catch (error) {
+      // Обработка ошибки, например, логирование или возврат ошибки
+      Logger.error(error.message, 'saveExchangeCandlesH1');
+      return null;
     }
   }
 
@@ -1222,7 +1617,10 @@ export class AppService implements OnApplicationBootstrap {
         break;
       case 'gateio':
         // seconds
-        startTime = start || maxTimestamp ? Math.ceil(maxTimestamp.getTime() / 1000) : 0;
+        startTime = start || (maxTimestamp ? Math.ceil(maxTimestamp.getTime() / 1000) : 0);
+        if (startTime * 1000 < getCandleTimeByShift(timeframe, 9998)) {
+          startTime = Math.ceil(getCandleTimeByShift(timeframe, 9998) / 1000);
+        }
         endTime = Math.min(
           startTime + (limit || 500) * timeframeSeconds(timeframe),
           Math.ceil(getCandleTime(timeframe) / 1000),

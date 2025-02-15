@@ -15,21 +15,28 @@ export const TOP_COIN_EXCHANGES: string[] = ['binance', 'okx', 'poloniex', 'bybi
 
 export const BINANCE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1m',
+  [TIMEFRAME.M15]: '15m',
+  [TIMEFRAME.H1]: '1h',
   [TIMEFRAME.D1]: '1d',
 };
 
 export const OKX_TIMEFRAME = {
   [TIMEFRAME.M1]: '1m',
+  [TIMEFRAME.M15]: '15m',
+  [TIMEFRAME.H1]: '1H',
   [TIMEFRAME.D1]: '1Dutc',
 };
 
 export const COINBASE_TIMEFRAME = {
   [TIMEFRAME.M1]: '1min',
+  [TIMEFRAME.M15]: '15min',
+  [TIMEFRAME.H1]: '1hour',
   [TIMEFRAME.D1]: '1day',
 };
 
 export const HTX_TIMEFRAME = {
   [TIMEFRAME.M1]: '1min',
+  [TIMEFRAME.M15]: '15min',
   [TIMEFRAME.H1]: '60min',
   [TIMEFRAME.D1]: '1day',
   [TIMEFRAME.MN1]: '1mon',
