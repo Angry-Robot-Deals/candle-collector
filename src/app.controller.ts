@@ -3,6 +3,7 @@ import { Exchange as ExchangeModel, Market as MarketModel } from '@prisma/client
 import { PrismaService } from './prisma.service';
 import { AppService } from './app.service';
 import { TIMEFRAME } from './timeseries.interface';
+import { CandleDb } from './interface';
 
 @Controller()
 export class AppController {
@@ -71,6 +72,11 @@ export class AppController {
   @Get('market/fetch/:exchange')
   async fetchMarkets(@Param('exchange') exchange: string): Promise<string[]> {
     return this.appService.fetchMarkets(exchange);
+  }
+
+  @Post('candle/list')
+  async getCandles(@Body() body: { exchange: string; symbol: string; timeframe: TIMEFRAME }): Promise<CandleDb[]> {
+    return this.appService.getCandles(body);
   }
 
   @Post('candle/download')

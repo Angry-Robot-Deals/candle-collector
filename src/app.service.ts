@@ -867,6 +867,7 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (this.badSymbols[exchange.id] && this.badSymbols[exchange.id].includes(market.symbol.name)) {
+        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolM15Candles');
         continue;
       }
 
@@ -1442,6 +1443,51 @@ export class AppService implements OnApplicationBootstrap {
     });
   }
 
+  async getCandles({
+    exchange,
+    symbol,
+    timeframe,
+  }: {
+    exchange: string;
+    symbol: string;
+    timeframe: TIMEFRAME;
+  }): Promise<CandleDb[]> {
+    let collection = null;
+    switch (timeframe) {
+      case TIMEFRAME.M1:
+        collection = this.prisma.candle;
+        break;
+      case TIMEFRAME.M15:
+        collection = this.prisma.candleM15;
+        break;
+      case TIMEFRAME.H1:
+        collection = this.prisma.candleH1;
+        break;
+      case TIMEFRAME.D1:
+        collection = this.prisma.candleD1;
+        break;
+      default:
+        Logger.error(`Error get a collection for timeframe ${timeframe}`, 'getCandles');
+        return [];
+    }
+
+    return collection.findMany({
+      where: {
+        exchange: {
+          name: exchange,
+        },
+        symbol: {
+          name: symbol,
+        },
+        tf: timeframeMinutes(timeframe),
+      },
+      orderBy: {
+        time: 'desc',
+      },
+      take: 1000,
+    });
+  }
+
   async fetchCandles(body: {
     exchange: string;
     exchangeId?: number;
@@ -1592,24 +1638,38 @@ export class AppService implements OnApplicationBootstrap {
             'fetchCandles',
           );
         } else {
-          if (exchange === 'mexc') {
-            const firstResMexc = await mexcFindFirstCandle({
-              synonym,
-              timeframe,
-              startTime: getStartFetchTime(timeframe).getTime(),
-            });
+          switch (exchange) {
+            case 'bybit':
+              maxTimestamp = await bybitFindFirstCandle({
+                synonym,
+                timeframe,
+              });
 
-            if (typeof firstResMexc === 'string') {
-              if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
-                Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+              if (!maxTimestamp) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
+                return [];
               }
-              return [];
-            }
+              break;
+            case 'mexc':
+              const firstResMexc = await mexcFindFirstCandle({
+                synonym,
+                timeframe,
+              });
 
-            maxTimestamp = firstResMexc;
-          } else {
-            maxTimestamp = getStartFetchTime(timeframe);
+              if (typeof firstResMexc === 'string') {
+                if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
+                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                  await this.disableMarket({ exchangeId, symbolId });
+                }
+                return [];
+              }
+
+              maxTimestamp = firstResMexc;
+
+              break;
+            default:
+              maxTimestamp = getStartFetchTime(timeframe);
           }
         }
       }

@@ -5,6 +5,10 @@ import { Logger } from '@nestjs/common';
 
 const dotenv = import('dotenv');
 
+BigInt.prototype['toJSON'] = function () {
+  return this.toString();
+};
+
 (async function () {
   (await dotenv).configDotenv();
 

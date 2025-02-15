@@ -48,20 +48,13 @@ async function fetchCandles(data: {
     });
 }
 
-export async function mexcFindFirstCandle(data: {
-  synonym: string;
-  timeframe: TIMEFRAME;
-  startTime?: number;
-}): Promise<Date | string> {
-  const { synonym, startTime } = data;
+export async function mexcFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | string> {
+  const { synonym } = data;
   const timeframe = MEXC_TIMEFRAME[data.timeframe];
 
   const limit = 999;
 
-  let start = getCandleTime(
-    data.timeframe,
-    new Date(startTime || getStartFetchTime(data.timeframe).getTime()).getTime(),
-  );
+  let start = getCandleTime(data.timeframe, new Date(getStartFetchTime(data.timeframe).getTime()).getTime());
 
   // add 64 candles to start
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
