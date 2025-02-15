@@ -233,7 +233,12 @@ export class AppService implements OnApplicationBootstrap {
       const lastFetchAllSymbolM15Candles = await this.global.getGlobalVariableTime(
         `LastFetchAllSymbolM15Candles_${exchange.name}`,
       );
-      if (lastFetchAllSymbolM15Candles && Date.now() - lastFetchAllSymbolM15Candles < MIN_MSEC * 15) {
+      if (
+        lastFetchAllSymbolM15Candles &&
+        Date.now() - lastFetchAllSymbolM15Candles < MIN_MSEC * 15 &&
+        process.env.NODE_ENV !== 'development'
+      ) {
+        console.log(process.env.NODE_ENV);
         Logger.warn(
           `Delay fetch all symbol M15 candles ${Date.now() - lastFetchAllSymbolM15Candles} ms`,
           `fetchAllSymbolM15Candles_${exchange.name}`,
@@ -720,7 +725,7 @@ export class AppService implements OnApplicationBootstrap {
     for (const market of markets) {
       if (
         this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
+        Date.now() - this.delayMarket[exchange.id][market.symbolId] < MIN_MSEC * 15
       ) {
         continue;
       }
@@ -849,13 +854,13 @@ export class AppService implements OnApplicationBootstrap {
     for (const market of markets) {
       if (
         this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
+        Date.now() - this.delayMarket[exchange.id][market.symbolId] < MIN_MSEC * 5
       ) {
         continue;
       }
 
       if (!isCorrectSymbol(market.symbol.name)) {
-        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolM15Candles');
+        Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolM15Candles');
         continue;
       }
 
