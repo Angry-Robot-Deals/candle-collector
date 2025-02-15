@@ -50,7 +50,9 @@ export class AppService implements OnApplicationBootstrap {
   private badSymbols = {};
   private delayCoin = {};
 
-  private delayMarket = {};
+  private delayMarket_D1 = {};
+  private delayMarket_H1 = {};
+  private delayMarket_M15 = {};
 
   constructor(
     private readonly prisma: PrismaService,
@@ -531,8 +533,8 @@ export class AppService implements OnApplicationBootstrap {
 
     for (const market of markets) {
       if (
-        this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < FETCH_DELAY
+        this.delayMarket_D1?.[exchange.id]?.[market.symbolId] &&
+        Date.now() - this.delayMarket_D1[exchange.id][market.symbolId] < FETCH_DELAY
       ) {
         continue;
       }
@@ -589,12 +591,12 @@ export class AppService implements OnApplicationBootstrap {
         Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
       } else {
         if (candles.length <= 3) {
-          if (!this.delayMarket[exchange.id]) {
-            this.delayMarket[exchange.id] = {};
+          if (!this.delayMarket_D1[exchange.id]) {
+            this.delayMarket_D1[exchange.id] = {};
           }
 
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
-          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}.D1 ${candles.length}`);
+          this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
         }
 
         const saved = candles?.length
@@ -652,11 +654,11 @@ export class AppService implements OnApplicationBootstrap {
           Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
         } else {
           if (candlesMN1.length <= 1) {
-            if (!this.delayMarket[exchange.id]) {
-              this.delayMarket[exchange.id] = {};
+            if (!this.delayMarket_D1[exchange.id]) {
+              this.delayMarket_D1[exchange.id] = {};
             }
             Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candlesMN1.length}`);
-            this.delayMarket[exchange.id][market.symbolId] = Date.now();
+            this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
           }
 
           const saved = candlesMN1?.length
@@ -724,8 +726,8 @@ export class AppService implements OnApplicationBootstrap {
 
     for (const market of markets) {
       if (
-        this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < MIN_MSEC * 15
+        this.delayMarket_H1?.[exchange.id]?.[market.symbolId] &&
+        Date.now() - this.delayMarket_H1[exchange.id][market.symbolId] < MIN_MSEC * 15
       ) {
         continue;
       }
@@ -782,12 +784,12 @@ export class AppService implements OnApplicationBootstrap {
         Logger.error(candles, 'fetchExchangeAllSymbolH1Candles');
       } else {
         if (candles.length <= 3) {
-          if (!this.delayMarket[exchange.id]) {
-            this.delayMarket[exchange.id] = {};
+          if (!this.delayMarket_H1[exchange.id]) {
+            this.delayMarket_H1[exchange.id] = {};
           }
 
           Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
-          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          this.delayMarket_H1[exchange.id][market.symbolId] = Date.now();
         }
 
         const saved = candles?.length
@@ -853,8 +855,8 @@ export class AppService implements OnApplicationBootstrap {
 
     for (const market of markets) {
       if (
-        this.delayMarket?.[exchange.id]?.[market.symbolId] &&
-        Date.now() - this.delayMarket[exchange.id][market.symbolId] < MIN_MSEC * 5
+        this.delayMarket_M15?.[exchange.id]?.[market.symbolId] &&
+        Date.now() - this.delayMarket_M15[exchange.id][market.symbolId] < MIN_MSEC * 5
       ) {
         continue;
       }
@@ -911,12 +913,12 @@ export class AppService implements OnApplicationBootstrap {
         Logger.error(candles, 'fetchExchangeAllSymbolM15Candles');
       } else {
         if (candles.length <= 3) {
-          if (!this.delayMarket[exchange.id]) {
-            this.delayMarket[exchange.id] = {};
+          if (!this.delayMarket_M15[exchange.id]) {
+            this.delayMarket_M15[exchange.id] = {};
           }
 
           Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
-          this.delayMarket[exchange.id][market.symbolId] = Date.now();
+          this.delayMarket_M15[exchange.id][market.symbolId] = Date.now();
         }
 
         const saved = candles?.length
