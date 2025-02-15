@@ -64,7 +64,7 @@ export async function gateioFindFirstCandle(data: { synonym: string; timeframe: 
     const candles = await fetchCandles({ synonym, timeframe, start, end });
     if (typeof candles === 'string') {
       if (candles.includes('Candlestick too long ago')) {
-        start = Math.ceil(getCandleTimeByShift(data.timeframe, 9999) / 1000);
+        start = Math.ceil(getCandleTimeByShift(data.timeframe, 9998) / 1000);
         end = Math.min(
           start + limit * timeframeSeconds(data.timeframe),
           Math.ceil(getCandleTime(data.timeframe, Date.now()) / 1000),
