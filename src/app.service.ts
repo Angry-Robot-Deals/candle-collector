@@ -664,7 +664,7 @@ export class AppService implements OnApplicationBootstrap {
             : { fetched: 0 };
 
           Logger.log(
-            `Saved [${exchange.name}] ${market.symbol.name}.M1: ${saved?.count || 0}`,
+            `Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`,
             'fetchExchangeAllSymbolD1Candles',
           );
         }
