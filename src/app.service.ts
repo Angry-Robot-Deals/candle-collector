@@ -789,7 +789,6 @@ export class AppService implements OnApplicationBootstrap {
           ? await this.saveExchangeCandlesH1({
               exchangeId: exchange.id,
               symbolId: market.symbolId,
-              timeframe: TIMEFRAME.H1,
               candles,
             })
           : { fetched: 0 };
@@ -856,7 +855,7 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (!isCorrectSymbol(market.symbol.name)) {
-        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolH1Candles');
+        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolM15Candles');
         continue;
       }
 
@@ -916,10 +915,9 @@ export class AppService implements OnApplicationBootstrap {
         }
 
         const saved = candles?.length
-          ? await this.saveExchangeCandlesH1({
+          ? await this.saveExchangeCandlesM15({
               exchangeId: exchange.id,
               symbolId: market.symbolId,
-              timeframe: TIMEFRAME.M15,
               candles,
             })
           : { fetched: 0 };
@@ -1221,13 +1219,8 @@ export class AppService implements OnApplicationBootstrap {
     }
   }
 
-  async saveExchangeCandlesH1(data: {
-    exchangeId: number;
-    symbolId: number;
-    timeframe: TIMEFRAME;
-    candles: CandleDb[];
-  }): Promise<any> {
-    const { exchangeId, symbolId, timeframe, candles } = data;
+  async saveExchangeCandlesH1(data: { exchangeId: number; symbolId: number; candles: CandleDb[] }): Promise<any> {
+    const { exchangeId, symbolId, candles } = data;
     try {
       const timestamps = candles.map((candle) => candle.time);
 
@@ -1235,7 +1228,7 @@ export class AppService implements OnApplicationBootstrap {
         where: {
           exchangeId,
           symbolId,
-          tf: timeframeMinutes(timeframe),
+          tf: 60,
           time: {
             in: timestamps,
           },
@@ -1246,7 +1239,7 @@ export class AppService implements OnApplicationBootstrap {
         ...candle,
         exchangeId,
         symbolId,
-        tf: timeframeMinutes(timeframe),
+        tf: 60,
       }));
 
       return this.prisma.candleH1.createMany({
@@ -1256,6 +1249,40 @@ export class AppService implements OnApplicationBootstrap {
     } catch (error) {
       // Обработка ошибки, например, логирование или возврат ошибки
       Logger.error(error.message, 'saveExchangeCandlesH1');
+      return null;
+    }
+  }
+
+  async saveExchangeCandlesM15(data: { exchangeId: number; symbolId: number; candles: CandleDb[] }): Promise<any> {
+    const { exchangeId, symbolId, candles } = data;
+    try {
+      const timestamps = candles.map((candle) => candle.time);
+
+      await this.prisma.candleM15.deleteMany({
+        where: {
+          exchangeId,
+          symbolId,
+          tf: 15,
+          time: {
+            in: timestamps,
+          },
+        },
+      });
+
+      const candlesToSave = candles.map((candle: CandleDb) => ({
+        ...candle,
+        exchangeId,
+        symbolId,
+        tf: 15,
+      }));
+
+      return this.prisma.candleM15.createMany({
+        data: candlesToSave,
+        skipDuplicates: true,
+      });
+    } catch (error) {
+      // Обработка ошибки, например, логирование или возврат ошибки
+      Logger.error(error.message, 'saveExchangeCandlesM15');
       return null;
     }
   }
