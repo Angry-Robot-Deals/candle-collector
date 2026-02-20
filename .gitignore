@@ -1,5 +1,7 @@
+# Environment and secrets (repository is public — never commit these)
 .env
-.env.production
+.env.*
+!.env.example
 
 # compiled output
 /dist

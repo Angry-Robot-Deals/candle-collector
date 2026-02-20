@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { fetchJsonSafe, toExchangeSymbol } from './fetch-json-safe';
 import {
   binanceCandleToCandleModel,
   bybitCandleToCandleModel,
@@ -25,22 +26,15 @@ export async function binanceFetchCandles(
   start?: number,
   limit?: number,
 ): Promise<CandleDb[] | string> {
-  const candles: any = await fetch(
-    `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=${limit || 64}&startTime=${
-      start || 1
-    }`,
-  )
-    .then((res) => res.json())
-    .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`, 'binanceFetchCandles');
-      return null;
-    });
+  const symbol = toExchangeSymbol.noSeparator(synonym);
+  const url = `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol}&interval=${timeframe}&limit=${limit || 64}&startTime=${start || 1}`;
+  const { data: candles, error } = await fetchJsonSafe<unknown>(url, 'binanceFetchCandles');
 
-  if (!candles) {
+  if (error || candles == null) {
     return 'No candles';
   }
   if (!Array.isArray(candles)) {
-    Logger.error(`[binance] ${synonym}.${timeframe} error: ${JSON.stringify(candles)}`, 'binanceFetchCandles');
+    Logger.error(`[binance] ${symbol}.${timeframe} bad response: ${JSON.stringify(candles)}`, 'binanceFetchCandles');
     return `Bad response ${JSON.stringify(candles || {})}`;
   }
 
@@ -54,24 +48,19 @@ export async function okxFetchCandles(
   end: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
 ): Promise<CandleDb[] | string> {
-  const res: any = await fetch(
-    `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-      end + 1
-    }&limit=${limit}`,
-  )
-    .then((res) => res.json())
-    .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`);
-      return null;
-    });
+  const instId = toExchangeSymbol.hyphen(synonym);
+  const url = `https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=${timeframe}&before=${start - 1}&after=${end + 1}&limit=${limit}`;
+  const { data: res, error } = await fetchJsonSafe<{ code?: string; data?: OHLCV_Okx[] }>(url, 'okxFetchCandles');
+
+  if (error || res == null) {
+    return `Bad response ${error || 'null'}`;
+  }
 
   if (!res?.data || res?.code !== '0') {
     Logger.error(
-      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-        end + 1
-      }&limit=${limit} ... ${JSON.stringify(res || {})}`,
+      `[okx] bad response instId=${instId} bar=${timeframe}: ${JSON.stringify(res || {})}`,
+      'okxFetchCandles',
     );
-
     return `Bad response ${JSON.stringify(res || {})}`;
   }
 
@@ -89,19 +78,15 @@ export async function poloniexFetchCandles(
   end: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
 ): Promise<CandleDb[] | string> {
-  const candles: any = await fetch(
-    `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
-  )
-    .then((res) => res.json())
-    .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`);
-      return null;
-    });
+  const symbol = toExchangeSymbol.underscore(synonym);
+  const url = `https://api.poloniex.com/markets/${symbol}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`;
+  const { data: candles, error } = await fetchJsonSafe<unknown>(url, 'poloniexFetchCandles');
 
-  if (!candles || !Array.isArray(candles)) {
-    console.log(
-      `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`,
-    );
+  if (error || candles == null) {
+    return `Bad response ${error || 'null'}`;
+  }
+  if (!Array.isArray(candles)) {
+    Logger.error(`[poloniex] bad response: ${symbol} ${timeframe} ${JSON.stringify(candles)}`, 'poloniexFetchCandles');
     return `Bad response ${JSON.stringify(candles || {})}`;
   }
 
@@ -118,27 +103,24 @@ export async function bybitFetchCandles(
   start: number, // milliseconds, include a candle with this value
   limit: number, // milliseconds, include a candle with this value
 ): Promise<CandleDb[] | string> {
-  const res: any = await fetch(
-    `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
-  )
-    .then((res) => res.json())
-    .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`);
-      return null;
-    });
+  const symbol = toExchangeSymbol.noSeparator(synonym);
+  const url = `https://api.bybit.com/v5/market/kline?category=spot&symbol=${symbol}&interval=${timeframe}&start=${start}&limit=${limit}`;
+  const { data: res, error } = await fetchJsonSafe<{ retCode?: number; result?: { list?: unknown[] } }>(url, 'bybitFetchCandles');
 
-  if (res?.['retCode'] !== 0 || !res.result?.['list'] || !Array.isArray(res.result['list'])) {
-    console.log(
-      `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`,
-    );
+  if (error || res == null) {
+    return `Bad response ${error || 'null'}`;
+  }
+
+  if (res?.retCode !== 0 || !res.result?.list || !Array.isArray(res.result.list)) {
+    Logger.error(`[bybit] bad response: ${symbol} ${timeframe} ${JSON.stringify(res)}`, 'bybitFetchCandles');
     return `Bad response ${JSON.stringify(res || {})}`;
   }
 
-  if (!res.result['list'].length) {
+  if (!res.result.list.length) {
     return [];
   }
 
-  return res.result['list'].map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
+  return res.result.list.map((candle: OHLCV_Bybit) => bybitCandleToCandleModel(candle));
 }
 
 export async function htxFetchCandles(
@@ -146,32 +128,29 @@ export async function htxFetchCandles(
   timeframe: keyof typeof HTX_TIMEFRAME,
   limit: number, // milliseconds, include a candle with this value
 ): Promise<any[] | string> {
-  // console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
+  const symbol = toExchangeSymbol.noSeparator(synonym).toLowerCase();
+  const url = `https://api.huobi.pro/market/history/kline?symbol=${symbol}&period=${timeframe}&size=${limit}`;
+  const { data: candles, error } = await fetchJsonSafe<{ status?: string; data?: unknown }>(url, 'htxFetchCandles');
 
-  const candles: any = await fetch(
-    `https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`,
-  )
-    .then((res) => res.json())
-    .catch((e) => {
-      Logger.error(`Error fetch candles: ${e.message}`, 'htxFetchCandles');
-      return null;
-    });
+  if (error || candles == null) {
+    return `Bad response ${error || 'null'}`;
+  }
 
   if (!candles?.data || candles?.status !== 'ok') {
-    console.log(`https://api.huobi.pro/market/history/kline?symbol=${synonym}&period=${timeframe}&size=${limit}`);
+    Logger.error(`[htx] bad response: ${symbol} ${timeframe} ${JSON.stringify(candles)}`, 'htxFetchCandles');
     return `Bad response ${JSON.stringify(candles || {})}`;
   }
 
-  if (!candles.data?.length) {
+  const list = Array.isArray(candles.data) ? candles.data : [];
+  if (!list.length) {
     return [];
   }
 
-  return candles.data.map((candle: OHLCV_HTX) => htxCandleToCandleModel(candle));
+  return list.map((candle: OHLCV_HTX) => htxCandleToCandleModel(candle));
 }
 
 export async function binanceFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
-  const { synonym } = data;
-  // const synonym = 'BTC-USDT';
+  const symbol = toExchangeSymbol.noSeparator(data.synonym);
   const timeframe = BINANCE_TIMEFRAME[data.timeframe];
 
   let start = getStartFetchTime(data.timeframe).getTime();
@@ -187,7 +166,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     //   }`,
     // )
     const res: any = await fetch(
-      `https://api4.binance.com/api/v3/uiKlines?symbol=${synonym}&interval=${timeframe}&limit=3&startTime=${start}`,
+      `https://api4.binance.com/api/v3/uiKlines?symbol=${symbol}&interval=${timeframe}&limit=3&startTime=${start}`,
     )
       .then((res) => res.json())
       .catch((e) => {
@@ -203,7 +182,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
     if (res?.length) {
       const minTime = Math.min(...res.map((candle: OHLCV_Binance) => +candle[0]));
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
-      Logger.log(`[binance] ${synonym} first candle time ${firstCandleTime.toISOString()}`, 'binanceFindFirstCandle');
+      Logger.log(`[binance] ${symbol} first candle time ${firstCandleTime.toISOString()}`, 'binanceFindFirstCandle');
       return firstCandleTime;
     }
 
@@ -218,8 +197,7 @@ export async function binanceFindFirstCandle(data: { synonym: string; timeframe:
 }
 
 export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
-  const { synonym } = data;
-  // const synonym = 'BTC-USDT';
+  const instId = toExchangeSymbol.hyphen(data.synonym);
   const timeframe = OKX_TIMEFRAME[data.timeframe];
 
   const limit = 64;
@@ -239,42 +217,22 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
     //     end + 1
     //   }`,
     // )
-    const res: any = await fetch(
-      `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${start - 1}&after=${
-        end + 1
-      }&limit=${limit}`,
-    )
-      .then((res) => res.json())
-      .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`);
-        return null;
-      });
+    const url = `https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=${timeframe}&before=${start - 1}&after=${end + 1}&limit=${limit}`;
+    const { data: res, error } = await fetchJsonSafe<{ code?: string; data?: [string, ...unknown[]][] }>(url, 'okxFindFirstCandle');
 
-    if (!res?.data || res?.code !== '0') {
-      Logger.error(
-        `https://www.okx.com/api/v5/market/history-candles?instId=${synonym}&bar=${timeframe}&before=${
-          start - 1
-        }&after=${end + 1}&limit=${limit} ... ${JSON.stringify(res || {})}`,
-      );
-
+    if (error || !res?.data || res?.code !== '0') {
+      if (res && res.code !== '0') {
+        Logger.error(`[okx] find first candle bad response instId=${instId}: ${JSON.stringify(res)}`, 'okxFindFirstCandle');
+      }
       return null;
     }
 
-    if (res?.code === '0' && res?.data?.length) {
+    if (res.data?.length) {
       const minTime = Math.min(...res.data.map((candle: OHLCV_Okx) => +candle[0]));
-
-      // if (synonym === 'GARI-USDT') {
-      //   console.log(
-      //     'minTime',
-      //     minTime,
-      //     new Date(minTime).toISOString(),
-      //     res.data.map((candle: OHLCV_Okx) => new Date(+candle[0]).toISOString()),
-      //   );
-      // }
 
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
 
-      Logger.log(`[okx] ${synonym} first candle time ${firstCandleTime?.getTime()}, ${firstCandleTime?.toISOString()}`);
+      Logger.log(`[okx] ${instId} first candle time ${firstCandleTime?.getTime()}, ${firstCandleTime?.toISOString()}`);
 
       return firstCandleTime;
     }
@@ -290,7 +248,7 @@ export async function okxFindFirstCandle(data: { synonym: string; timeframe: TIM
 }
 
 export async function poloniexFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
-  const { synonym } = data;
+  const symbol = toExchangeSymbol.underscore(data.synonym);
   const timeframe = POLONIEX_TIMEFRAME[data.timeframe];
 
   let start = getCandleTime(data.timeframe, getStartFetchTime(data.timeframe).getTime());
@@ -301,19 +259,17 @@ export async function poloniexFindFirstCandle(data: { synonym: string; timeframe
   const now = new Date().getTime();
 
   while (start < now && start < end) {
-    const res: any = await fetch(
-      `https://api.poloniex.com/markets/${synonym}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}`,
-    )
-      .then((res) => res.json())
-      .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`);
-        return null;
-      });
+    const url = `https://api.poloniex.com/markets/${symbol}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}`;
+    const { data: res, error } = await fetchJsonSafe<OHLCV_Poloniex[]>(url, 'poloniexFindFirstCandle');
 
-    if (res?.length) {
+    if (error || res == null) {
+      return null;
+    }
+
+    if (Array.isArray(res) && res.length) {
       const minTime = Math.min(...res.map((candle: OHLCV_Poloniex) => +candle[12]));
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
-      Logger.log(`[poloniex] ${synonym} first candle time ${firstCandleTime.toISOString()}`);
+      Logger.log(`[poloniex] ${symbol} first candle time ${firstCandleTime.toISOString()}`);
       return firstCandleTime;
     }
 
@@ -328,7 +284,7 @@ export async function poloniexFindFirstCandle(data: { synonym: string; timeframe
 }
 
 export async function bybitFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
-  const { synonym } = data;
+  const symbol = toExchangeSymbol.noSeparator(data.synonym);
   const timeframe = BYBIT_TIMEFRAME[data.timeframe];
 
   const limit = 999;
@@ -339,29 +295,21 @@ export async function bybitFindFirstCandle(data: { synonym: string; timeframe: T
   let end = Math.min(start + limit * timeframeMSeconds(data.timeframe), getCandleTime(data.timeframe, Date.now()));
 
   while (start < end) {
-    const request = `https://api.bybit.com/v5/market/kline?category=spot&symbol=${synonym}&interval=${timeframe}&start=${start}&limit=${limit}`;
-    const res: any = await fetch(request)
-      .then((res) => res.json())
-      .catch((e) => {
-        Logger.error(`Error fetch candles: ${e.message}`, 'bybitFindFirstCandle');
-        return null;
-      });
+    const url = `https://api.bybit.com/v5/market/kline?category=spot&symbol=${symbol}&interval=${timeframe}&start=${start}&limit=${limit}`;
+    const { data: res, error } = await fetchJsonSafe<{ retCode?: number; result?: { list?: OHLCV_Bybit[] } }>(url, 'bybitFindFirstCandle');
 
-    if (
-      res?.['retCode'] === 0 &&
-      res.result?.['list'] &&
-      Array.isArray(res.result['list']) &&
-      res.result['list'].length
-    ) {
-      const minTime = Math.min(...res.result['list'].map((candle: OHLCV_Bybit) => +candle[0]));
+    if (error || res == null) {
+      return null;
+    }
+
+    const list = res?.result?.list;
+    if (res?.retCode === 0 && Array.isArray(list) && list.length) {
+      const minTime = Math.min(...list.map((candle: OHLCV_Bybit) => +candle[0]));
 
       const firstCandleTime = getCandleHumanTime(data.timeframe, minTime);
 
-      Logger.log(`[bybit] ${synonym} first candle time ${firstCandleTime.getTime()}, ${firstCandleTime.toISOString()}`);
+      Logger.log(`[bybit] ${symbol} first candle time ${firstCandleTime.getTime()}, ${firstCandleTime.toISOString()}`);
       return firstCandleTime;
-    } else {
-      // console.log(request);
-      // console.log(JSON.stringify(res));
     }
 
     start = start + limit * timeframeMSeconds(data.timeframe);

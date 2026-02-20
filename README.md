@@ -23,6 +23,10 @@ Fetches crypto exchange candles (K-lines) and saves them to a PostgreSQL databas
 - **Database:** PostgreSQL
 - **Exchange data:** ccxt
 
+## Security (repository is public)
+
+**Do not commit** `.env`, `.env.production`, or any file with passwords, API keys, or real connection strings. Use `.env.example` as a template only (it has placeholders). See [SECURITY.md](SECURITY.md) for a before-push checklist.
+
 ## Prepare for launch
 
 ```bash
@@ -80,6 +84,10 @@ docker compose -p cc -f docker-compose.yml down
 
 - **Memory Bank** (task context, progress, tech/product notes): see `memory-bank/` directory.
 - **Memory Bank docs:** `memory-bank/docs/README.md`.
+
+## Deploy (optional)
+
+Deploy script `scripts/external-deploy.sh` uses `APP_SERVER_USER`, `APP_SERVER_SSH_KEY`, and copies `.env.production` to the server. Keep `.env.production` only locally (it is in `.gitignore`).
 
 ## Scripts
 

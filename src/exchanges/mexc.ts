@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { fetchJsonSafe, toExchangeSymbol } from '../fetch-json-safe';
 import { getCandleHumanTime, getCandleTime } from '../timeseries';
 import { timeframeMSeconds } from '../timeseries.constant';
 import { getStartFetchTime } from '../app.constant';
@@ -6,16 +7,20 @@ import { TIMEFRAME } from '../timeseries.interface';
 import { CandleDb } from '../interface';
 import { MEXC_TIMEFRAME, OHLCV_Mexc } from './mexc.interface';
 
-function getCandleURI(data: {
-  synonym: string;
-  timeframe: keyof typeof MEXC_TIMEFRAME;
-  start: number; // milliseconds, include a candle with this value
-  end: number; // milliseconds, include a candle with this value
-  limit: number; // milliseconds, include a candle with this value
-}): string {
-  const { synonym, timeframe, start, end, limit } = data;
+/** MEXC API expects symbol without separator, e.g. BTCUSDT. */
+function toMexcSymbol(synonym: string): string {
+  return toExchangeSymbol.noSeparator(synonym);
+}
 
-  return `https://api.mexc.com/api/v3/klines?symbol=${synonym}&interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`;
+function getCandleURI(data: {
+  symbol: string;
+  timeframe: keyof typeof MEXC_TIMEFRAME;
+  start: number;
+  end: number;
+  limit: number;
+}): string {
+  const { symbol, timeframe, start, end, limit } = data;
+  return `https://api.mexc.com/api/v3/klines?symbol=${symbol}&interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`;
 }
 
 async function fetchCandles(data: {
@@ -25,31 +30,25 @@ async function fetchCandles(data: {
   end: number; // milliseconds, include a candle with this value
   limit: number; // milliseconds, include a candle with this value
 }): Promise<OHLCV_Mexc[] | string> {
-  const { synonym, timeframe, start, end, limit } = data;
+  const symbol = toMexcSymbol(data.synonym);
+  const { timeframe, start, end, limit } = data;
+  const url = getCandleURI({ symbol, timeframe, start, end, limit });
 
-  return await fetch(getCandleURI({ synonym, timeframe, start, end, limit }))
-    .then((res) => res.json())
-    .then((res) => {
-      if (!res || !Array.isArray(res)) {
-        Logger.error(
-          `[mexc] bad response: ${getCandleURI({ synonym, timeframe, start, end, limit })}`,
-          'fetchCandles.mexc',
-        );
+  const { data: res, error } = await fetchJsonSafe<unknown>(url, 'fetchCandles.mexc');
 
-        return `Bad response ${JSON.stringify(res || {})}`;
-      }
+  if (error || res == null) {
+    return error || 'Bad response';
+  }
+  if (!Array.isArray(res)) {
+    Logger.error(`[mexc] bad response (not array): ${url} ${JSON.stringify(res).slice(0, 200)}`, 'fetchCandles.mexc');
+    return `Bad response ${JSON.stringify(res || {})}`;
+  }
 
-      return res;
-    })
-    .catch((err) => {
-      Logger.error(`[mexc] Error fetch candles: ${err.message}`);
-
-      return err.message;
-    });
+  return res as OHLCV_Mexc[];
 }
 
 export async function mexcFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | string> {
-  const { synonym } = data;
+  const synonym = toMexcSymbol(data.synonym);
   const timeframe = MEXC_TIMEFRAME[data.timeframe];
 
   const limit = 999;

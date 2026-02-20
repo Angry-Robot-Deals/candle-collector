@@ -650,7 +650,7 @@ export class AppService implements OnApplicationBootstrap {
         });
 
         if (typeof candlesMN1 === 'string') {
-          Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
+          Logger.error(candlesMN1, 'fetchExchangeAllSymbolD1Candles');
         } else {
           if (candlesMN1.length <= 1) {
             if (!this.delayMarket_D1[exchange.id]) {
@@ -1596,7 +1596,7 @@ export class AppService implements OnApplicationBootstrap {
 
               if (typeof firstResMexc === 'string') {
                 if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
-                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                  Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
                 return [];
@@ -1612,7 +1612,7 @@ export class AppService implements OnApplicationBootstrap {
                   firstResGateio.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase()) ||
                   firstResGateio.toLowerCase().includes('INVALID_CURRENCY'.toLowerCase())
                 ) {
-                  Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
+                  Logger.error(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
                 return firstResGateio;
@@ -1661,7 +1661,7 @@ export class AppService implements OnApplicationBootstrap {
 
               if (typeof firstResMexc === 'string') {
                 if (firstResMexc.toLowerCase().includes('Invalid symbol'.toLowerCase())) {
-                  Logger.warn(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                  Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                   await this.disableMarket({ exchangeId, symbolId });
                 }
                 return [];
@@ -1733,7 +1733,7 @@ export class AppService implements OnApplicationBootstrap {
             candles.toLowerCase().includes('INVALID_CURRENCY_PAIR'.toLowerCase()) ||
             candles.toLowerCase().includes('INVALID_CURRENCY'.toLowerCase())
           ) {
-            Logger.warn(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
+            Logger.error(`Disable market [${exchange}] ${symbol}`, 'fetchCandles');
             await this.disableMarket({ exchangeId, symbolId });
           }
           return candles;

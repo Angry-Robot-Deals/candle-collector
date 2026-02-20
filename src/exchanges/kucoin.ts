@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { fetchJsonSafe, toExchangeSymbol } from '../fetch-json-safe';
 import { getCandleHumanTime, getCandleTime } from '../timeseries';
 import { timeframeMSeconds } from '../timeseries.constant';
 import { TIMEFRAME } from '../timeseries.interface';
@@ -6,15 +7,19 @@ import { CandleDb } from '../interface';
 import { getStartFetchTime } from '../app.constant';
 import { KUCOIN_TIMEFRAME, OHLCV_Kucoin } from './kucoin.interface';
 
-function getCandleURI(data: {
-  synonym: string;
-  timeframe: keyof typeof KUCOIN_TIMEFRAME;
-  start: number; // milliseconds, include a candle with this value
-  end: number; // milliseconds, include a candle with this value
-}): string {
-  const { synonym, timeframe, start, end } = data;
+/** Kucoin API expects symbol with hyphen, e.g. BTC-USDT. */
+function toKucoinSymbol(synonym: string): string {
+  return toExchangeSymbol.hyphen(synonym);
+}
 
-  return `https://api.kucoin.com/api/v1/market/candles?type=${timeframe}&symbol=${synonym}&startAt=${Math.ceil(start / 1000)}&endAt=${Math.ceil(end / 1000)}`;
+function getCandleURI(data: {
+  symbol: string;
+  timeframe: keyof typeof KUCOIN_TIMEFRAME;
+  start: number; // milliseconds
+  end: number; // milliseconds
+}): string {
+  const { symbol, timeframe, start, end } = data;
+  return `https://api.kucoin.com/api/v1/market/candles?type=${timeframe}&symbol=${symbol}&startAt=${Math.ceil(start / 1000)}&endAt=${Math.ceil(end / 1000)}`;
 }
 
 async function fetchCandles(data: {
@@ -23,27 +28,21 @@ async function fetchCandles(data: {
   start: number; // milliseconds, include a candle with this value
   end: number; // milliseconds, include a candle with this value
 }): Promise<CandleDb[] | string> {
-  const { synonym, timeframe, start, end } = data;
+  const symbol = toKucoinSymbol(data.synonym);
+  const { timeframe, start, end } = data;
+  const uri = getCandleURI({ symbol, timeframe, start, end });
 
-  const URI = getCandleURI({ synonym, timeframe, start, end });
-  // console.log(URI);
+  const { data: res, error } = await fetchJsonSafe<{ code?: string; data?: OHLCV_Kucoin[] }>(uri, 'fetchCandles.kucoin');
 
-  return await fetch(URI)
-    .then((res) => res.json())
-    .then((res: { code: string; data: OHLCV_Kucoin[] }) => {
-      if (res?.code !== '200000' || !Array.isArray(res?.data)) {
-        Logger.error(`[kucoin] bad response: ${URI}`, 'fetchCandles.kucoin');
+  if (error || res == null) {
+    return error || 'Bad response';
+  }
+  if (res?.code !== '200000' || !Array.isArray(res?.data)) {
+    Logger.error(`[kucoin] bad response: ${uri} ${JSON.stringify(res || {}).slice(0, 200)}`, 'fetchCandles.kucoin');
+    return `Bad response ${JSON.stringify(res || {})}`;
+  }
 
-        return `Bad response ${JSON.stringify(res || {})}`;
-      }
-
-      return res.data.map((candle: OHLCV_Kucoin) => kucoinCandleToCandleModel(candle));
-    })
-    .catch((err) => {
-      Logger.error(`[kucoin] Error fetch candles: ${err.message}`);
-
-      return err.message;
-    });
+  return res.data.map((candle: OHLCV_Kucoin) => kucoinCandleToCandleModel(candle));
 }
 
 export async function kucoinFindFirstCandle(data: {
@@ -51,7 +50,8 @@ export async function kucoinFindFirstCandle(data: {
   timeframe: TIMEFRAME;
   startTime?: number; // milliseconds
 }): Promise<Date | null> {
-  const { synonym, startTime } = data;
+  const synonym = toKucoinSymbol(data.synonym);
+  const { startTime } = data;
   const timeframe = KUCOIN_TIMEFRAME[data.timeframe];
 
   const limit = 1499;

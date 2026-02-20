@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { fetchJsonSafe, toExchangeSymbol } from '../fetch-json-safe';
 import { getCandleHumanTime, getCandleTime, getCandleTimeByShift } from '../timeseries';
 import { getStartFetchTime } from '../app.constant';
 import { timeframeSeconds } from '../timeseries.constant';
@@ -6,15 +7,19 @@ import { TIMEFRAME } from '../timeseries.interface';
 import { CandleDb } from '../interface';
 import { GATEIO_TIMEFRAME, OHLCV_Gateio } from './gateio.interface';
 
-function getCandleURI(data: {
-  synonym: string;
-  timeframe: keyof typeof GATEIO_TIMEFRAME;
-  start: number; // seconds, include a candle with this value
-  end: number; // seconds, include a candle with this value
-}): string {
-  const { synonym, timeframe, start, end } = data;
+/** Gate.io API expects currency_pair with underscore, e.g. BTC_USDT. */
+function toGateioSymbol(synonym: string): string {
+  return toExchangeSymbol.underscore(synonym);
+}
 
-  return `https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=${synonym}&interval=${timeframe}&from=${start}&to=${end}`;
+function getCandleURI(data: {
+  symbol: string;
+  timeframe: keyof typeof GATEIO_TIMEFRAME;
+  start: number; // seconds
+  end: number; // seconds
+}): string {
+  const { symbol, timeframe, start, end } = data;
+  return `https://api.gateio.ws/api/v4/spot/candlesticks?currency_pair=${symbol}&interval=${timeframe}&from=${start}&to=${end}`;
 }
 
 async function fetchCandles(data: {
@@ -23,33 +28,25 @@ async function fetchCandles(data: {
   start: number; // seconds, include a candle with this value
   end: number; // seconds, include a candle with this value
 }): Promise<OHLCV_Gateio[] | string> {
-  const { synonym, timeframe, start, end } = data;
+  const symbol = toGateioSymbol(data.synonym);
+  const { timeframe, start, end } = data;
+  const url = getCandleURI({ symbol, timeframe, start, end });
 
-  // console.log(getCandleURI({ synonym, timeframe, start, end }));
+  const { data: res, error } = await fetchJsonSafe<unknown>(url, 'fetchCandles.gateio');
 
-  return await fetch(getCandleURI({ synonym, timeframe, start, end }))
-    .then((res) => res.json())
-    .then((res) => {
-      if (!res || !Array.isArray(res)) {
-        Logger.error(
-          `[gateio] bad response: ${getCandleURI({ synonym, timeframe, start, end })}`,
-          'fetchCandles.gateio',
-        );
+  if (error || res == null) {
+    return error || '[gateio] Bad response';
+  }
+  if (!Array.isArray(res)) {
+    Logger.error(`[gateio] bad response (not array): ${url} ${JSON.stringify(res).slice(0, 200)}`, 'fetchCandles.gateio');
+    return `[gateio] Bad response ${JSON.stringify(res || {})}`;
+  }
 
-        return `[gateio] Bad response ${JSON.stringify(res || {})}`;
-      }
-
-      return res;
-    })
-    .catch((err) => {
-      Logger.error(`[gateio] Error fetch candles: ${err.message}`, 'fetchCandles.gateio');
-
-      return err.message;
-    });
+  return res as OHLCV_Gateio[];
 }
 
 export async function gateioFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | string> {
-  const { synonym } = data;
+  const synonym = toGateioSymbol(data.synonym);
   const timeframe = GATEIO_TIMEFRAME[data.timeframe];
 
   const limit = 500;
