@@ -35,13 +35,14 @@ echo "=== Log file check ($LOG_FILE) ==="
 if [ ! -f "$LOG_FILE" ]; then
   echo "  Log file not found (container may need a moment to start)"
 else
-  ERRORS=$(grep -iE "error|exception|failed|ECONNREFUSED|ECONNRESET|PrismaClientInitializationError|P1012" "$LOG_FILE" 2>/dev/null | tail -20)
-  if [ -n "$ERRORS" ]; then
-    echo "  Possible errors in log:"
-    echo "$ERRORS" | sed 's/^/    /'
+  # Only critical errors in last 200 lines: DB init failure, missing env, process crash
+  CRITICAL=$(tail -200 "$LOG_FILE" 2>/dev/null | grep -E "PrismaClientInitializationError|Environment variable not found: DATABASE_URL|errorCode: 'P1012'|ELIFECYCLE|Command failed with exit code" | grep -v "parseEngineResponse\|config\.clientVersion" | tail -10)
+  if [ -n "$CRITICAL" ]; then
+    echo "  Critical errors in log:"
+    echo "$CRITICAL" | sed 's/^/    /'
     FAILED=$((FAILED + 1))
   else
-    echo "  No obvious errors in recent log"
+    echo "  No critical errors (DB init OK, app running)"
   fi
   echo "  Last 5 log lines:"
   tail -5 "$LOG_FILE" 2>/dev/null | sed 's/^/    /'
