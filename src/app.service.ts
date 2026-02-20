@@ -515,8 +515,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          // Фильтрация по связанной таблице Symbol
-          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+          disabled: false, // Exclude markets for disabled symbols
         },
       },
       orderBy: {
@@ -708,8 +707,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          // Фильтрация по связанной таблице Symbol
-          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+          disabled: false, // Exclude markets for disabled symbols
         },
       },
       orderBy: {
@@ -837,8 +835,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          // Фильтрация по связанной таблице Symbol
-          disabled: false, // Исключаем Market, связанные с отключенными Symbol
+          disabled: false, // Exclude markets for disabled symbols
         },
       },
       orderBy: {
@@ -941,7 +938,15 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   getHello(): string {
-    return `Works ${process.uptime()} ms`;
+    const totalSeconds = Math.floor(process.uptime());
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const parts = [];
+    if (days > 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+    if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
+    parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+    return `Works ${parts.join(' ')}`;
   }
 
   async getMaxTimestamp(body: { exchangeId: number; symbolId: number; tf: number }): Promise<Date | null> {
@@ -1137,7 +1142,7 @@ export class AppService implements OnApplicationBootstrap {
       });
 
       if (!row) {
-        return null; // Возвращаем null, если row не найден
+        return null;
       }
 
       return { id: row.id, name: row.name };
@@ -1255,7 +1260,6 @@ export class AppService implements OnApplicationBootstrap {
         skipDuplicates: true,
       });
     } catch (error) {
-      // Обработка ошибки, например, логирование или возврат ошибки
       Logger.error(error.message, 'saveExchangeCandlesH1');
       return null;
     }
@@ -1289,7 +1293,6 @@ export class AppService implements OnApplicationBootstrap {
         skipDuplicates: true,
       });
     } catch (error) {
-      // Обработка ошибки, например, логирование или возврат ошибки
       Logger.error(error.message, 'saveExchangeCandlesM15');
       return null;
     }
@@ -1328,7 +1331,6 @@ export class AppService implements OnApplicationBootstrap {
         skipDuplicates: true,
       });
     } catch (error) {
-      // Обработка ошибки, например, логирование или возврат ошибки
       Logger.error(error.message, 'saveExchangeCandlesD1');
       return null;
     }
@@ -1821,7 +1823,7 @@ export class AppService implements OnApplicationBootstrap {
         },
       },
       orderBy: [
-        { symbol: { name: 'asc' } }, // Сортировка по имени символа
+        { symbol: { name: 'asc' } },
         { closeTime: 'desc' },
         { ath: 'desc' },
         { position: 'desc' },
@@ -1863,7 +1865,7 @@ export class AppService implements OnApplicationBootstrap {
         },
       },
       orderBy: [
-        { symbol: { name: 'asc' } }, // Сортировка по имени символа
+        { symbol: { name: 'asc' } },
         { closeTime: 'desc' },
         { ath: 'desc' },
         { position: 'desc' },

@@ -1,28 +1,25 @@
-FROM node:22-alpine AS base
+# syntax=docker/dockerfile:1
+# Multi-stage build with pnpm (Node 24 LTS). See pnpm.io/docker
 
-#RUN apt update; npm i -g npm@latest; npm i -g @nestjs/cli
-RUN apk update && \
-    npm i -g npm@11 && \
-    npm i -g @nestjs/cli
-
+FROM node:24-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable
 WORKDIR /usr/app
 
-COPY ./.env ./.env
-COPY ./package*.json .
-COPY ./.eslintrc.js .
-COPY ./tsconfig*.json .
-COPY ./prisma ./prisma/
-COPY ./data ./data/
-COPY ./src ./src/
+FROM base AS deps
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-RUN npm cache verify
-RUN npm install
+FROM base AS build
+COPY --from=deps /usr/app/node_modules /usr/app/node_modules
+COPY . .
+RUN pnpm run build
 
 FROM base AS production
 ENV NODE_ENV=production
-
-#RUN npm ci --omit=dev
-RUN npm run build
-
-FROM base AS dev
-ENV NODE_ENV=development
+COPY --from=build /usr/app/node_modules /usr/app/node_modules
+COPY --from=build /usr/app/dist /usr/app/dist
+COPY --from=build /usr/app/package.json /usr/app/package.json
+CMD ["pnpm", "run", "start:prod"]

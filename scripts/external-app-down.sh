@@ -5,20 +5,19 @@ if [ -f ".env" ]; then
     export "$key=$value"
   done < ".env"
 else
-  echo "Файл .env не найден"
+  echo ".env file not found"
   exit 1
 fi
 
 ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
-# Переходим в директорию с репозиторием
+# Change to repo directory
 cd /repos/candle-collector
 pwd
 
-# Останавливаем контейнеры
+# Stop containers
 docker compose -p cc -f docker-compose.yml down --remove-orphans
 
 EOF
 
-# Сообщаем об успешном выполнении скрипта
-echo "Application terminated successfully"
+echo "Application terminated successfully."

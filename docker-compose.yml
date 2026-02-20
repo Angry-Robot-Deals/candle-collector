@@ -4,22 +4,27 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: production
-    command: npm run start:prod
+    command: ["sh", "-c", "mkdir -p /usr/app/logs && exec node dist/src/main 2>&1 | tee -a /usr/app/logs/app.log"]
     deploy:
       replicas: 1
       restart_policy:
         condition: any
         delay: 5s
         window: 120s
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
     ports:
       - "14444:14444"
     volumes:
-      - data:/usr/app
+      - ./logs:/usr/app/logs
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - default
-
-volumes:
-  data:
 
 networks:
   default:

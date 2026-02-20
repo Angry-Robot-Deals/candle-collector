@@ -5,7 +5,7 @@ if [ -f ".env" ]; then
     export "$key=$value"
   done < ".env"
 else
-  echo "Файл .env не найден"
+  echo ".env file not found"
   exit 1
 fi
 
@@ -13,31 +13,42 @@ scp -i "$APP_SERVER_SSH_KEY" ./.env.production "$APP_SERVER_USER":/repos/candle-
 
 ssh -i "$APP_SERVER_SSH_KEY" "$APP_SERVER_USER" << "EOF"
 
-# Переходим в директорию с репозиторием
+# Change to repo directory
 cd /repos/candle-collector
 pwd
 
-# Останавливаем контейнеры
+# Stop containers
 docker compose -p cc -f docker-compose.yml down --remove-orphans
 
-docker volume rm cc_data
-docker image rm cc-candles
-
-# REMOVE ALL UNUSED DATA
+docker image rm cc-candles 2>/dev/null || true
 docker image prune -f -a
 docker volume prune -f
 
-# Стягиваем последние изменения из репозитория
+# Pull latest from repository
 git reset --hard
 git checkout main
 git reset --hard
 git pull
 
-# Поднимаем контейнеры с последними изменениями
+# Ensure logs directory exists (bind-mounted into container)
+mkdir -p logs
+
+# Install logrotate config for app logs (optional, needs sudo)
+if [ -f scripts/logrotate-candles.conf ] && [ -d /etc/logrotate.d ]; then
+  sudo cp -f scripts/logrotate-candles.conf /etc/logrotate.d/candles 2>/dev/null || true
+fi
+
+# Build image (pnpm, Node 24 LTS) and start containers
 docker compose -p cc -f docker-compose.yml build
 docker compose --env-file .env -p cc -f docker-compose.yml up -d --remove-orphans
 
+# Wait for app to start then verify endpoints and logs
+sleep 5
+if [ -f scripts/verify-server.sh ]; then
+  chmod +x scripts/verify-server.sh
+  BASE_URL=http://localhost:14444 LOG_FILE=./logs/app.log ./scripts/verify-server.sh || true
+fi
+
 EOF
 
-# Сообщаем об успешном выполнении скрипта
-echo "Deploy Done!"
+echo "Deploy done."
