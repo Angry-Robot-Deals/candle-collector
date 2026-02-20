@@ -11,6 +11,8 @@ services:
         condition: any
         delay: 5s
         window: 120s
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - TZ=UTC
