@@ -391,25 +391,23 @@ export class AppService implements OnApplicationBootstrap {
       // console.log(symbol.exchangeId, symbol.symbolId, quantiles);
 
       const highRange = symbol._max.high - firstCandle.open;
-      // const lowRange = firstCandle.open - symbol._min.low || symbol._max.high / 2;
-      const zeroRange = firstCandle.open || symbol._max.high / 2;
+      const lowRange = firstCandle.open - symbol._min.low;
       const fullRange = symbol._max.high - symbol._min.low;
 
       let index = 0;
       if (lastCandle.close > firstCandle.open) {
-        index = (lastCandle.close - firstCandle.open) / highRange;
-      } else if (lastCandle.close < firstCandle.open) {
-        index = (-1 * lastCandle.close) / zeroRange;
+        index = highRange > 0 ? (lastCandle.close - firstCandle.open) / highRange : 0;
+      } else if (lastCandle.close < firstCandle.open && lowRange > 0) {
+        index = (lastCandle.close - firstCandle.open) / lowRange;
       }
 
       let position = 0;
-      if (lastCandle.close > firstCandle.open) {
-        position = (lastCandle.close - firstCandle.open) / fullRange;
-      } else if (lastCandle.close < firstCandle.open) {
+      if (fullRange > 0) {
         position = (lastCandle.close - firstCandle.open) / fullRange;
       }
 
-      const ath = lastCandle.close / symbol._max.high - 1;
+      const ath =
+        symbol._max.high > 0 ? lastCandle.close / symbol._max.high - 1 : 0;
 
       await this.prisma.aTHL
         .upsert({
@@ -466,19 +464,9 @@ export class AppService implements OnApplicationBootstrap {
         });
 
       if (i % 100 === 0) {
-        console.log(
-          'ATHL',
-          i,
-          '/',
-          daySymbols.length,
-          '/',
-          results.length,
-          quantiles?.[0]?.exchange,
-          quantiles?.[0]?.symbol,
-          +quantiles?.[0]?.quantile618,
-          quantiles?.[0]?.ath,
-          (Date.now() - start) / 1000 / 60,
-          'min',
+        Logger.log(
+          `ATHL ${i}/${daySymbols.length} ${quantiles?.[0]?.exchange} ${quantiles?.[0]?.symbol} ath=${quantiles?.[0]?.ath} atl=${quantiles?.[0]?.atl} ${((Date.now() - start) / 1000 / 60).toFixed(1)} min`,
+          'calculateAllATHL',
         );
       }
     }
