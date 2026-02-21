@@ -31,7 +31,14 @@ export interface CmcCoinRaw {
   quotes?: CmcQuote[];
 }
 
-export const CMC_PAGE_URL = 'https://coinmarketcap.com/';
+export const CMC_BASE_URL = 'https://coinmarketcap.com/';
+export const CMC_PAGE_URL = CMC_BASE_URL;
+/** Number of CMC listing pages to fetch (page=1..N, ~100 coins per page). */
+export const CMC_DEFAULT_PAGES = 10;
 export const CMC_MAX_COINS = 5000;
 export const CMC_USER_AGENT =
   'Mozilla/5.0 (compatible; CandlesBot/1.0; +https://github.com/angry/candles)';
+
+export function getCmcPageUrl(page: number): string {
+  return page <= 1 ? CMC_BASE_URL : `${CMC_BASE_URL}?page=${page}`;
+}

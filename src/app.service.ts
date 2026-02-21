@@ -32,6 +32,8 @@ import { timeframeMinutes, timeframeMSeconds, timeframeSeconds } from './timeser
 import {
   BAD_SYMBOL_CHARS,
   CALCULATE_ATHL_PERIOD,
+  CMC_FETCH_PAGES,
+  CMC_PAGE_DELAY_MS,
   DAY_MSEC,
   FETCH_DELAY,
   getStartFetchTime,
@@ -129,12 +131,31 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async updateTopCoinsFromCmc(): Promise<void> {
-    const html = await fetchCmcPage();
-    const coins = extractCoinListingFromHtml(html);
+    const allCoinsById = new Map<number, Awaited<ReturnType<typeof extractCoinListingFromHtml>>[number]>();
+    for (let page = 1; page <= CMC_FETCH_PAGES; page++) {
+      try {
+        const html = await fetchCmcPage(page);
+        const coins = extractCoinListingFromHtml(html);
+        for (const coin of coins) {
+          allCoinsById.set(coin.id, coin);
+        }
+        Logger.log(`CMC page ${page}/${CMC_FETCH_PAGES}: ${coins.length} coins`, 'updateTopCoinsFromCmc');
+        if (page < CMC_FETCH_PAGES) {
+          await new Promise((r) => setTimeout(r, CMC_PAGE_DELAY_MS));
+        }
+      } catch (e) {
+        Logger.error(
+          `CMC fetch page ${page} failed: ${e instanceof Error ? e.message : String(e)}`,
+          'updateTopCoinsFromCmc',
+        );
+      }
+    }
+    const coins = Array.from(allCoinsById.values());
     if (!coins.length) {
       Logger.warn('CMC extract: no coins found', 'updateTopCoinsFromCmc');
       return;
     }
+    Logger.log(`CMC total unique coins: ${coins.length}`, 'updateTopCoinsFromCmc');
     for (const coin of coins) {
       try {
         const usd = getUsdQuote(coin);

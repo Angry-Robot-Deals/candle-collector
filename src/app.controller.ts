@@ -53,6 +53,11 @@ export class AppController {
     return { count: (data as any[]).length, data };
   }
 
+  @Get('getTopCoinCounts')
+  async getTopCoinCounts(): Promise<{ topCoinFromCmc: number; topCoin: number }> {
+    return this.prisma.getTopCoinCounts();
+  }
+
   @Get('getATHL')
   async getATHL(): Promise<any[]> {
     return this.appService.getATHL();

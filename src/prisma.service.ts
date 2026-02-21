@@ -25,6 +25,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     return count > 0;
   }
 
+  /** Count rows in both top-coin tables (for admin/monitoring). */
+  async getTopCoinCounts(): Promise<{ topCoinFromCmc: number; topCoin: number }> {
+    const [topCoinFromCmc, topCoin] = await Promise.all([
+      this.topCoinFromCmc.count(),
+      this.topCoin.count(),
+    ]);
+    return { topCoinFromCmc, topCoin };
+  }
+
   async getTopCoins(): Promise<any[]> {
     const useCmc = await this.hasTopCoinFromCmcData();
     if (useCmc) {

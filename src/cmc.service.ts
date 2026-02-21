@@ -3,22 +3,24 @@ import {
   CmcCoinRaw,
   CmcQuote,
   CMC_MAX_COINS,
-  CMC_PAGE_URL,
   CMC_USER_AGENT,
+  getCmcPageUrl,
 } from './cmc.types';
 
 /**
- * Fetches CoinMarketCap homepage HTML.
+ * Fetches a single CoinMarketCap listing page HTML.
+ * @param page - Page number (1 = first page, 2 = ?page=2, etc.)
  */
-export async function fetchCmcPage(): Promise<string> {
-  const res = await fetch(CMC_PAGE_URL, {
+export async function fetchCmcPage(page: number = 1): Promise<string> {
+  const url = getCmcPageUrl(page);
+  const res = await fetch(url, {
     headers: {
       'User-Agent': CMC_USER_AGENT,
       Accept: 'text/html,application/xhtml+xml',
     },
   });
   if (!res.ok) {
-    throw new Error(`CMC fetch failed: ${res.status} ${res.statusText}`);
+    throw new Error(`CMC fetch failed (page ${page}): ${res.status} ${res.statusText}`);
   }
   return res.text();
 }
