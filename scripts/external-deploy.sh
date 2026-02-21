@@ -42,8 +42,8 @@ fi
 docker compose -p cc -f docker-compose.yml build
 docker compose --env-file .env -p cc -f docker-compose.yml up -d --remove-orphans
 
-# Wait for app to start then verify endpoints and logs
-sleep 5
+# Wait for app to start (DB connect retries ~30s) then verify endpoints and logs
+sleep 35
 if [ -f scripts/verify-server.sh ]; then
   chmod +x scripts/verify-server.sh
   BASE_URL=http://localhost:14444 LOG_FILE=./logs/app.log ./scripts/verify-server.sh || true

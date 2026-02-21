@@ -2,10 +2,21 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { STABLES, TOP_COIN_EXCHANGES } from './exchange.constant';
 
+const DB_CONNECT_RETRIES = 10;
+const DB_CONNECT_RETRY_DELAY_MS = 3000;
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
-    await this.$connect();
+    for (let attempt = 1; attempt <= DB_CONNECT_RETRIES; attempt++) {
+      try {
+        await this.$connect();
+        return;
+      } catch (err) {
+        if (attempt === DB_CONNECT_RETRIES) throw err;
+        await new Promise((r) => setTimeout(r, DB_CONNECT_RETRY_DELAY_MS));
+      }
+    }
   }
 
   async getTopCoins(): Promise<any[]> {
