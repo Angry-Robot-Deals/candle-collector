@@ -44,6 +44,15 @@ import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
 import { GlobalVariablesDBService } from './global-variables-db.service';
 
+/** Parse env comma-separated exchange list. Empty or whitespace-only = no filter (all exchanges). */
+function parseEnvExchangeList(envValue: string | undefined): string[] {
+  const list = (envValue ?? '')
+    .split(',')
+    .map((e) => e.trim())
+    .filter((e) => e.length > 0);
+  return list;
+}
+
 @Injectable()
 export class AppService implements OnApplicationBootstrap {
   private badCoins = [];
@@ -477,11 +486,8 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchExchangeAllSymbolD1Candles(exchange: { id: number; name: string }): Promise<void> {
-    const envExchanges =
-      process.env.DAY_CANDLE_FETCH_EXCHANGES?.split(',')
-        .map((e) => e.trim())
-        .filter((e) => !!e) || [];
-    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+    const envExchanges = parseEnvExchangeList(process.env.DAY_CANDLE_FETCH_EXCHANGES);
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
       Logger.warn(
@@ -669,11 +675,8 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchExchangeAllSymbolH1Candles(exchange: { id: number; name: string }): Promise<void> {
-    const envExchanges =
-      process.env.HOUR_CANDLE_FETCH_EXCHANGES?.split(',')
-        .map((e) => e.trim())
-        .filter((e) => !!e) || [];
-    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+    const envExchanges = parseEnvExchangeList(process.env.HOUR_CANDLE_FETCH_EXCHANGES);
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
       Logger.warn(
@@ -797,11 +800,8 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchExchangeAllSymbolM15Candles(exchange: { id: number; name: string }): Promise<void> {
-    const envExchanges =
-      process.env.M15_CANDLE_FETCH_EXCHANGES?.split(',')
-        .map((e) => e.trim())
-        .filter((e) => !!e) || [];
-    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+    const envExchanges = parseEnvExchangeList(process.env.M15_CANDLE_FETCH_EXCHANGES);
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
       Logger.warn(
@@ -1955,11 +1955,8 @@ export class AppService implements OnApplicationBootstrap {
   }
 
   async fetchAllMarkets(): Promise<void> {
-    const envExchanges =
-      process.env.FETCH_EXCHANGES?.split(',')
-        .map((e) => e.trim())
-        .filter((e) => !!e) || [];
-    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges?.length || envExchanges.includes(e));
+    const envExchanges = parseEnvExchangeList(process.env.FETCH_EXCHANGES);
+    const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     for (const exchange of enabledExchanges) {
       const lastMarketsUpdate = await this.global.getGlobalVariableTime(`LastMarketsUpdate_${exchange}`);
