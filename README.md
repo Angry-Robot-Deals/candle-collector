@@ -37,7 +37,7 @@ Edit `.env` with your values. Main variables:
 
 - `DATABASE_URL`, `SHADOW_DATABASE_URL` — PostgreSQL connection strings
 - `API_PORT` — HTTP API port (default: 14444)
-- `ENABLE_TOP_COIN_FETCH`, `ENABLE_CANDLE_D1_FETCH`, `ENABLE_ATHL_CALCULATION` — feature flags for background jobs
+- `ENABLE_TOP_COIN_FETCH`, `ENABLE_UPDATE_TOP_COIN_FROM_CMC`, `ENABLE_CANDLE_D1_FETCH`, `ENABLE_ATHL_CALCULATION` — feature flags for background jobs
 - `DAY_CANDLE_FETCH_EXCHANGES` — comma-separated list of exchanges for D1 candles (e.g. `binance,okx,poloniex,htx,bybit`)
 
 ## Running the app
@@ -74,7 +74,8 @@ docker compose -p cc -f docker-compose.yml down
 - `GET /market` — list markets
 - `GET /market/fetch-all` — trigger fetch of all markets
 - `GET /market/fetch/:exchange` — fetch markets for one exchange
-- `GET /updateTopCoins`, `GET /getTopCoins`, `GET /getTopCoinMarkets`, `GET /getTopCoinFirstExchange`
+- `GET /updateTopCoins`, `GET /updateTopCoinsFromCmc` — update top coins from static JSON or CoinMarketCap
+- `GET /getTopCoins`, `GET /getTopCoinMarkets`, `GET /getTopCoinFirstExchange`
 - `GET /getTopTradeCoins?turnover=...` — top coins by turnover
 - `GET /getATHL`, `GET /getATHL/:symbol` — ATH/ATL and quantiles
 - `POST /candle/list` — body: `{ exchange, symbol, timeframe }`

@@ -1,17 +1,18 @@
 # Active Context
 
-**Current Task:** —
+**Current Task:** DEV-0003 — Add method fetchTopCoins (CMC scrape, new table, daily update)
 
-- **Status:** —
-- **Started:** —
-- **Complexity:** —
-- **Type:** —
+- **Status:** in_progress
+- **Started:** 2026-02-21
+- **Complexity:** Level 3
+- **Type:** feature
+- **Priority:** high
 - **Repository:** candles (angry/candles)
 - **Branch:** main
 
 ## Focus
 
-No active task. Use `/van` to start a new task from backlog or prompt.
+Implement fetchTopCoins from CoinMarketCap: scrape CMC page JSON, new DB table for CMC data, daily update when ENABLE_UPDATE_TOP_COIN_FROM_CMC=true, ensure ENABLE_TOP_COIN_FETCH uses the new table.
 
 ## Notes
 

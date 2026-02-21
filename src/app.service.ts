@@ -38,11 +38,19 @@ import {
   HOUR_MSEC,
   MARKET_UPDATE_TIMEOUT,
   MIN_MSEC,
+  TOP_COIN_SYNC_LIMIT,
 } from './app.constant';
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
 import { GlobalVariablesDBService } from './global-variables-db.service';
+import {
+  fetchCmcPage,
+  extractCoinListingFromHtml,
+  getUsdQuote,
+} from './cmc.service';
+const CMC_UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const CMC_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 /** Parse env comma-separated exchange list. Empty or whitespace-only = no filter (all exchanges). */
 function parseEnvExchangeList(envValue: string | undefined): string[] {
@@ -93,6 +101,163 @@ export class AppService implements OnApplicationBootstrap {
     if (process.env.ENABLE_ATHL_CALCULATION === 'true' || process.env.ENABLE_ATHL_CALCULATION === '1') {
       setTimeout(() => this.calculateAllATHL(), Math.random() * 10000);
     }
+
+    if (
+      process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === 'true' ||
+      process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === '1'
+    ) {
+      setTimeout(() => this.runUpdateTopCoinsFromCmcIfNeeded(), Math.random() * 5000);
+    }
+  }
+
+  async runUpdateTopCoinsFromCmcIfNeeded(): Promise<void> {
+    try {
+      const lastRun = await this.global.getGlobalVariableTime('LastUpdateTopCoinFromCmc');
+      const now = Date.now();
+      if (lastRun === null || now - lastRun >= CMC_UPDATE_INTERVAL_MS) {
+        Logger.log('Running CMC top coins update', 'runUpdateTopCoinsFromCmcIfNeeded');
+        await this.updateTopCoinsFromCmc();
+        await this.global.setGlobalVariable('LastUpdateTopCoinFromCmc', 1);
+      }
+    } catch (e) {
+      Logger.error(
+        `CMC update failed: ${e instanceof Error ? e.message : String(e)}`,
+        'runUpdateTopCoinsFromCmcIfNeeded',
+      );
+    }
+    setTimeout(() => this.runUpdateTopCoinsFromCmcIfNeeded(), CMC_CHECK_INTERVAL_MS);
+  }
+
+  async updateTopCoinsFromCmc(): Promise<void> {
+    const html = await fetchCmcPage();
+    const coins = extractCoinListingFromHtml(html);
+    if (!coins.length) {
+      Logger.warn('CMC extract: no coins found', 'updateTopCoinsFromCmc');
+      return;
+    }
+    for (const coin of coins) {
+      try {
+        const usd = getUsdQuote(coin);
+        const price = usd?.price ?? 0;
+        const volume24h = usd?.volume24h ?? 0;
+        const marketCap = usd?.marketCap ?? 0;
+        const lastUpdatedQuote = usd?.lastUpdated
+          ? new Date(usd.lastUpdated)
+          : null;
+        const lastUpdatedCoin = coin.lastUpdated ? new Date(coin.lastUpdated) : null;
+        const dateAdded = coin.dateAdded ? new Date(coin.dateAdded) : null;
+
+        await this.prisma.topCoinFromCmc.upsert({
+          where: { cmcId: coin.id },
+          create: {
+            cmcId: coin.id,
+            symbol: coin.symbol,
+            name: coin.name,
+            slug: coin.slug ?? null,
+            cmcRank: coin.cmcRank ?? null,
+            logo: null,
+            circulatingSupply: coin.circulatingSupply ?? null,
+            totalSupply: coin.totalSupply ?? null,
+            maxSupply: coin.maxSupply ?? null,
+            ath: coin.ath ?? null,
+            atl: coin.atl ?? null,
+            high24h: coin.high24h ?? null,
+            low24h: coin.low24h ?? null,
+            price,
+            volume24h,
+            marketCap,
+            percentChange1h: usd?.percentChange1h ?? null,
+            percentChange24h: usd?.percentChange24h ?? null,
+            percentChange7d: usd?.percentChange7d ?? null,
+            lastUpdated: lastUpdatedQuote ?? lastUpdatedCoin,
+            dateAdded,
+            isActive: coin.isActive ?? null,
+          },
+          update: {
+            symbol: coin.symbol,
+            name: coin.name,
+            slug: coin.slug ?? null,
+            cmcRank: coin.cmcRank ?? null,
+            circulatingSupply: coin.circulatingSupply ?? null,
+            totalSupply: coin.totalSupply ?? null,
+            maxSupply: coin.maxSupply ?? null,
+            ath: coin.ath ?? null,
+            atl: coin.atl ?? null,
+            high24h: coin.high24h ?? null,
+            low24h: coin.low24h ?? null,
+            price,
+            volume24h,
+            marketCap,
+            percentChange1h: usd?.percentChange1h ?? null,
+            percentChange24h: usd?.percentChange24h ?? null,
+            percentChange7d: usd?.percentChange7d ?? null,
+            lastUpdated: lastUpdatedQuote ?? lastUpdatedCoin,
+            isActive: coin.isActive ?? null,
+          },
+        });
+      } catch (e) {
+        Logger.error(
+          `Error upsert CMC coin ${coin.symbol}: ${e instanceof Error ? e.message : String(e)}`,
+          'updateTopCoinsFromCmc',
+        );
+      }
+    }
+    Logger.log(`CMC update: ${coins.length} coins processed`, 'updateTopCoinsFromCmc');
+
+    // Sync top coins by volume (turnover) into TopCoin table for compatibility
+    const topByVolume = await this.prisma.topCoinFromCmc.findMany({
+      orderBy: { volume24h: 'desc' },
+      take: TOP_COIN_SYNC_LIMIT,
+    });
+    for (const row of topByVolume) {
+      try {
+        const volume24Base = row.price > 0 ? row.volume24h / row.price : 0;
+        await this.prisma.topCoin.upsert({
+          where: { coin: row.symbol },
+          create: {
+            coin: row.symbol,
+            name: row.name,
+            logo: row.logo ?? null,
+            price: row.price,
+            volume24: volume24Base,
+            cost24: row.volume24h,
+            volumeCap: row.circulatingSupply ?? 0,
+            costCap: row.marketCap,
+          },
+          update: {
+            name: row.name,
+            logo: row.logo ?? null,
+            price: row.price,
+            volume24: volume24Base,
+            cost24: row.volume24h,
+            volumeCap: row.circulatingSupply ?? 0,
+            costCap: row.marketCap,
+          },
+        });
+      } catch (e) {
+        Logger.error(
+          `Error sync TopCoin ${row.symbol}: ${e instanceof Error ? e.message : String(e)}`,
+          'updateTopCoinsFromCmc',
+        );
+      }
+    }
+    // Remove from TopCoin any coins that are no longer in the top (keep table at most 500)
+    const topSymbols = topByVolume.map((r) => r.symbol);
+    if (topSymbols.length > 0) {
+      const deleted = await this.prisma.topCoin.deleteMany({
+        where: { coin: { notIn: topSymbols } },
+      });
+      if (deleted.count > 0) {
+        Logger.log(
+          `TopCoin: removed ${deleted.count} coins no longer in top ${TOP_COIN_SYNC_LIMIT}`,
+          'updateTopCoinsFromCmc',
+        );
+      }
+    }
+    Logger.log(
+      `TopCoin table synced: ${topByVolume.length} top coins by volume`,
+      'updateTopCoinsFromCmc',
+    );
   }
 
   async fetchTopCoinsM1Candles() {

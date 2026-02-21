@@ -19,7 +19,7 @@
 ## Key Deliverables
 
 - NestJS API (порт из `API_PORT`, по умолчанию 14444).
-- Prisma + PostgreSQL (модели: Symbol, Exchange, Market, Candle, CandleM15, CandleH1, CandleD1, ATHL, TopCoin, GlobalVar).
+- Prisma + PostgreSQL (модели: Symbol, Exchange, Market, Candle, CandleM15, CandleH1, CandleD1, ATHL, TopCoin, TopCoinFromCmc, GlobalVar).
 - Фоновые задачи: загрузка рынков, свечей M1/M15/H1/D1, расчёт ATHL, обновление топ-монет.
 - Docker Compose для запуска (`docker compose -p cc -f docker-compose.yml`).
 

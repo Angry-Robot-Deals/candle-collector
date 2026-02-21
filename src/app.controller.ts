@@ -31,6 +31,12 @@ export class AppController {
     return this.appService.updateTopCoins();
   }
 
+  @Get('updateTopCoinsFromCmc')
+  async updateTopCoinsFromCmc(): Promise<{ ok: boolean; message: string }> {
+    await this.appService.updateTopCoinsFromCmc();
+    return { ok: true, message: 'CMC top coins updated' };
+  }
+
   @Get('getTopCoins')
   async getTopCoins(): Promise<any[]> {
     return this.prisma.getTopCoins();

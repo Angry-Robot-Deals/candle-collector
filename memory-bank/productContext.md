@@ -13,7 +13,7 @@ Backend-сервис для сбора и хранения рыночных да
 
 1. **Рынки:** загрузка и хранение пар (Symbol/Market) по биржам; API `GET /market`, `GET /market/fetch-all`, `GET /market/fetch/:exchange`.
 2. **Свечи:** M1 (Candle), M15 (CandleM15), H1 (CandleH1), D1 (CandleD1); загрузка по биржам и таймфреймам; API `POST /candle/list`, `POST /candle/download`.
-3. **Топ-монеты:** обновление из статики (coins-top-500), API `GET /getTopCoins`, `GET /getTopCoinMarkets`, `GET /getTopCoinFirstExchange`, `GET /getTopTradeCoins`, `GET /updateTopCoins`.
+3. **Топ-монеты:** обновление из статики (coins-top-500) или с CoinMarketCap (таблица TopCoinFromCmc, раз в сутки при `ENABLE_UPDATE_TOP_COIN_FROM_CMC=true`). API `GET /getTopCoins`, `GET /getTopCoinMarkets`, `GET /getTopCoinFirstExchange`, `GET /getTopTradeCoins`, `GET /updateTopCoins`, `GET /updateTopCoinsFromCmc`.
 4. **ATHL:** расчёт ATH/ATL и квантилей по D1; API `GET /getATHL`, `GET /getATHL/:symbol`.
 
 ## Constraints

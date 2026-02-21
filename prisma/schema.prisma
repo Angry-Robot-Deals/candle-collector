@@ -22,6 +22,37 @@ model TopCoin {
   updatedAt DateTime @updatedAt
 }
 
+model TopCoinFromCmc {
+  id                Int       @id @default(autoincrement())
+  cmcId             Int       @unique
+  symbol            String
+  name              String
+  slug              String?
+  cmcRank           Int?
+  logo              String?
+  circulatingSupply Float?
+  totalSupply       Float?
+  maxSupply         Float?
+  ath               Float?
+  atl               Float?
+  high24h           Float?
+  low24h            Float?
+  price             Float     @default(0)
+  volume24h         Float     @default(0)
+  marketCap         Float     @default(0)
+  percentChange1h   Float?
+  percentChange24h  Float?
+  percentChange7d   Float?
+  lastUpdated       DateTime?
+  dateAdded         DateTime?
+  isActive          Int?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([symbol])
+  @@index([volume24h])
+}
+
 model Symbol {
   id           Int            @id @default(autoincrement())
   name         String         @unique

@@ -5,6 +5,8 @@ export const HOUR_MSEC: number = 1000 * 60 * 60; // 1 hour
 export const DAY_MSEC: number = 1000 * 60 * 60 * 24; // 1 day
 
 export const MARKET_UPDATE_TIMEOUT: number = 1000 * 60 * 60 * 24 * 7; // 1 week
+/** Max number of top coins (by volume) to sync from CMC into TopCoin table. */
+export const TOP_COIN_SYNC_LIMIT = 500;
 export const FETCH_DELAY: number = 1000 * 60 * 60 * 2; // 2 hours
 export const CALCULATE_ATHL_PERIOD: number = 1000 * 60 * 60 * 24; // 1 day
 

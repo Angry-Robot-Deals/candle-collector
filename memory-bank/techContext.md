@@ -19,14 +19,14 @@
 - `src/exchanges/` — адаптеры бирж (kucoin, gateio, mexc + интерфейсы).
 - `src/exchange-fetch-candles.ts` — binance, bybit, htx, okx, poloniex.
 - `src/timeseries*.ts` — таймфреймы, константы, утилиты времени.
-- `data/` — статика (например, coins-top-500.json).
+- `data/` — статика (например, coins-top-500.json). Топ монет также обновляется с CMC (таблица TopCoinFromCmc, флаг ENABLE_UPDATE_TOP_COIN_FROM_CMC).
 - `scripts/` — deploy/down (external-deploy.sh, external-app-down.sh).
 
 ## Key Env Vars
 
 - `DATABASE_URL`, `SHADOW_DATABASE_URL` — PostgreSQL.
 - `API_PORT` — порт API (default 14444).
-- `ENABLE_TOP_COIN_FETCH`, `ENABLE_CANDLE_D1_FETCH`, `ENABLE_ATHL_CALCULATION` — флаги фоновых задач.
+- `ENABLE_TOP_COIN_FETCH`, `ENABLE_UPDATE_TOP_COIN_FROM_CMC`, `ENABLE_CANDLE_D1_FETCH`, `ENABLE_ATHL_CALCULATION` — флаги фоновых задач.
 - `DAY_CANDLE_FETCH_EXCHANGES` — список бирж для D1 (binance,okx,poloniex,htx,bybit).
 - `APP_SERVER_USER`, `APP_SERVER_SSH_KEY` — для deploy-скриптов.
 
