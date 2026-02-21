@@ -22,4 +22,5 @@ ENV NODE_ENV=production
 COPY --from=build /usr/app/node_modules /usr/app/node_modules
 COPY --from=build /usr/app/dist /usr/app/dist
 COPY --from=build /usr/app/package.json /usr/app/package.json
+COPY --from=build /usr/app/prisma /usr/app/prisma
 CMD ["pnpm", "run", "start:prod"]
