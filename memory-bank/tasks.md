@@ -4,7 +4,7 @@
 
 **Title:** Add Bitget exchange — candle fetching, API docs audit, full test coverage, deploy
 
-**Status:** planned
+**Status:** in_progress
 **Complexity:** Level 3
 **Started:** —
 **Type:** feature + quality

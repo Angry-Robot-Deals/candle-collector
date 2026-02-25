@@ -16,19 +16,21 @@
 
 - `src/` — приложение: `main.ts`, `app.module.ts`, контроллер, сервисы.
 - `prisma/` — `schema.prisma`, миграции, seed.
-- `src/exchanges/` — адаптеры бирж (kucoin, gateio, mexc + интерфейсы).
+- `src/exchanges/` — адаптеры бирж (kucoin, gateio, mexc, bitget + интерфейсы и spec-тесты).
 - `src/exchange-fetch-candles.ts` — binance, bybit, htx, okx, poloniex.
 - `src/timeseries*.ts` — таймфреймы, константы, утилиты времени.
 - `data/` — статика (например, coins-top-500.json). Топ монет также обновляется с CMC (таблица TopCoinFromCmc, флаг ENABLE_UPDATE_TOP_COIN_FROM_CMC).
-- `scripts/` — deploy/down (external-deploy.sh, external-app-down.sh).
+- `scripts/` — deploy/down (external-deploy.sh, external-app-down.sh), pre-migration (pre-migration-stop-old-server.sh).
 
 ## Key Env Vars
 
 - `DATABASE_URL`, `SHADOW_DATABASE_URL` — PostgreSQL.
 - `API_PORT` — порт API (default 14444).
 - `ENABLE_TOP_COIN_FETCH`, `ENABLE_UPDATE_TOP_COIN_FROM_CMC`, `ENABLE_CANDLE_D1_FETCH`, `ENABLE_ATHL_CALCULATION` — флаги фоновых задач.
-- `DAY_CANDLE_FETCH_EXCHANGES` — список бирж для D1 (binance,okx,poloniex,htx,bybit).
-- `APP_SERVER_USER`, `APP_SERVER_SSH_KEY` — для deploy-скриптов.
+- `DAY_CANDLE_FETCH_EXCHANGES` — список бирж для D1 (binance,okx,poloniex,htx,bybit,mexc,bitget).
+- `APP_SERVER_USER`, `APP_SERVER_SSH_KEY` — для deploy-скриптов (production: 23.88.34.218). Опционально `OLD_APP_SERVER_USER`, `OLD_APP_SERVER_SSH_KEY` — для pre-migration (старый хост).
+
+**Deploy target (DEV-0004):** Production server 23.88.34.218. On that host: open port 14444 (firewall/security group); if repo is private, configure GitHub access (SSH deploy key or HTTPS token) for `git pull` during deploy. Pre-migration runbook: `memory-bank/tasks/DEV-0004-migration-runbook.md`.
 
 ## Build & Run
 

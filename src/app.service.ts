@@ -45,6 +45,7 @@ import {
 import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
+import { bitgetFetchCandles, bitgetFindFirstCandle } from './exchanges/bitget';
 import { GlobalVariablesDBService } from './global-variables-db.service';
 import {
   fetchCmcPage,
@@ -1815,6 +1816,16 @@ export class AppService implements OnApplicationBootstrap {
 
               maxTimestamp = firstResGateio;
               break;
+            case 'bitget': {
+              const firstResBitget = await bitgetFindFirstCandle({ synonym, timeframe });
+              if (!firstResBitget) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+                return [];
+              }
+              maxTimestamp = firstResBitget;
+              break;
+            }
             case 'htx':
               break;
             default:
@@ -1865,6 +1876,16 @@ export class AppService implements OnApplicationBootstrap {
               maxTimestamp = firstResMexc;
 
               break;
+            case 'bitget': {
+              const firstResBitget = await bitgetFindFirstCandle({ synonym, timeframe });
+              if (!firstResBitget) {
+                Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
+                await this.disableMarket({ exchangeId, symbolId });
+                return [];
+              }
+              maxTimestamp = firstResBitget;
+              break;
+            }
             default:
               maxTimestamp = getStartFetchTime(timeframe);
           }
@@ -1955,6 +1976,14 @@ export class AppService implements OnApplicationBootstrap {
           // return [];
         }
         candles = await bybitFetchCandles(synonym, BYBIT_TIMEFRAME[timeframe], startTime, limit || 999);
+        break;
+      case 'bitget':
+        startTime = start || maxTimestamp ? maxTimestamp.getTime() : 0;
+        endTime = Math.min(startTime + (limit || 1000) * timeframeMSeconds(timeframe), getCandleTime(timeframe));
+        if (startTime >= endTime) {
+          startTime = getCandleTimeByShift(timeframe, 1);
+        }
+        candles = await bitgetFetchCandles({ synonym, timeframe, start: startTime, end: endTime, limit: limit || 1000 });
         break;
       default:
         return [];

@@ -2,7 +2,7 @@
 
 **Current Task:** DEV-0005 — Add Bitget exchange, exchange API docs audit, full test coverage, deploy
 
-- **Status:** pending
+- **Status:** in_progress
 - **Started:** —
 - **Complexity:** Level 3
 - **Type:** feature + quality
