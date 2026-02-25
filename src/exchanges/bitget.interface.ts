@@ -19,11 +19,11 @@ export type OHLCV_Bitget = [
   string, // quote asset volume
 ];
 
-// Bitget v2 spot candles granularity values
+// Bitget v2 spot candles granularity values (must match API enum exactly)
 export const BITGET_TIMEFRAME = {
   [TIMEFRAME.M1]: '1min',
   [TIMEFRAME.M5]: '5min',
   [TIMEFRAME.M15]: '15min',
-  [TIMEFRAME.H1]: '1H',
-  [TIMEFRAME.D1]: '1D',
+  [TIMEFRAME.H1]: '1h',
+  [TIMEFRAME.D1]: '1day',
 };
