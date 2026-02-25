@@ -103,16 +103,36 @@ describe('bitgetFetchCandles', () => {
     expect(typeof result).toBe('string');
   });
 
-  it('uses custom limit when provided', async () => {
+  it('uses custom limit for recent data (candles endpoint)', async () => {
     mockFetch.mockResolvedValue({
       data: { code: '00000', msg: 'success', data: [SAMPLE_CANDLE] },
       error: null,
     });
 
-    await bitgetFetchCandles({ synonym: 'BTC/USDT', timeframe: TIMEFRAME.H1, start: 1704067200000, end: 1704153600000, limit: 500 });
+    // Use a start time within the last 90 days so the candles endpoint is used (no limit cap)
+    const recentStart = Date.now() - 7 * 24 * 60 * 60 * 1000; // 7 days ago
+    const recentEnd = Date.now();
+    await bitgetFetchCandles({ synonym: 'BTC/USDT', timeframe: TIMEFRAME.H1, start: recentStart, end: recentEnd, limit: 500 });
 
     const calledUrl = mockFetch.mock.calls[0][0] as string;
     expect(calledUrl).toContain('limit=500');
+    expect(calledUrl).not.toContain('history-candles');
+  });
+
+  it('caps limit to 200 for history-candles endpoint', async () => {
+    mockFetch.mockResolvedValue({
+      data: { code: '00000', msg: 'success', data: [SAMPLE_CANDLE] },
+      error: null,
+    });
+
+    // Start > 90 days ago → history-candles endpoint → limit capped to 200
+    const oldStart = Date.now() - 120 * 24 * 60 * 60 * 1000; // 120 days ago
+    const oldEnd = oldStart + 24 * 60 * 60 * 1000;
+    await bitgetFetchCandles({ synonym: 'BTC/USDT', timeframe: TIMEFRAME.H1, start: oldStart, end: oldEnd, limit: 1000 });
+
+    const calledUrl = mockFetch.mock.calls[0][0] as string;
+    expect(calledUrl).toContain('history-candles');
+    expect(calledUrl).toContain('limit=200');
   });
 });
 
@@ -161,6 +181,10 @@ describe('bitgetFindFirstCandle', () => {
     const calledUrl = mockFetch.mock.calls[0][0] as string;
     // D1 start is 2017-01-01, well beyond 90 days
     expect(calledUrl).toContain('history-candles');
+    // history-candles endpoint max limit is 200
+    expect(calledUrl).toMatch(/limit=\d+/);
+    const limitMatch = calledUrl.match(/limit=(\d+)/);
+    expect(Number(limitMatch?.[1])).toBeLessThanOrEqual(200);
   });
 
   it('uses candles endpoint for start dates within 90 days', async () => {

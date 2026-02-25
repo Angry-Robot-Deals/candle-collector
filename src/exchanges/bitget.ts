@@ -10,6 +10,8 @@ import { BITGET_TIMEFRAME, OHLCV_Bitget } from './bitget.interface';
 const BITGET_BASE_URL = 'https://api.bitget.com';
 /** Candles older than 90 days must use the /history-candles endpoint. */
 const HISTORY_THRESHOLD_MS = 90 * 24 * 60 * 60 * 1000;
+/** history-candles endpoint max limit is 200; candles endpoint allows up to 1000. */
+const HISTORY_CANDLES_MAX_LIMIT = 200;
 
 /** Bitget API expects symbol without separator, e.g. BTCUSDT. */
 function toBitgetSymbol(synonym: string): string {
@@ -23,8 +25,10 @@ function getCandleURI(data: {
   end: number; // milliseconds
   limit: number;
 }): string {
-  const { symbol, granularity, start, end, limit } = data;
-  const endpoint = start < Date.now() - HISTORY_THRESHOLD_MS ? 'history-candles' : 'candles';
+  const { symbol, granularity, start, end } = data;
+  const isHistory = start < Date.now() - HISTORY_THRESHOLD_MS;
+  const endpoint = isHistory ? 'history-candles' : 'candles';
+  const limit = isHistory ? Math.min(data.limit, HISTORY_CANDLES_MAX_LIMIT) : data.limit;
   return `${BITGET_BASE_URL}/api/v2/spot/market/${endpoint}?symbol=${symbol}&granularity=${granularity}&startTime=${start}&endTime=${end}&limit=${limit}`;
 }
 
