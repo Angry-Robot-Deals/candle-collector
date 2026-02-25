@@ -1,20 +1,26 @@
 # Active Context
 
-**Current Task:** DEV-0003 — Add method fetchTopCoins (CMC scrape, new table, daily update)
+**Current Task:** DEV-0005 — Add Bitget exchange, exchange API docs audit, full test coverage, deploy
 
-- **Status:** in_progress
-- **Started:** 2026-02-21
+- **Status:** pending
+- **Started:** —
 - **Complexity:** Level 3
-- **Type:** feature
+- **Type:** feature + quality
 - **Priority:** high
 - **Repository:** candles (angry/candles)
 - **Branch:** main
 
 ## Focus
 
-Implement fetchTopCoins from CoinMarketCap: scrape CMC page JSON, new DB table for CMC data, daily update when ENABLE_UPDATE_TOP_COIN_FROM_CMC=true, ensure ENABLE_TOP_COIN_FETCH uses the new table.
+Add Bitget candle-fetching adapter (pattern: kucoin/gateio/mexc), audit all exchange API docs, fix any discrepancies, write full test coverage for adapters + DB methods, push → deploy → verify.
+
+## Previous Task
+
+DEV-0004 (migrate feeder to new server 23.88.34.218) — **archived 2026-02-25** → memory-bank/archive/archive-DEV-0004.md
 
 ## Notes
 
 - Project: NestJS + Prisma + PostgreSQL. Build: pnpm run build. Deploy: scripts/external-deploy.sh.
+- Production server: **23.88.34.218** (Docker, port 14444, DB local via host.docker.internal:51432)
 - Backlog: memory-bank/backlog.md
+- Last archived: DEV-0004 (2026-02-25) → memory-bank/archive/archive-DEV-0004.md

@@ -1,22 +1,329 @@
 # Tasks
 
+## Task ID: DEV-0005
+
+**Title:** Add Bitget exchange — candle fetching, API docs audit, full test coverage, deploy
+
+**Status:** planned
+**Complexity:** Level 3
+**Started:** —
+**Type:** feature + quality
+**Priority:** high
+**Repository:** candles
+**Branch:** main
+
+### Summary
+
+Full integration of Bitget exchange into the candle-collector service: fetch latest Bitget API docs, implement the adapter (same pattern as kucoin/gateio/mexc), wire it into the exchange fetch loop, audit and update docs for all existing exchanges, verify all exchange adapters against current APIs, write full test coverage for exchange adapters and DB methods, then test → fix → deploy → verify.
+
+### Goals
+
+1. **Bitget adapter** — implement `src/exchanges/bitget.ts` and `src/exchanges/bitget.interface.ts` following the same pattern as kucoin/gateio/mexc: `toExchangeSymbol`, `getCandleURI`, `fetchCandles`, `bitgetFindFirstCandle`, `bitgetFetchCandles`, DTO mapper `bitgetCandleToCandleModel`.
+2. **Wire into feeder** — register Bitget in `exchange.constant.ts`, `exchange-dto.ts`, `interface.ts`, and in the fetch loop in `app.service.ts` (same flow as existing exchanges); add `ENABLE_BITGET_FETCH` or add to `DAY_CANDLE_FETCH_EXCHANGES` env.
+3. **Exchange docs audit** — for each exchange (Binance, OKX, Bybit, HTX/Huobi, Poloniex, KuCoin, Gate.io, MEXC, Bitget): fetch current API documentation URLs (Candles/Klines endpoint), verify our endpoint URLs and field mappings against current docs, update `memory-bank/docs/exchange-api-reference.md` with endpoint URLs, timeframe maps, symbol formats, pagination info, and source doc links.
+4. **Code compliance check** — verify all adapters (exchange-fetch-candles.ts, exchanges/*.ts) match live API structure: URL patterns, request params, response shapes, error codes; note and fix any discrepancies.
+5. **Test coverage** — write Jest tests covering: (a) each exchange `fetchCandles` function (mock HTTP, assert `CandleDb[]` shape and mapper logic); (b) each `FindFirstCandle` function (mock responses for found/not-found/error); (c) Prisma service DB methods (candle upsert, market queries, GlobalVar, TopCoin/CMC queries) using in-memory mock or test DB.
+6. **Test → fix → test cycle** — run tests, fix failures, ensure green.
+7. **Push → deploy → verify** — push to main, run deploy script to production (23.88.34.218), smoke-test Bitget endpoint returns candle data, report full health status.
+
+### Success Criteria
+
+- `bitgetFetchCandles` and `bitgetFindFirstCandle` implemented, integrated, and collecting candles on production.
+- `memory-bank/docs/exchange-api-reference.md` created with current endpoint docs and source links for all 9 exchanges.
+- All exchange adapters verified against current API docs; fixes applied if needed.
+- Test suite: all exchange adapter tests + DB method tests pass (`pnpm test`).
+- Production (23.88.34.218): feeder running, Bitget candles in DB, health endpoint green.
+
+### Architecture Impact
+
+- **New files:** `src/exchanges/bitget.ts`, `src/exchanges/bitget.interface.ts`, `src/exchanges/bitget.spec.ts`, `memory-bank/docs/exchange-api-reference.md`.
+- **Modified files:** `src/exchange.constant.ts` (BITGET_TIMEFRAME), `src/exchange-dto.ts` (bitgetCandleToCandleModel), `src/interface.ts` (OHLCV_Bitget), `src/app.service.ts` (register Bitget in fetch loop), `.env.example` (new flag if added), `memory-bank/techContext.md`.
+- **Test files:** `src/exchanges/*.spec.ts` for each adapter; `src/prisma.service.spec.ts` (or augment existing).
+- **No DB schema changes required** — Bitget uses existing `Candle` table + Exchange/Market/Symbol rows (seeded or auto-created via market fetch).
+
+### Steps
+
+1. **Fetch Bitget API docs** (context7 / web) — get current candles endpoint: URL, params, response shape, timeframe map, symbol format, pagination, rate limits.
+2. **Audit existing exchange docs** — for each of 8 existing exchanges: verify our URL vs. current API docs; document discrepancies.
+3. **Create `exchange-api-reference.md`** — table: Exchange | Endpoint URL pattern | Symbol format | Timeframe map | Pagination | Doc link.
+4. **Fix discrepancies** found in step 2 (if any) — minimal, targeted edits to exchange adapters.
+5. **Implement Bitget adapter** — `bitget.interface.ts` (BITGET_TIMEFRAME enum, OHLCV_Bitget type), `bitget.ts` (all functions), register in constants/dto/interface files.
+6. **Wire Bitget into app.service.ts** — add to exchange fetch dispatch (same pattern as kucoin/gateio/mexc integration).
+7. **Write tests** — per-exchange adapter tests (mock fetch), DB method tests (mock Prisma).
+8. **Run tests, fix failures** — iterate until green.
+9. **Update docs** — `memory-bank/techContext.md`, `memory-bank/activeContext.md`, `.env.example`.
+10. **Push → deploy → smoke test → report**.
+
+---
+
+## Task ID: DEV-0004
+
+**Title:** Migrate feeder and API to DB server (Docker, open port; DB local)
+
+**Status:** archived  
+**Complexity:** Level 2  
+**Started:** 2026-02-24  
+**Completed:** 2026-02-25  
+**Type:** infrastructure / migration  
+**Priority:** high  
+**Repository:** candles  
+**Branch:** main  
+**Reflection:** memory-bank/reflection/reflection-DEV-0004.md  
+**Archive:** memory-bank/archive/archive-DEV-0004.md  
+
+### Summary
+
+- **Target server (new):** `ssh root@23.88.34.218` — API + feeder in Docker, port open; DB on same host (local).
+- **Source server (current):** `ssh -i ~/.ssh/id_ed25519 root@37.27.107.227` — app runs here now.
+- **Pre-migration:** On the *current* server: stop the application, then remove Docker (containers, images, optionally Docker itself).
+
+### Goals
+
+1. **Pre-migration (current server 37.27.107.227)**  
+   - Stop the candle-collector service (e.g. `scripts/external-app-down.sh` or manual `docker compose down`).  
+   - Remove Docker: tear down containers/images and, if desired, uninstall Docker on that host.
+
+2. **Migration to DB server (23.88.34.218)**  
+   - Deploy the same app (feeder + API) to the new server via Docker.  
+   - Open the API port (e.g. 14444) on the new server.  
+   - Configure the app to use the DB **locally** on the same server (e.g. `DATABASE_URL` pointing to localhost or the same host).
+
+3. **Documentation / automation**  
+   - Update deploy scripts and docs so that future deploys target the new server (e.g. `APP_SERVER_USER=root@23.88.34.218`, `APP_SERVER_SSH_KEY=~/.ssh/id_ed25519` or another key).  
+   - If the new server needs GitHub access for `git pull`: document or configure SSH key (or HTTPS); inform if keys need to be set up.
+
+### Success criteria
+
+- Current server (37.27.107.227): app stopped, Docker removed as specified.  
+- New server (23.88.34.218): app (API + feeder) runs in Docker, port 14444 (or chosen port) open and reachable; DB connection uses local DB on the same server.  
+- Deploy script and env (e.g. `.env.example` / docs) point to the new server; optional: note about GitHub keys on the new host.
+
+### Notes
+
+- **GitHub keys:** If the new server will run `git pull` (e.g. from `scripts/external-deploy.sh`), it needs either: (1) SSH key added to GitHub (deploy key or user key), or (2) HTTPS with token. If keys are not yet set up on 23.88.34.218, document the need and steps (or add a short checklist) and inform the user.
+
+---
+
+# DEV-0004 Implementation Plan: Migrate feeder and API to DB server
+
+## 1. Overview
+
+**Problem:** The candle-collector app (API + feeder) currently runs on server 37.27.107.227. It must be moved to the DB server 23.88.34.218 so that the app and database run on the same host (DB local). The old server must be shut down and Docker removed before the new deployment.
+
+**Goals:**
+
+1. On **current server** (37.27.107.227): stop the application, then remove Docker (containers, images, optionally Docker engine).
+2. On **new server** (23.88.34.218): deploy API + feeder via Docker, open API port (14444), configure app to use local DB on the same host.
+3. Update deploy automation and docs so future deploys target the new server; document GitHub key setup on the new host if needed.
+
+**Success criteria:**
+
+- 37.27.107.227: app stopped, Docker removed as specified.
+- 23.88.34.218: app runs in Docker, port 14444 open and reachable; `DATABASE_URL` points to local DB.
+- `.env` / docs use new server (e.g. `APP_SERVER_USER=root@23.88.34.218`); optional checklist for GitHub keys on new host.
+
+---
+
+## 2. Security Summary
+
+- **Attack surface:** Unchanged (same app, same port; only host and DB location change). Firewall/port rules on the new server should be verified.
+- **New permissions:** None in code. Server access shifts to root@23.88.34.218; ensure SSH key and access are controlled.
+- **Sensitive data:** `.env.production` and `DATABASE_URL` remain in deploy flow; no new exposure. DB on same host reduces network exposure of DB.
+- **Risks:** (1) Wrong server targeted during transition — mitigate by updating env once and using one source of truth. (2) New server lacks GitHub access for `git pull` — document and optionally add deploy key. (3) Firewall on 23.88.34.218 may block 14444 — document opening the port.
+
+---
+
+## 3. Architecture Impact
+
+- **Components:** `scripts/external-deploy.sh`, `scripts/external-app-down.sh` (usage/flow unchanged; env vars point to new host). Local `.env`: `APP_SERVER_USER`, `APP_SERVER_SSH_KEY`. New server: Docker, repo at `/repos/candle-collector`, `.env` with local `DATABASE_URL`.
+- **Integration:** Deploy script SSHs to `APP_SERVER_USER`, copies `.env.production` to server, runs `git pull` and `docker compose` on the server. App in container connects to DB via `DATABASE_URL` (on new server: localhost or same-host PostgreSQL).
+
+---
+
+## 4. Detailed Design
+
+### 4.1 Component Changes
+
+| File / location | Changes | Reason |
+|-----------------|---------|--------|
+| Local `.env` (dev machine) | Set `APP_SERVER_USER=root@23.88.34.218`, `APP_SERVER_SSH_KEY=~/.ssh/id_ed25519` (or key used for 23.88.34.218). | Deploy script uses these to target the new server. |
+| `.env.production` (local) | Ensure `DATABASE_URL` (and `SHADOW_DATABASE_URL` if used) point to DB on 23.88.34.218 (e.g. `postgresql://user:pass@localhost:5432/dbname` or `@host.docker.internal` if DB in another container on same host). | App on new server must use local DB. |
+| `memory-bank/techContext.md` or README | Document new server as deploy target; optional: firewall (open 14444), GitHub key checklist for server. | Single source of truth for deploy target and prerequisites. |
+
+### 4.2 New Components
+
+| Item | Purpose | Dependencies |
+|------|---------|--------------|
+| Optional: `memory-bank/tasks/DEV-0004-migration-runbook.md` or section in docs | Step-by-step runbook: pre-migration (stop + remove Docker on old server), prepare new server (Docker, repo, env), first deploy, verification. | None. |
+| Optional: `scripts/pre-migration-stop-old-server.sh` | Script that SSHs to old server (37.27.107.227), runs down + Docker cleanup (and optionally uninstall Docker). | `.env` with vars for *old* server or explicit args. |
+
+### 4.3 API Changes
+
+- None. Same API and port (14444); only host changes.
+
+### 4.4 Database Changes
+
+- None in schema. Only `DATABASE_URL` on the new server must point to the local PostgreSQL instance (same host).
+
+---
+
+## 5. Security Design (Appendix A)
+
+### 5.1 Threat Model
+
+- **Assets:** App availability, DB and env on new server, SSH access.
+- **Threats:** Misuse of root/SSH on new server; exposure of 14444 to unintended networks; accidental deploy to wrong host.
+- **Mitigations:** Use dedicated SSH key for deploy; document correct `APP_SERVER_*` values; on new server, open only required ports (e.g. 22, 14444) and restrict by firewall if needed.
+
+### 5.2 Security Controls Checklist
+
+- [x] No new secrets in repo; `.env.production` stays local and is copied via scp.
+- [x] Deploy uses SSH key (no password in script).
+- [x] DB on same host reduces DB network exposure.
+- [ ] Confirm firewall/security group on 23.88.34.218 allows 14444 only where intended.
+- [ ] Document that GitHub key on new server (if used) should be read-only deploy key where possible.
+
+---
+
+## 6. Implementation Steps
+
+### Step 1: Pre-migration — stop app and remove Docker on current server (37.27.107.227)
+
+**Actions:**
+
+1. From local machine, ensure `.env` still has old server for this run:  
+   `APP_SERVER_USER=root@37.27.107.227`, `APP_SERVER_SSH_KEY=~/.ssh/id_ed25519`.
+2. Run stop script:  
+   `pnpm run down` (or `bash scripts/external-app-down.sh`).  
+   This SSHs to 37.27.107.227 and runs `docker compose -p cc -f docker-compose.yml down --remove-orphans`.
+3. SSH to the current server and remove Docker resources (and optionally Docker itself):
+
+```bash
+# SSH to current server
+ssh -i ~/.ssh/id_ed25519 root@37.27.107.227
+
+# In /repos/candle-collector (if still present)
+cd /repos/candle-collector
+docker compose -p cc -f docker-compose.yml down --remove-orphans
+
+# Remove images and cleanup
+docker image rm cc-candles 2>/dev/null || true
+docker image prune -f -a
+docker volume prune -f
+
+# Optional: uninstall Docker (example for Debian/Ubuntu)
+# apt-get remove -y docker-ce docker-ce-cli containerd.io
+# apt-get purge -y docker-ce docker-ce-cli containerd.io
+```
+
+**Rationale:** Clean shutdown and removal on old host before switching deploy target.
+
+### Step 2: Prepare new server (23.88.34.218)
+
+**Actions:**
+
+1. SSH: `ssh root@23.88.34.218` (or with key if required: `ssh -i ~/.ssh/id_ed25519 root@23.88.34.218`).
+2. Install Docker and Docker Compose if not present (e.g. Docker docs for the distro).
+3. Ensure PostgreSQL is installed and running locally; create DB and user if needed; note connection string for `DATABASE_URL`.
+4. Clone repo (or prepare for first deploy):  
+   `git clone <repo-url> /repos/candle-collector` (or ensure directory exists and deploy script will run `git pull`).  
+   If repo is private: add SSH deploy key to GitHub and use SSH clone URL, or use HTTPS + token.
+5. Create `logs` directory: `mkdir -p /repos/candle-collector/logs`.
+
+**Rationale:** New server must have Docker, local DB, and repo in place before first deploy.
+
+### Step 3: Update local env and .env.production for new server
+
+**Files:** Local `.env`, `.env.production` (both in `.gitignore`).
+
+**Changes:**
+
+- In `.env`: set  
+  `APP_SERVER_USER=root@23.88.34.218`  
+  `APP_SERVER_SSH_KEY=~/.ssh/id_ed25519`  
+  (or the key that can SSH to 23.88.34.218).
+- In `.env.production`: set  
+  `DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/DATABASE?schema=public`  
+  (and `SHADOW_DATABASE_URL` if used) for the DB on 23.88.34.218.  
+  If the app runs in Docker and DB is on host, use `host.docker.internal` or the host’s LAN IP if required by the OS.
+
+**Rationale:** Deploy script and app config must target the new server and its local DB.
+
+### Step 4: First deploy to new server
+
+**Actions:**
+
+1. From repo root (with updated `.env` and `.env.production`):  
+   `bash scripts/external-deploy.sh`  
+   (or `pnpm run deploy` if defined).
+2. Script will: scp `.env.production` to `root@23.88.34.218:/repos/candle-collector/.env`, then SSH and run `git pull`, `docker compose build`, `docker compose up -d`.
+3. Open port 14444 on the new server (firewall/security group): e.g. `ufw allow 14444/tcp` or cloud security group rule.
+4. Verify: from local machine, `curl http://23.88.34.218:14444/` (or health endpoint). On server, `./scripts/verify-server.sh` if available.
+
+**Rationale:** Single automated path for deploy; manual port and smoke test ensure correctness.
+
+### Step 5: Document deploy target and optional GitHub key checklist
+
+**Files:** `README.md`, optionally `memory-bank/techContext.md` or `memory-bank/tasks/DEV-0004-migration-runbook.md`.
+
+**Changes:**
+
+- In README (or Deploy section): state that the production deploy target is 23.88.34.218; `APP_SERVER_USER` and `APP_SERVER_SSH_KEY` must point to this host.
+- Optional short checklist for new server: (1) Install Docker (and Compose). (2) Install/configure PostgreSQL; set `DATABASE_URL` in `.env.production`. (3) Clone repo to `/repos/candle-collector`; if private, configure GitHub access (SSH deploy key or HTTPS token). (4) Open port 14444. (5) Run deploy script from local.
+
+**Rationale:** Prevents future confusion and gives a repeatable setup for the new host.
+
+---
+
+## 7. Test Plan
+
+- **Pre-migration:** After Step 1, confirm no containers are running on 37.27.107.227 (`docker ps -a` empty or no `cc` stack).
+- **Post-deploy:** (1) `curl http://23.88.34.218:14444/` returns expected health response. (2) Optional: call one API endpoint (e.g. `GET /exchange` or `GET /getTopCoins`) and check response. (3) On server, check container logs: `docker compose -p cc -f docker-compose.yml logs -f` and app logs in `logs/`.
+- **DB:** App logs should show successful Prisma/DB connection; no connection errors to DB.
+
+---
+
+## 8. Rollback Strategy
+
+- If deploy to new server fails: fix config (env, port, DB) and re-run `scripts/external-deploy.sh`. No schema or code rollback needed.
+- If need to run again on old server: change `.env` back to `APP_SERVER_USER=root@37.27.107.227`, restore Docker on 37.27.107.227, ensure `.env.production` has DB reachable from that host, run deploy script. (DB would need to be reachable from old server or restored from backup.)
+
+---
+
+## 9. Validation Checklist
+
+- [ ] Step 1 done: app stopped and Docker removed on 37.27.107.227.
+- [ ] Step 2 done: Docker and local PostgreSQL installed on 23.88.34.218; repo present at `/repos/candle-collector`; GitHub access configured if repo is private.
+- [ ] Step 3 done: local `.env` has `APP_SERVER_USER=root@23.88.34.218` and correct `APP_SERVER_SSH_KEY`; `.env.production` has `DATABASE_URL` for local DB on new server.
+- [ ] Step 4 done: deploy script run successfully; port 14444 open; health (and optional API) check passes.
+- [x] Step 5 done: README or docs updated with new server and optional GitHub/firewall checklist. Runbook and pre-migration script added (DEV-0004 BUILD).
+- [ ] No regressions: existing API behavior unchanged; only host and DB location changed.
+
+---
+
+## 10. Next Steps
+
+- Execute Steps 1–4 in order (pre-migration on old server → prepare new server → update env → deploy). Step 5 (docs) is done.
+- Runbook: `memory-bank/tasks/DEV-0004-migration-runbook.md`. Pre-migration: `pnpm run pre-migration-stop` (set `OLD_APP_SERVER_USER`, `OLD_APP_SERVER_SSH_KEY` in `.env`).
+- If GitHub key is not set up on 23.88.34.218: add a deploy key or use HTTPS token before first `git pull` on the server.
+
+---
+
 ## Task ID: DEV-0003
 
 **Title:** Add method fetchTopCoins — CMC scrape, new table, daily update, wire ENABLE_TOP_COIN_FETCH
 
-**Status:** implemented (ready for /reflect)  
+**Status:** completed (archived)  
 **Complexity:** Level 3  
 **Started:** 2026-02-21  
 **Type:** feature  
 **Priority:** high  
 **Repository:** candles  
 **Branch:** main  
-
-**Spec:** [memory-bank/tasks/DEV-0003-fetchTopCoins-from-CMC.md](tasks/DEV-0003-fetchTopCoins-from-CMC.md)
+**Archive:** [memory-bank/archive/archive-DEV-0003.md](archive/archive-DEV-0003.md)  
+**Reflection:** [memory-bank/reflection/reflection-DEV-0003.md](reflection/reflection-DEV-0003.md)
 
 ---
-
-# DEV-0003 Implementation Plan
 
 ## 1. Overview
 
