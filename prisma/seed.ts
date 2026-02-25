@@ -40,6 +40,10 @@ const exchangeData = [
     apiUri: 'https://www.okx.com/docs-v5/en/#order-book-trading-market-data-get-candlesticks',
   },
   {
+    name: 'bitget',
+    apiUri: 'https://bitgetlimited.github.io/apidoc/en/spot/#get-candlestick-data',
+  },
+  {
     name: 'coinbasepro',
     apiUri: '',
   },
