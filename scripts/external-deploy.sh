@@ -8,6 +8,8 @@ else
   echo ".env file not found"
   exit 1
 fi
+[ -n "$DEPLOY_TARGET_USER" ] && export APP_SERVER_USER="$DEPLOY_TARGET_USER"
+[ -n "$DEPLOY_TARGET_SSH_KEY" ] && export APP_SERVER_SSH_KEY="$DEPLOY_TARGET_SSH_KEY"
 
 scp -i "$APP_SERVER_SSH_KEY" ./.env.production "$APP_SERVER_USER":/repos/candle-collector/.env
 
