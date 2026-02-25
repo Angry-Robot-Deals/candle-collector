@@ -11,6 +11,12 @@ services:
         condition: any
         delay: 5s
         window: 120s
+      # Limit CPU to avoid overload; adjust or remove if server has spare capacity
+      resources:
+        limits:
+          cpus: "4"
+        reservations:
+          cpus: "0.25"
     env_file:
       - .env
     environment:
@@ -18,6 +24,8 @@ services:
       - TZ=UTC
     ports:
       - "14444:14444"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./logs:/usr/app/logs
     logging:

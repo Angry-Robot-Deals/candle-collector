@@ -365,7 +365,7 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    const jobs = [];
+    const jobs: Array<() => Promise<void>> = [];
     for (const exchange of exchanges) {
       const lastFetchAllSymbolD1Candles = await this.global.getGlobalVariableTime(
         `LastFetchAllSymbolD1Candles_${exchange.name}`,
@@ -378,12 +378,16 @@ export class AppService implements OnApplicationBootstrap {
         return;
       }
 
-      jobs.push(this.fetchExchangeAllSymbolD1Candles(exchange));
+      jobs.push(() => this.fetchExchangeAllSymbolD1Candles(exchange));
     }
 
-    await Promise.all(jobs).catch((err) => {
-      Logger.error(`Error fetch all symbol D1 candles: ${err.message}`, 'fetchAllSymbolD1Candles');
-    });
+    const concurrency = this.getFetchConcurrentExchanges();
+    for (let i = 0; i < jobs.length; i += concurrency) {
+      const chunk = jobs.slice(i, i + concurrency);
+      await Promise.all(chunk.map((fn) => fn())).catch((err) => {
+        Logger.error(`Error fetch all symbol D1 candles: ${err.message}`, 'fetchAllSymbolD1Candles');
+      });
+    }
 
     setTimeout(() => this.fetchAllSymbolD1Candles(), Math.random() * 1000 * 60 * 60);
   }
@@ -395,7 +399,7 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    const jobs = [];
+    const jobs: Array<() => Promise<void>> = [];
     for (const exchange of exchanges) {
       const lastFetchAllSymbolH1Candles = await this.global.getGlobalVariableTime(
         `LastFetchAllSymbolH1Candles_${exchange.name}`,
@@ -408,12 +412,16 @@ export class AppService implements OnApplicationBootstrap {
         return;
       }
 
-      jobs.push(this.fetchExchangeAllSymbolH1Candles(exchange));
+      jobs.push(() => this.fetchExchangeAllSymbolH1Candles(exchange));
     }
 
-    await Promise.all(jobs).catch((err) => {
-      Logger.error(`Error fetch all symbol H1 candles: ${err.message}`, 'fetchAllSymbolH1Candles');
-    });
+    const concurrency = this.getFetchConcurrentExchanges();
+    for (let i = 0; i < jobs.length; i += concurrency) {
+      const chunk = jobs.slice(i, i + concurrency);
+      await Promise.all(chunk.map((fn) => fn())).catch((err) => {
+        Logger.error(`Error fetch all symbol H1 candles: ${err.message}`, 'fetchAllSymbolH1Candles');
+      });
+    }
 
     setTimeout(() => this.fetchAllSymbolH1Candles(), Math.random() * 1000 * 60);
   }
@@ -425,7 +433,7 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    const jobs = [];
+    const jobs: Array<() => Promise<void>> = [];
     for (const exchange of exchanges) {
       const lastFetchAllSymbolM15Candles = await this.global.getGlobalVariableTime(
         `LastFetchAllSymbolM15Candles_${exchange.name}`,
@@ -443,12 +451,16 @@ export class AppService implements OnApplicationBootstrap {
         return;
       }
 
-      jobs.push(this.fetchExchangeAllSymbolM15Candles(exchange));
+      jobs.push(() => this.fetchExchangeAllSymbolM15Candles(exchange));
     }
 
-    await Promise.all(jobs).catch((err) => {
-      Logger.error(`Error fetch all symbol M15 candles: ${err.message}`, 'fetchAllSymbolM15Candles');
-    });
+    const concurrency = this.getFetchConcurrentExchanges();
+    for (let i = 0; i < jobs.length; i += concurrency) {
+      const chunk = jobs.slice(i, i + concurrency);
+      await Promise.all(chunk.map((fn) => fn())).catch((err) => {
+        Logger.error(`Error fetch all symbol M15 candles: ${err.message}`, 'fetchAllSymbolM15Candles');
+      });
+    }
 
     setTimeout(() => this.fetchAllSymbolM15Candles(), Math.random() * 1000 * 60);
   }
@@ -1324,6 +1336,15 @@ export class AppService implements OnApplicationBootstrap {
       Logger.error(`Error get an exchange id: ${error.message}`, 'getExchangeId');
       return null;
     }
+  }
+
+  /** Max number of exchanges to fetch D1/H1/M15 in parallel. Default 2 to reduce CPU. */
+  getFetchConcurrentExchanges(): number {
+    const raw = process.env.FETCH_CONCURRENT_EXCHANGES;
+    if (raw == null || raw === '') return 2;
+    const n = parseInt(raw, 10);
+    if (!Number.isFinite(n) || n < 1) return 2;
+    return Math.min(n, 20);
   }
 
   async getExchanges(): Promise<{ id: number; name: string }[]> {
