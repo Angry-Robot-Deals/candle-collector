@@ -376,7 +376,7 @@ export class AppService implements OnApplicationBootstrap {
           `Delay fetch all symbol D1 candles ${Date.now() - lastFetchAllSymbolD1Candles} ms`,
           'fetchAllSymbolD1Candles',
         );
-        return;
+        continue;
       }
 
       jobs.push(() => this.fetchExchangeAllSymbolD1Candles(exchange));
@@ -410,7 +410,7 @@ export class AppService implements OnApplicationBootstrap {
           `Delay fetch all symbol H1 candles ${Date.now() - lastFetchAllSymbolH1Candles} ms`,
           `fetchAllSymbolH1Candles_${exchange.name}`,
         );
-        return;
+        continue;
       }
 
       jobs.push(() => this.fetchExchangeAllSymbolH1Candles(exchange));
@@ -444,12 +444,11 @@ export class AppService implements OnApplicationBootstrap {
         Date.now() - lastFetchAllSymbolM15Candles < MIN_MSEC * 15 &&
         process.env.NODE_ENV !== 'development'
       ) {
-        console.log(process.env.NODE_ENV);
         Logger.warn(
           `Delay fetch all symbol M15 candles ${Date.now() - lastFetchAllSymbolM15Candles} ms`,
           `fetchAllSymbolM15Candles_${exchange.name}`,
         );
-        return;
+        continue;
       }
 
       jobs.push(() => this.fetchExchangeAllSymbolM15Candles(exchange));
