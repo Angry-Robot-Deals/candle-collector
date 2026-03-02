@@ -147,6 +147,10 @@ export async function htxFetchCandles(
   }
 
   if (!candles?.data || candles?.status !== 'ok') {
+    // "invalid-parameter" / "invalid symbol" — treat as permanently not found.
+    if ((candles as any)?.['err-code'] === 'invalid-parameter') {
+      return [];
+    }
     Logger.error(`[htx] bad response: ${symbol} ${timeframe} ${JSON.stringify(candles)}`, 'htxFetchCandles');
     return `Bad response ${JSON.stringify(candles || {})}`;
   }

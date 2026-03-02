@@ -49,10 +49,17 @@ async function fetchCandles(data: {
   );
 
   if (error || res == null) {
+    // 40034 = "Parameter does not exist" — treat as permanently not found.
+    if (error?.includes('"code":"40034"')) {
+      return [];
+    }
     return error || '[bitget] Bad response';
   }
 
   if (res?.code !== '00000' || !Array.isArray(res?.data)) {
+    if (res?.code === '40034') {
+      return [];
+    }
     Logger.error(`[bitget] bad response ${url} ${JSON.stringify(res).slice(0, 200)}`, 'fetchCandles.bitget');
     return `[bitget] Bad response code=${res?.code} msg=${res?.msg}`;
   }
