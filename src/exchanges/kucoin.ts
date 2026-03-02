@@ -38,6 +38,10 @@ async function fetchCandles(data: {
     return error || 'Bad response';
   }
   if (res?.code !== '200000' || !Array.isArray(res?.data)) {
+    // 400100 = "Unsupported trading pair" — treat as permanently not found.
+    if (res?.code === '400100') {
+      return [];
+    }
     Logger.error(`[kucoin] bad response: ${uri} ${JSON.stringify(res || {}).slice(0, 200)}`, 'fetchCandles.kucoin');
     return `Bad response ${JSON.stringify(res || {})}`;
   }
