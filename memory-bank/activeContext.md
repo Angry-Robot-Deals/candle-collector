@@ -30,7 +30,7 @@ DEV-0005 (Add Bitget exchange, API docs audit, full test coverage, deploy) — *
 
 - Project: NestJS + Prisma + PostgreSQL. Build: pnpm run build.
 - Production server: **23.88.34.218** (Docker, port 14444, DB local via host.docker.internal:51432)
-- **Deploy command:** `cd /repos/candle-collector && git pull && docker compose -p cc build candles && docker compose -p cc restart candles`
+- **Deploy command:** `cd /repos/candle-collector && git pull && docker compose -p cc build candles && docker compose -p cc up -d candles`
 - Container name: `cc-candles-1` (project name **cc**, NOT default candle-collector)
 - Backlog: memory-bank/backlog.md
 - Last archived: DEV-0005 (2026-02-26) → memory-bank/archive/archive-DEV-0005.md

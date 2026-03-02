@@ -35,6 +35,10 @@ async function fetchCandles(data: {
   const { data: res, error } = await fetchJsonSafe<unknown>(url, 'fetchCandles.gateio');
 
   if (error || res == null) {
+    // "INVALID_CURRENCY_PAIR" — the pair does not exist on Gate.io.
+    if (error?.includes('"label":"INVALID_CURRENCY_PAIR"') || error?.includes('INVALID_CURRENCY_PAIR')) {
+      return [];
+    }
     return error || '[gateio] Bad response';
   }
   if (!Array.isArray(res)) {

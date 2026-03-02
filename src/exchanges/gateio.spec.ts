@@ -48,13 +48,12 @@ describe('gateioFetchCandles — mapper', () => {
     expect(result).toEqual([]);
   });
 
-  it('returns error string on fetch error', async () => {
+  it('returns [] for INVALID_CURRENCY_PAIR (not-found → -404)', async () => {
     mockFetch.mockResolvedValue({ data: null, error: 'INVALID_CURRENCY_PAIR' });
 
     const result = await gateioFetchCandles({ synonym: 'FAKE/USDT', timeframe: TIMEFRAME.M1, start: 1704067200, end: 1704153600 });
 
-    expect(typeof result).toBe('string');
-    expect(result as string).toContain('INVALID_CURRENCY_PAIR');
+    expect(result).toEqual([]);
   });
 
   it('returns error string on non-array response', async () => {
@@ -95,11 +94,12 @@ describe('gateioFindFirstCandle', () => {
     expect(result).toBeNull();
   });
 
-  it('returns error string when INVALID_CURRENCY_PAIR', async () => {
+  it('returns null when INVALID_CURRENCY_PAIR (not-found → -404 via empty [])', async () => {
     mockFetch.mockResolvedValue({ data: null, error: 'INVALID_CURRENCY_PAIR' });
 
     const result = await gateioFindFirstCandle({ synonym: 'FAKE/USDT', timeframe: TIMEFRAME.D1 });
 
-    expect(typeof result).toBe('string');
+    // fetchCandles returns [] → loop gets no candles → gateioFindFirstCandle returns null
+    expect(result).toBeNull();
   });
 });
