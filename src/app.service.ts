@@ -36,6 +36,7 @@ import {
   CMC_PAGE_DELAY_MS,
   DAY_MSEC,
   FETCH_DELAY,
+  getExchangeBatchLimit,
   getStartFetchTime,
   HOUR_MSEC,
   MARKET_UPDATE_TIMEOUT,
@@ -46,6 +47,7 @@ import { mexcFetchCandles, mexcFindFirstCandle } from './exchanges/mexc';
 import { gateioFetchCandles, gateioFindFirstCandle } from './exchanges/gateio';
 import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
 import { bitgetFetchCandles, bitgetFindFirstCandle } from './exchanges/bitget';
+import { fetchLastCandles } from './exchange-fetch-last-candles';
 import { GlobalVariablesDBService } from './global-variables-db.service';
 import {
   fetchCmcPage,
@@ -289,9 +291,8 @@ export class AppService implements OnApplicationBootstrap {
       return;
     }
 
-    console.log('+++++ fetchTopCoinsM1Candles', coins.length);
+    Logger.log(`fetchTopCoinsM1Candles coins=${coins.length}`, 'fetchTopCoinsM1Candles');
 
-    // for (const coin of coins.slice(0, 150) || []) {
     for (const row of coins) {
       if (this.badCoins.includes(row.coin)) {
         continue;
@@ -305,55 +306,50 @@ export class AppService implements OnApplicationBootstrap {
         continue;
       }
 
-      const candles = await this.fetchCandles({
-        exchange: row.exchange,
-        symbol: row.symbol,
-        timeframe: TIMEFRAME.M1,
+      const market = await this.prisma.market.findUnique({
+        where: { symbolId_exchangeId: { symbolId: row.symbolId, exchangeId: row.exchangeId } },
+        select: { id: true, symbolId: true, synonym: true },
       });
 
-      if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchTopCoinsM1Candles');
-        this.badCoins.push(row.coin);
-      } else {
-        const exchangeId = await this.getExchangeId(row.exchange);
-        if (!exchangeId) {
-          return `Error get an exchange id [${row.exchange}]`;
-        }
-
-        const symbolId = await this.getSymbolId(row.symbol);
-        if (!symbolId) {
-          return `Error get a symbol id ${row.symbol}`;
-        }
-
-        const saved = candles?.length
-          ? await this.saveExchangeCandles({
-              exchangeId,
-              symbolId,
-              tf: timeframeMinutes(TIMEFRAME.M1),
-              candles,
-            }).catch((err) => {
-              Logger.error(
-                `[${row.exchange}] ${row.symbol}.${TIMEFRAME.M1} Error save candles: ${err.message}`,
-                'fetchTopCoinsM1Candles',
-              );
-              return { saved: 0 };
-            })
-          : { saved: 0 };
-
-        if (candles?.length) {
-          Logger.log(
-            `Saved [${row.exchange}] ${row.coin}.${TIMEFRAME.M1}: ${saved?.count || 0} – ${new Date(candles[0].time).toISOString()} - ${new Date(candles[candles.length - 1].time).toISOString()}`,
-            'fetchTopCoinsM1Candles',
-          );
-        }
-
-        if (candles?.length <= 10) {
-          this.delayCoin[row.coin] = Date.now();
-          Logger.warn(`Delay COIN ${row.coin} ${candles.length}`);
-        }
+      if (!market) {
+        Logger.warn(`[${row.exchange}] No market for ${row.symbol}`, 'fetchTopCoinsM1Candles');
+        continue;
       }
 
       await new Promise((resolve) => setTimeout(resolve, 100));
+
+      await this.processCandleStateMachine({
+        market: { id: market.id, symbolId: market.symbolId, synonym: market.synonym, symbol: { name: row.symbol } },
+        exchange: { id: row.exchangeId, name: row.exchange },
+        timeframe: TIMEFRAME.M1,
+        tfMinutes: timeframeMinutes(TIMEFRAME.M1),
+        limit: getExchangeBatchLimit(row.exchange),
+        saveFn: async (candles) => {
+          const saved = await this.saveExchangeCandles({
+            exchangeId: row.exchangeId,
+            symbolId: row.symbolId,
+            tf: timeframeMinutes(TIMEFRAME.M1),
+            candles,
+          }).catch((err) => {
+            Logger.error(
+              `[${row.exchange}] ${row.symbol}.M1 Error save: ${err.message}`,
+              'fetchTopCoinsM1Candles',
+            );
+            return { count: 0 };
+          });
+          Logger.log(
+            `Saved [${row.exchange}] ${row.coin}.M1: ${saved?.count || 0}`,
+            'fetchTopCoinsM1Candles',
+          );
+          return saved;
+        },
+        fewCandlesThreshold: 10,
+        onFewCandles: () => {
+          this.delayCoin[row.coin] = Date.now();
+          Logger.warn(`Delay COIN ${row.coin}`);
+        },
+        logContext: 'fetchTopCoinsM1Candles',
+      });
     }
 
     setTimeout(() => this.fetchTopCoinsM1Candles(), 100);
@@ -699,6 +695,7 @@ export class AppService implements OnApplicationBootstrap {
 
     const markets = await this.prisma.market.findMany({
       select: {
+        id: true,
         symbol: true,
         symbolId: true,
         synonym: true,
@@ -707,7 +704,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          disabled: false, // Exclude markets for disabled symbols
+          disabled: false,
         },
       },
       orderBy: {
@@ -731,7 +728,6 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (!isCorrectSymbol(market.symbol.name)) {
-        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolD1Candles');
         continue;
       }
 
@@ -742,129 +738,81 @@ export class AppService implements OnApplicationBootstrap {
       // delay
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      let limit: number = 0;
+      // HTX D1 — limit to 2 when recent data already present
+      let htxFetchLimitD1 = 0;
       if (exchange.name === 'htx') {
         const lastCandle = await this.prisma.candleD1.findFirst({
-          select: {
-            time: true,
-          },
-          where: {
-            exchangeId: exchange.id,
-            symbolId: market.symbolId,
-            tf: timeframeMinutes(TIMEFRAME.D1),
-          },
-          orderBy: {
-            time: 'desc',
-          },
+          select: { time: true },
+          where: { exchangeId: exchange.id, symbolId: market.symbolId, tf: timeframeMinutes(TIMEFRAME.D1) },
+          orderBy: { time: 'desc' },
         });
-
-        if (lastCandle?.time) {
-          if (
-            getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1) ||
-            getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.D1, 1)
-          ) {
-            limit = 2;
-          }
+        if (
+          lastCandle?.time &&
+          (getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTime(TIMEFRAME.D1) ||
+            getCandleTime(TIMEFRAME.D1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.D1, 1))
+        ) {
+          htxFetchLimitD1 = 2;
         }
       }
 
-      const candles = await this.fetchCandles({
-        exchange: exchange.name,
-        exchangeId: exchange.id,
-        symbol: market.symbol.name,
-        symbolId: market.symbolId,
-        synonym: market.synonym,
+      await this.processCandleStateMachine({
+        market,
+        exchange,
         timeframe: TIMEFRAME.D1,
-        limit,
+        tfMinutes: timeframeMinutes(TIMEFRAME.D1),
+        limit: getExchangeBatchLimit(exchange.name),
+        fetchCandlesLimit: htxFetchLimitD1,
+        saveFn: async (candles) => {
+          const saved = await this.saveExchangeCandlesD1({
+            exchangeId: exchange.id, symbolId: market.symbolId, timeframe: TIMEFRAME.D1, candles,
+          });
+          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolD1Candles');
+          return saved;
+        },
+        onFewCandles: () => {
+          if (!this.delayMarket_D1[exchange.id]) this.delayMarket_D1[exchange.id] = {};
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}.D1`);
+          this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
+        },
+        logContext: 'fetchExchangeAllSymbolD1Candles',
       });
 
-      if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchExchangeAllSymbolD1Candles');
-      } else {
-        if (candles.length <= 3) {
-          if (!this.delayMarket_D1[exchange.id]) {
-            this.delayMarket_D1[exchange.id] = {};
-          }
-
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}.D1 ${candles.length}`);
-          this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
-        }
-
-        const saved = candles?.length
-          ? await this.saveExchangeCandlesD1({
-              exchangeId: exchange.id,
-              symbolId: market.symbolId,
-              timeframe: TIMEFRAME.D1,
-              candles,
-            })
-          : { fetched: 0 };
-
-        Logger.log(
-          `Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`,
-          'fetchExchangeAllSymbolD1Candles',
-        );
-      }
-
-      // 1-month candles
+      // HTX 1-month candles (MN1) — fetched separately, not managed by state machine
       if (exchange.name === 'htx') {
-        limit = 0;
-        const lastCandle = await this.prisma.candleD1.findFirst({
-          select: {
-            time: true,
-          },
-          where: {
-            exchangeId: exchange.id,
-            symbolId: market.symbolId,
-            tf: timeframeMinutes(TIMEFRAME.MN1),
-          },
-          orderBy: {
-            time: 'desc',
-          },
+        let mn1Limit = 0;
+        const lastMn1Candle = await this.prisma.candleD1.findFirst({
+          select: { time: true },
+          where: { exchangeId: exchange.id, symbolId: market.symbolId, tf: timeframeMinutes(TIMEFRAME.MN1) },
+          orderBy: { time: 'desc' },
         });
-
-        if (lastCandle?.time) {
-          if (
-            getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTime(TIMEFRAME.MN1) ||
-            getCandleTime(TIMEFRAME.MN1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.MN1, 1)
-          ) {
-            limit = 1;
-          }
+        if (
+          lastMn1Candle?.time &&
+          (getCandleTime(TIMEFRAME.MN1, lastMn1Candle.time) === getCandleTime(TIMEFRAME.MN1) ||
+            getCandleTime(TIMEFRAME.MN1, lastMn1Candle.time) === getCandleTimeByShift(TIMEFRAME.MN1, 1))
+        ) {
+          mn1Limit = 1;
         }
 
         const candlesMN1 = await this.fetchCandles({
-          exchange: exchange.name,
-          exchangeId: exchange.id,
-          symbol: market.symbol.name,
-          symbolId: market.symbolId,
-          synonym: market.synonym,
-          timeframe: TIMEFRAME.MN1,
-          limit,
+          exchange: exchange.name, exchangeId: exchange.id,
+          symbol: market.symbol.name, symbolId: market.symbolId,
+          synonym: market.synonym, timeframe: TIMEFRAME.MN1, limit: mn1Limit,
         });
 
         if (typeof candlesMN1 === 'string') {
           Logger.error(candlesMN1, 'fetchExchangeAllSymbolD1Candles');
         } else {
           if (candlesMN1.length <= 1) {
-            if (!this.delayMarket_D1[exchange.id]) {
-              this.delayMarket_D1[exchange.id] = {};
-            }
-            Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candlesMN1.length}`);
+            if (!this.delayMarket_D1[exchange.id]) this.delayMarket_D1[exchange.id] = {};
+            Logger.warn(`Delay ${exchange.name} ${market.symbol.name} MN1 ${candlesMN1.length}`);
             this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
           }
-
-          const saved = candlesMN1?.length
-            ? await this.saveExchangeCandlesD1({
-                exchangeId: exchange.id,
-                symbolId: market.symbolId,
-                timeframe: TIMEFRAME.MN1,
-                candles: candlesMN1,
-              })
-            : { fetched: 0 };
-
-          Logger.log(
-            `Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`,
-            'fetchExchangeAllSymbolD1Candles',
-          );
+          if (candlesMN1?.length) {
+            const saved = await this.saveExchangeCandlesD1({
+              exchangeId: exchange.id, symbolId: market.symbolId, timeframe: TIMEFRAME.MN1, candles: candlesMN1,
+            });
+            Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.MN1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolD1Candles');
+          }
         }
       }
     }
@@ -888,6 +836,7 @@ export class AppService implements OnApplicationBootstrap {
 
     const markets = await this.prisma.market.findMany({
       select: {
+        id: true,
         symbol: true,
         symbolId: true,
         synonym: true,
@@ -896,7 +845,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          disabled: false, // Exclude markets for disabled symbols
+          disabled: false,
         },
       },
       orderBy: {
@@ -920,7 +869,6 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (!isCorrectSymbol(market.symbol.name)) {
-        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolH1Candles');
         continue;
       }
 
@@ -931,67 +879,41 @@ export class AppService implements OnApplicationBootstrap {
       // delay
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      let limit: number = 0;
+      let htxFetchLimit = 0;
       if (exchange.name === 'htx') {
         const lastCandle = await this.prisma.candleH1.findFirst({
-          select: {
-            time: true,
-          },
-          where: {
-            exchangeId: exchange.id,
-            symbolId: market.symbolId,
-            tf: timeframeMinutes(TIMEFRAME.H1),
-          },
-          orderBy: {
-            time: 'desc',
-          },
+          select: { time: true },
+          where: { exchangeId: exchange.id, symbolId: market.symbolId, tf: timeframeMinutes(TIMEFRAME.H1) },
+          orderBy: { time: 'desc' },
         });
-
-        if (lastCandle?.time) {
-          if (
-            getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTime(TIMEFRAME.H1) ||
-            getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.H1, 1)
-          ) {
-            limit = 2;
-          }
+        if (
+          lastCandle?.time &&
+          (getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTime(TIMEFRAME.H1) ||
+            getCandleTime(TIMEFRAME.H1, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.H1, 1))
+        ) {
+          htxFetchLimit = 2;
         }
       }
 
-      const candles = await this.fetchCandles({
-        exchange: exchange.name,
-        exchangeId: exchange.id,
-        symbol: market.symbol.name,
-        symbolId: market.symbolId,
-        synonym: market.synonym,
+      await this.processCandleStateMachine({
+        market,
+        exchange,
         timeframe: TIMEFRAME.H1,
-        limit,
-      });
-
-      if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchExchangeAllSymbolH1Candles');
-      } else {
-        if (candles.length <= 3) {
-          if (!this.delayMarket_H1[exchange.id]) {
-            this.delayMarket_H1[exchange.id] = {};
-          }
-
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
+        tfMinutes: timeframeMinutes(TIMEFRAME.H1),
+        limit: getExchangeBatchLimit(exchange.name),
+        fetchCandlesLimit: htxFetchLimit,
+        saveFn: async (candles) => {
+          const saved = await this.saveExchangeCandlesH1({ exchangeId: exchange.id, symbolId: market.symbolId, candles });
+          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.H1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolH1Candles');
+          return saved;
+        },
+        onFewCandles: () => {
+          if (!this.delayMarket_H1[exchange.id]) this.delayMarket_H1[exchange.id] = {};
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}`);
           this.delayMarket_H1[exchange.id][market.symbolId] = Date.now();
-        }
-
-        const saved = candles?.length
-          ? await this.saveExchangeCandlesH1({
-              exchangeId: exchange.id,
-              symbolId: market.symbolId,
-              candles,
-            })
-          : { fetched: 0 };
-
-        Logger.log(
-          `Saved [${exchange.name}] ${market.symbol.name}.H1: ${saved?.count || 0}`,
-          'fetchExchangeAllSymbolH1Candles',
-        );
-      }
+        },
+        logContext: 'fetchExchangeAllSymbolH1Candles',
+      });
     }
 
     await this.global.setGlobalVariable(`LastFetchAllSymbolH1Candles_${exchange.name}`, Date.now());
@@ -1013,6 +935,7 @@ export class AppService implements OnApplicationBootstrap {
 
     const markets = await this.prisma.market.findMany({
       select: {
+        id: true,
         symbol: true,
         symbolId: true,
         synonym: true,
@@ -1021,7 +944,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId: exchange.id,
         disabled: false,
         symbol: {
-          disabled: false, // Exclude markets for disabled symbols
+          disabled: false,
         },
       },
       orderBy: {
@@ -1050,74 +973,48 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       if (this.badSymbols[exchange.id] && this.badSymbols[exchange.id].includes(market.symbol.name)) {
-        // Logger.debug(`Error symbol ${market.symbol.name}`, 'fetchAllSymbolM15Candles');
         continue;
       }
 
       // delay
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      let limit: number = 0;
+      // HTX-specific: limit to 2 when recent data is already present
+      let htxFetchLimit = 0;
       if (exchange.name === 'htx') {
         const lastCandle = await this.prisma.candleM15.findFirst({
-          select: {
-            time: true,
-          },
-          where: {
-            exchangeId: exchange.id,
-            symbolId: market.symbolId,
-            tf: timeframeMinutes(TIMEFRAME.M15),
-          },
-          orderBy: {
-            time: 'desc',
-          },
+          select: { time: true },
+          where: { exchangeId: exchange.id, symbolId: market.symbolId, tf: timeframeMinutes(TIMEFRAME.M15) },
+          orderBy: { time: 'desc' },
         });
-
-        if (lastCandle?.time) {
-          if (
-            getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTime(TIMEFRAME.M15) ||
-            getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.M15, 1)
-          ) {
-            limit = 2;
-          }
+        if (
+          lastCandle?.time &&
+          (getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTime(TIMEFRAME.M15) ||
+            getCandleTime(TIMEFRAME.M15, lastCandle.time) === getCandleTimeByShift(TIMEFRAME.M15, 1))
+        ) {
+          htxFetchLimit = 2;
         }
       }
 
-      const candles = await this.fetchCandles({
-        exchange: exchange.name,
-        exchangeId: exchange.id,
-        symbol: market.symbol.name,
-        symbolId: market.symbolId,
-        synonym: market.synonym,
+      await this.processCandleStateMachine({
+        market,
+        exchange,
         timeframe: TIMEFRAME.M15,
-        limit,
-      });
-
-      if (typeof candles === 'string') {
-        Logger.error(candles, 'fetchExchangeAllSymbolM15Candles');
-      } else {
-        if (candles.length <= 3) {
-          if (!this.delayMarket_M15[exchange.id]) {
-            this.delayMarket_M15[exchange.id] = {};
-          }
-
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name} ${candles.length}`);
+        tfMinutes: timeframeMinutes(TIMEFRAME.M15),
+        limit: getExchangeBatchLimit(exchange.name),
+        fetchCandlesLimit: htxFetchLimit,
+        saveFn: async (candles) => {
+          const saved = await this.saveExchangeCandlesM15({ exchangeId: exchange.id, symbolId: market.symbolId, candles });
+          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.M15: ${saved?.count || 0}`, 'fetchExchangeAllSymbolM15Candles');
+          return saved;
+        },
+        onFewCandles: () => {
+          if (!this.delayMarket_M15[exchange.id]) this.delayMarket_M15[exchange.id] = {};
+          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}`);
           this.delayMarket_M15[exchange.id][market.symbolId] = Date.now();
-        }
-
-        const saved = candles?.length
-          ? await this.saveExchangeCandlesM15({
-              exchangeId: exchange.id,
-              symbolId: market.symbolId,
-              candles,
-            })
-          : { fetched: 0 };
-
-        Logger.log(
-          `Saved [${exchange.name}] ${market.symbol.name}.M15: ${saved?.count || 0}`,
-          'fetchExchangeAllSymbolM15Candles',
-        );
-      }
+        },
+        logContext: 'fetchExchangeAllSymbolM15Candles',
+      });
     }
 
     await this.global.setGlobalVariable(`LastFetchAllSymbolM15Candles_${exchange.name}`, Date.now());
@@ -1133,6 +1030,150 @@ export class AppService implements OnApplicationBootstrap {
     if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? 's' : ''}`);
     parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
     return `Works ${parts.join(' ')}`;
+  }
+
+  /**
+   * Candle fetch state machine for a single market.
+   *
+   * States:
+   *   0  (pending)          – fetch last N candles; determine market viability.
+   *   2  (find_first_fringe) – collect archive backward from candleFirstTime.
+   *   4  (process)          – standard fetch of new candles (existing behavior).
+   *   <0 (disabled/paused/not-found) – skip entirely.
+   */
+  async processCandleStateMachine(params: {
+    market: { id: number; symbolId: number; synonym: string; symbol: { name: string } };
+    exchange: { id: number; name: string };
+    timeframe: TIMEFRAME;
+    tfMinutes: number;
+    limit: number;
+    fetchCandlesLimit?: number;
+    saveFn: (candles: CandleDb[]) => Promise<unknown>;
+    onFewCandles?: () => void;
+    /** Candle count threshold below which onFewCandles is triggered. Default: 3. */
+    fewCandlesThreshold?: number;
+    logContext: string;
+  }): Promise<void> {
+    const { market, exchange, timeframe, tfMinutes, limit, fetchCandlesLimit, saveFn, onFewCandles, fewCandlesThreshold, logContext } = params;
+
+    let statusRec = await this.prisma.getCandleUpdateStatus(market.id, tfMinutes);
+    if (!statusRec) {
+      statusRec = await this.prisma.upsertCandleUpdateStatus({
+        marketId: market.id,
+        tf: tfMinutes,
+        symbolId: market.symbolId,
+        exchangeId: exchange.id,
+        status: 0,
+      });
+    }
+
+    const { status } = statusRec;
+
+    // Any negative status → skip
+    if (status < 0) {
+      Logger.debug(`[${exchange.name}] ${market.symbol.name}.${timeframe} status=${status}, skip`, logContext);
+      return;
+    }
+
+    // ── Status 0: probe market viability with last N candles ──────────────────
+    if (status === 0) {
+      const candles = await fetchLastCandles({ exchange: exchange.name, synonym: market.synonym, timeframe, limit });
+
+      if (typeof candles === 'string') {
+        Logger.error(`[${exchange.name}] ${market.symbol.name} fetchLastCandles: ${candles}`, logContext);
+        return;
+      }
+
+      if (candles.length === 0) {
+        await this.prisma.upsertCandleUpdateStatus({
+          marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id, status: -404,
+        });
+        Logger.warn(`[${exchange.name}] ${market.symbol.name}.${timeframe} → not-found (-404)`, logContext);
+        return;
+      }
+
+      const nowCandleMs = getCandleTime(timeframe);
+      const hasCurrent = candles.some((c) => getCandleTime(timeframe, c.time) === nowCandleMs);
+
+      if (!hasCurrent) {
+        const maxMs = candles.reduce((m, c) => Math.max(m, c.time.getTime()), -Infinity);
+        const lastTimeSec = Math.floor(getCandleTime(timeframe, new Date(maxMs)) / 1000);
+        await this.prisma.upsertCandleUpdateStatus({
+          marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id,
+          status: -100, candleLastTime: lastTimeSec,
+        });
+        Logger.warn(`[${exchange.name}] ${market.symbol.name}.${timeframe} → disabled (-100)`, logContext);
+        return;
+      }
+
+      // Market is active — save initial batch and start archive search
+      await saveFn(candles);
+      const minMs = candles.reduce((m, c) => Math.min(m, c.time.getTime()), Infinity);
+      const firstTimeSec = Math.floor(getCandleTime(timeframe, new Date(minMs)) / 1000);
+      const lastTimeSec = Math.floor(nowCandleMs / 1000);
+      await this.prisma.upsertCandleUpdateStatus({
+        marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id,
+        status: 2, candleFirstTime: firstTimeSec, candleLastTime: lastTimeSec,
+      });
+      Logger.log(`[${exchange.name}] ${market.symbol.name}.${timeframe} → find_first_fringe (2), first=${firstTimeSec}`, logContext);
+      return;
+    }
+
+    // ── Status 2: archive batch backward from candleFirstTime ─────────────────
+    if (status === 2) {
+      const tfMs = timeframeMSeconds(timeframe);
+      const firstMs = (statusRec.candleFirstTime ?? 0) * 1000;
+      const startMs = firstMs - limit * tfMs;
+
+      const candles = await this.fetchCandles({
+        exchange: exchange.name, exchangeId: exchange.id,
+        symbol: market.symbol.name, symbolId: market.symbolId,
+        synonym: market.synonym, timeframe, start: startMs, limit,
+      });
+
+      if (typeof candles === 'string') {
+        Logger.error(`[${exchange.name}] ${market.symbol.name}.${timeframe} status=2: ${candles}`, logContext);
+        return;
+      }
+
+      let newFirstTimeSec = statusRec.candleFirstTime;
+      if (candles.length > 0) {
+        await saveFn(candles);
+        const batchMinMs = candles.reduce((m, c) => Math.min(m, c.time.getTime()), Infinity);
+        const batchMinSec = Math.floor(getCandleTime(timeframe, new Date(batchMinMs)) / 1000);
+        newFirstTimeSec = newFirstTimeSec == null ? batchMinSec : Math.min(newFirstTimeSec, batchMinSec);
+      }
+
+      const newStatus = candles.length < limit ? 4 : 2;
+      await this.prisma.updateCandleStatusFields(market.id, tfMinutes, { status: newStatus, candleFirstTime: newFirstTimeSec });
+      if (newStatus === 4) {
+        Logger.log(`[${exchange.name}] ${market.symbol.name}.${timeframe} → process (4), first=${newFirstTimeSec}`, logContext);
+      }
+      return;
+    }
+
+    // ── Status 4 (or any unknown positive): standard fetch ───────────────────
+    const candles = await this.fetchCandles({
+      exchange: exchange.name, exchangeId: exchange.id,
+      symbol: market.symbol.name, symbolId: market.symbolId,
+      synonym: market.synonym, timeframe, limit: fetchCandlesLimit || 0,
+    });
+
+    if (typeof candles === 'string') {
+      Logger.error(candles, logContext);
+      return;
+    }
+
+    if (candles.length > 0) {
+      await saveFn(candles);
+      const maxMs = candles.reduce((m, c) => Math.max(m, c.time.getTime()), -Infinity);
+      const lastTimeSec = Math.floor(getCandleTime(timeframe, new Date(maxMs)) / 1000);
+      await this.prisma.updateCandleStatusFields(market.id, tfMinutes, { candleLastTime: lastTimeSec });
+    }
+
+    if (candles.length <= (fewCandlesThreshold ?? 3)) {
+      onFewCandles?.();
+    }
   }
 
   async getMaxTimestamp(body: { exchangeId: number; symbolId: number; tf: number }): Promise<Date | null> {

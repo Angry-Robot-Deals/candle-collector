@@ -1,58 +1,769 @@
 # Tasks
 
-## Task ID: DEV-0005
+## Task ID: DEV-0006
 
-**Title:** Add Bitget exchange — candle fetching, API docs audit, full test coverage, deploy
+**Title:** Candle fetch order: Market status machine + archive-first strategy
 
 **Status:** completed
 **Complexity:** Level 3
-**Started:** —
-**Type:** feature + quality
+**Started:** 2026-03-02
+**Type:** feature / refactor
 **Priority:** high
 **Repository:** candles
 **Branch:** main
 
+---
+
+### 1. Overview
+
+**Problem:** Текущая логика поиска первой свечи (`FindFirstCandle`) сканирует историю с очень далёкого прошлого (`getStartFetchTime()`) вперёд, итерируя батч за батчем пока не появятся данные. Это медленно (могут быть сотни итераций) и неэффективно — для новых маркетов первая свеча может быть совсем недавно, а для делистинговых мы это не знаем заранее.
+
+**Новый подход:**
+1. Добавить три поля в `Market`: `candleFirstTime`, `candleLastTime`, `candleUpdateStatus`.
+2. Реализовать конечный автомат (state machine) на основе `candleUpdateStatus`:
+   - **0 (pending)** — начинаем с запроса ПОСЛЕДНИХ свечей (ближайших к текущему моменту). По результату первого батча определяем статус маркета.
+   - **2 (find first fringe)** — маркет активен, ищем архивное начало, двигаясь назад от `candleFirstTime`.
+   - **4 (process)** — штатный режим: получаем только новые свечи.
+   - **-100 (disabled)** — биржа перестала предоставлять свечи по этому символу (последняя свеча не совпадает с текущим таймфреймом).
+   - **-200 (paused)** — приостановлено вручную пользователем.
+   - **-404 (not-found)** — биржа не знает этот символ (первый батч пуст).
+   - **< 0** — любой отрицательный статус: пропускаем маркет.
+
+---
+
+### 2. Решения по открытым вопросам
+
+| # | Вопрос | Решение |
+|---|--------|---------|
+| Q1 | Таймфрейм привязки | Отдельная модель `CandleUpdateStatus` с полем `tf` (timeframe в минутах). Модель `Market` не меняем. |
+| Q2 | Тип timestamp | `Int` (Unix-секунды), достаточно до 2038 г. |
+| Q3 | Обновление `candleLastTime` в status=4 | Да, обновлять при каждом батче. |
+| Q4 | Ошибка запроса | Не менять `candleUpdateStatus`, повторить в следующей итерации. |
+| Q5 | Старые `FindFirstCandle` | Оставить, почистить при будущем рефакторинге. |
+| Q6 | Статус -200 (paused) | Добавить API endpoint для паузы/возобновления. |
+| Q7 | Унификация "fetch last candles" | Разработать и применить единый интерфейс по всем 9 биржам. Полное тестовое покрытие. |
+| Q8 | "Свеча текущего таймфрейма" | `getCandleTime(timeframe, candle.time) === getCandleTime(timeframe)` |
+
+---
+
+### 3. Schema Changes — новая модель
+
+Вместо изменения `Market` создаём новую модель:
+
+```prisma
+model CandleUpdateStatus {
+  id               Int      @id @default(autoincrement())
+  marketId         Int
+  tf               Int      // timeframe in minutes (e.g. 1, 15, 60, 1440)
+  symbolId         Int
+  exchangeId       Int
+  candleFirstTime  Int?     // Unix timestamp (seconds), aligned to tf
+  candleLastTime   Int?     // Unix timestamp (seconds), aligned to tf
+  status           Int      @default(0)
+
+  market   Market   @relation(fields: [marketId], references: [id])
+  exchange Exchange @relation(fields: [exchangeId], references: [id])
+  symbol   Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([marketId, tf])
+  @@index([exchangeId, tf, status])
+  @@index([symbolId, exchangeId, tf])
+}
+```
+
+Реляция в `Market`:
+```prisma
+CandleUpdateStatus CandleUpdateStatus[]
+```
+
+Нужна Prisma-миграция: `add_candle_update_status`.
+
+---
+
+### 4. Статусы (CandleUpdateStatus.status)
+
+| Значение | Название | Описание |
+|----------|----------|----------|
+| `0` | pending | Ожидает первичной проверки |
+| `2` | find_first_fringe | Маркет активен, ищем архивную границу назад |
+| `4` | process | Штатный режим: только новые свечи |
+| `-100` | disabled | Биржа больше не даёт свечи по символу |
+| `-200` | paused | Приостановлено пользователем через API |
+| `-404` | not_found | Символ не найден на бирже (первый батч пуст) |
+
+---
+
+### 5. State Machine — переходы
+
+```
+0 (pending) — запрашиваем последние limit свечей
+  ├─ батч пуст                             → -404 (not-found)
+  ├─ батч непуст, нет текущей свечи        → -100 (disabled)
+  │                                           candleLastTime = max(batch times)
+  └─ батч непуст, есть текущая свеча       → 2 (find_first_fringe)
+                                              candleLastTime = getCandleTime(tf)
+                                              candleFirstTime = min(batch times)
+                                              [сохраняем свечи]
+
+2 (find_first_fringe) — батч от [candleFirstTime - limit*tfSec, candleFirstTime)
+  ├─ батч < limit или пуст                 → 4 (process)
+  │                                           candleFirstTime = min(current, batch min)
+  └─ батч = limit                          → остаёмся в 2
+                                              candleFirstTime = min(current, batch min)
+  [сохраняем свечи в обоих случаях]
+
+4 (process) — стандартное получение новых свечей
+  └─ после батча                           → остаёмся в 4
+                                              candleLastTime = max(batch times)
+
+< 0 → пропускаем маркет (запросов не делаем)
+
+Ошибка запроса (любой статус) → статус не меняем, повторяем в следующей итерации
+```
+
+---
+
+### 6. Unified "fetch last candles" Interface
+
+Единая функция для получения последних N свечей по всем биржам (для status=0):
+
+```typescript
+// src/exchange-fetch-last-candles.ts
+export async function fetchLastCandles(params: {
+  exchange: string;    // exchange name
+  synonym: string;     // market synonym on the exchange
+  timeframe: TIMEFRAME;
+  limit: number;       // number of candles to fetch
+}): Promise<CandleDb[] | string>
+```
+
+Реализуется как диспетчер по `exchange`, вызывает адаптер каждой биржи.
+Каждый адаптер запрашивает последние `limit` свечей до `getCandleTime(timeframe)`.
+
+Биржи: Binance, OKX, KuCoin, HTX, Poloniex, Gate.io, MEXC, Bitget, Bybit — **все 9**.
+Тесты: полное покрытие по каждой бирже (unit + mock HTTP).
+
+---
+
+### 7. Affected Components
+
+| Файл | Изменения |
+|------|-----------|
+| `prisma/schema.prisma` | Новая модель `CandleUpdateStatus`; relation в `Market`, `Exchange`, `Symbol` |
+| `prisma/migrations/` | `add_candle_update_status` |
+| `src/exchange-fetch-last-candles.ts` | **новый файл** — единый `fetchLastCandles` для всех 9 бирж |
+| `src/exchange-fetch-last-candles.spec.ts` | **новый файл** — полное тестовое покрытие |
+| `src/prisma.service.ts` | Методы: `getCandleUpdateStatus`, `upsertCandleUpdateStatus`, `updateCandleStatusFields` |
+| `src/app.service.ts` | Ветвление по `status` перед `fetchCandles` в каждом цикле (M1, M15, H1, D1) |
+| `src/app.controller.ts` | Новый endpoint: `PATCH /market/:marketId/candle-status/:tf/pause` и `/resume` |
+| `src/exchanges/*.ts` | `FindFirstCandle`-функции **оставляем** (рефакторинг позже) |
+
+---
+
+### 8. API Endpoint — Pause / Resume
+
+```
+PATCH /market/:marketId/candle-status/:tf/pause
+PATCH /market/:marketId/candle-status/:tf/resume
+```
+
+- `pause` → устанавливает `status = -200`
+- `resume` → устанавливает `status = 0` (возврат в pending для переопределения)
+- Параметры: `marketId: number`, `tf: number` (минуты: 1, 15, 60, 1440)
+
+---
+
+### 9. Algorithm Details
+
+#### Status = 0: определение актуальности маркета
+
+```
+1. candles = await fetchLastCandles({ exchange, synonym, timeframe, limit })
+2. if error(candles) → skip (повторим в следующей итерации)
+3. if candles.length === 0 → status = -404, save, skip
+4. hasCurrentCandle = candles.some(c => getCandleTime(tf, c.time) === getCandleTime(tf))
+5. if !hasCurrentCandle:
+     status = -100
+     candleLastTime = max(candles, c.time) in seconds, aligned to tf
+     save, skip
+6. if hasCurrentCandle:
+     status = 2
+     candleLastTime = getCandleTime(tf) in seconds
+     candleFirstTime = min(candles, c.time) in seconds, aligned to tf
+     save candles to DB (как обычно)
+     save status
+```
+
+#### Status = 2: поиск архивной границы
+
+```
+1. endTime = candleFirstTime (seconds) → ms для запроса
+   startTime = endTime - limit * tfSeconds
+2. candles = await fetchCandles({ ..., start: startTime, end: endTime, limit })
+3. if error(candles) → skip
+4. if candles.length > 0:
+     newFirstTime = min(candles, c.time) in seconds, aligned to tf
+     candleFirstTime = min(candleFirstTime, newFirstTime)
+     save candles to DB
+5. if candles.length < limit:
+     status = 4
+6. save CandleUpdateStatus (candleFirstTime + status)
+```
+
+#### Status = 4: штатное получение новых свечей
+
+```
+1. Поведение как сейчас (от последней свечи в DB до now)
+2. После успешного батча: candleLastTime = max(batch times), save
+```
+
+#### Status < 0: пропуск
+
+```
+continue // никаких запросов
+```
+
+---
+
+### 10. Success Criteria
+
+- [ ] Модель `CandleUpdateStatus` добавлена, миграция применена.
+- [ ] `fetchLastCandles` реализован для всех 9 бирж с полным тестовым покрытием.
+- [ ] Status=0: первый батч → правильный переход (2, -100, -404).
+- [ ] Status=2: архив собирается назад, `candleFirstTime` обновляется; при неполном батче → status=4.
+- [ ] Status=4: штатная работа + обновление `candleLastTime`.
+- [ ] Status<0: маркет пропускается, запросов нет.
+- [ ] Ошибка запроса: статус не меняется, следующая итерация.
+- [ ] API endpoints `pause`/`resume` работают.
+- [ ] Нет регрессий по всем 9 биржам.
+
+---
+
+## DEV-0006 Implementation Plan
+
+### 1. Overview
+
+**Problem:** `FindFirstCandle`-функции сканируют с `getStartFetchTime()` вперёд — сотни батч-итераций на каждый новый маркет. Неприемлемо медленно для нарастающего числа торговых пар.
+
+**Goals:**
+1. Новая таблица `CandleUpdateStatus` (marketId + tf) как персистентный конечный автомат.
+2. Единая функция `fetchLastCandles` — запрос последних N свечей по всем 9 биржам.
+3. Интегрировать state machine в 4 цикла: M1, M15, H1, D1.
+4. API endpoint для ручной паузы/возобновления маркета.
+
+**Success criteria:** Новые маркеты получают статус за 1–2 батча; делистинговые — помечаются -100 или -404; архив собирается назад без блокировки основного цикла.
+
+---
+
+### 2. Security Summary
+
+- **Attack surface:** Unchanged (no new public APIs beyond pause/resume; no user data).
+- **New permissions:** None. `PATCH /market/...` — internal operation, no auth change.
+- **Sensitive data:** No PII. Only integer timestamps and status codes.
+- **Risks:** (1) Race condition: статус пишется между двумя итерациями — mitigate через Prisma `upsert`. (2) Некорректный `marketId`/`tf` в pause endpoint — mitigate через валидацию и 404-ответ.
+
+---
+
+### 3. Architecture Impact
+
+- **Components:** `prisma/schema.prisma`, `prisma/migrations/`, `src/prisma.service.ts`, `src/app.service.ts`, `src/app.controller.ts`, новый `src/exchange-fetch-last-candles.ts` + `.spec.ts`.
+- **Integration:** Все 4 цикла (`fetchExchangeAllSymbol*Candles`) читают `CandleUpdateStatus` перед вызовом `fetchCandles`. `fetchLastCandles` используется только в status=0. Для status=2 вызывается существующий `fetchCandles` с явными `start`/`end`.
+
+---
+
+### 4. Detailed Design
+
+#### 4.1 Component Changes
+
+| Файл | Изменения | Причина |
+|------|-----------|---------|
+| `prisma/schema.prisma` | Новая модель `CandleUpdateStatus`; добавить relation в `Market`, `Exchange`, `Symbol` | Персистентный статус per market+tf |
+| `src/prisma.service.ts` | 3 новых метода: `getCandleUpdateStatus`, `upsertCandleUpdateStatus`, `updateCandleStatusFields` | Инкапсуляция CRUD статуса |
+| `src/app.service.ts` | В каждом цикле: добавить `id: true` в `market.findMany`, добавить state machine перед `fetchCandles` | Интеграция автомата |
+| `src/app.controller.ts` | Два `@Patch` endpoints: `pause` и `resume` | Ручное управление |
+
+#### 4.2 New Components
+
+| Файл | Назначение | Зависимости |
+|------|-----------|-------------|
+| `src/exchange-fetch-last-candles.ts` | Диспетчер `fetchLastCandles` + 9 per-exchange функций | `fetchJsonSafe`, `getCandleTime`, timeframe constants |
+| `src/exchange-fetch-last-candles.spec.ts` | Unit-тесты с mock для всех 9 бирж + диспетчера | Jest, `fetchJsonSafe` mock |
+| `prisma/migrations/YYYYMMDD_add_candle_update_status/` | Миграция новой таблицы | Prisma |
+
+#### 4.3 API Changes
+
+```
+PATCH /market/:marketId/candle-status/:tf/pause
+  Params: marketId: number, tf: number (1 | 15 | 60 | 1440)
+  Response: { ok: boolean, status: -200 }
+  Effect: CandleUpdateStatus.status = -200
+
+PATCH /market/:marketId/candle-status/:tf/resume
+  Params: marketId: number, tf: number
+  Response: { ok: boolean, status: 0 }
+  Effect: CandleUpdateStatus.status = 0 (возврат в pending)
+```
+
+Валидация: `marketId` должен существовать в `Market`; `tf` в допустимых значениях (1, 15, 60, 1440, 10080, 43200).
+
+#### 4.4 Database Changes
+
+**Новая таблица `CandleUpdateStatus`:**
+
+```prisma
+model CandleUpdateStatus {
+  id               Int      @id @default(autoincrement())
+  marketId         Int
+  tf               Int      // timeframe minutes: 1, 15, 60, 1440, ...
+  symbolId         Int
+  exchangeId       Int
+  candleFirstTime  Int?     // Unix seconds, tf-aligned; oldest known candle
+  candleLastTime   Int?     // Unix seconds, tf-aligned; newest known candle
+  status           Int      @default(0)
+  // 0=pending, 2=find_first_fringe, 4=process, -100=disabled, -200=paused, -404=not_found
+
+  market   Market   @relation(fields: [marketId], references: [id])
+  exchange Exchange @relation(fields: [exchangeId], references: [id])
+  symbol   Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([marketId, tf])
+  @@index([exchangeId, tf, status])
+  @@index([symbolId, exchangeId, tf])
+}
+```
+
+**Изменения в существующих моделях:**
+```prisma
+model Market {
+  // ... existing fields ...
+  CandleUpdateStatus CandleUpdateStatus[]
+}
+model Exchange {
+  // ... existing fields ...
+  CandleUpdateStatus CandleUpdateStatus[]
+}
+model Symbol {
+  // ... existing fields ...
+  CandleUpdateStatus CandleUpdateStatus[]
+}
+```
+
+---
+
+### 5. Security Design (Appendix A)
+
+#### 5.1 Threat Model
+
+- **Assets:** Целостность статуса маркета; доступность цикла свечей.
+- **Threats:** Ввод некорректного `marketId`/`tf` в pause endpoint; гонка при конкурентной записи статуса.
+- **Mitigations:** Prisma `upsert` — атомарен; валидация параметров на уровне контроллера; `@@unique([marketId, tf])` исключает дубликаты.
+
+#### 5.2 Security Controls Checklist
+
+- [x] Input validation: `marketId` и `tf` — числа; `tf` в whitelist допустимых значений.
+- [x] No SQL concatenation: Prisma ORM.
+- [x] No secrets: Нет новых env-переменных.
+- [x] Access control: Endpoint — без изменений в auth (внутренний инструмент).
+- [x] Infrastructure: Нет новых привилегий.
+
+---
+
+### 6. Implementation Steps
+
+#### Step 1: Prisma schema — новая модель + relations
+
+**Files:** `prisma/schema.prisma`
+
+Добавить в схему модель `CandleUpdateStatus` и поле `CandleUpdateStatus CandleUpdateStatus[]` в `Market`, `Exchange`, `Symbol`.
+
+```prisma
+model CandleUpdateStatus {
+  id               Int      @id @default(autoincrement())
+  marketId         Int
+  tf               Int
+  symbolId         Int
+  exchangeId       Int
+  candleFirstTime  Int?
+  candleLastTime   Int?
+  status           Int      @default(0)
+
+  market   Market   @relation(fields: [marketId], references: [id])
+  exchange Exchange @relation(fields: [exchangeId], references: [id])
+  symbol   Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([marketId, tf])
+  @@index([exchangeId, tf, status])
+  @@index([symbolId, exchangeId, tf])
+}
+```
+
+Запустить: `pnpm exec prisma migrate dev --name add_candle_update_status`
+
+**Rationale:** Schema-first; остальные шаги зависят от типов Prisma Client.
+
+---
+
+#### Step 2: `src/exchange-fetch-last-candles.ts` — unified interface
+
+**File:** `src/exchange-fetch-last-candles.ts` (новый)
+
+Единая функция-диспетчер + 9 per-exchange функций. Каждая запрашивает последние `limit` свечей, заканчивающихся не позже `getCandleTime(timeframe)`.
+
+```typescript
+export interface FetchLastCandlesParams {
+  exchange: string;
+  synonym: string;
+  timeframe: TIMEFRAME;
+  limit: number;
+}
+
+export async function fetchLastCandles(
+  params: FetchLastCandlesParams,
+): Promise<CandleDb[] | string> {
+  switch (params.exchange) {
+    case 'binance':  return binanceFetchLastCandles(params);
+    case 'okx':      return okxFetchLastCandles(params);
+    case 'kucoin':   return kucoinFetchLastCandles(params);
+    case 'htx':      return htxFetchLastCandles(params);
+    case 'poloniex': return poloniexFetchLastCandles(params);
+    case 'gateio':   return gateioFetchLastCandles(params);
+    case 'mexc':     return mexcFetchLastCandles(params);
+    case 'bitget':   return bitgetFetchLastCandles(params);
+    case 'bybit':    return bybitFetchLastCandles(params);
+    default:         return `Unknown exchange: ${params.exchange}`;
+  }
+}
+```
+
+**Per-exchange стратегии** (все используют `end = getCandleTime(timeframe)`):
+
+| Exchange | Метод |
+|----------|-------|
+| **binance** | `startTime = end - limit*tfMs` → `GET /api/v3/uiKlines?symbol=X&interval=TF&limit=N&startTime=S` |
+| **okx** | OKX newest-first: `GET /history-candles?instId=X&bar=TF&limit=N` (без before/after → последние N) |
+| **kucoin** | `start = (end - limit*tfMs) / 1000` (seconds), `end = end/1000` → existing `kucoinFetchCandles` |
+| **htx** | `GET /market/history/kline?symbol=X&period=TF&size=N` — HTX всегда отдаёт последние N |
+| **poloniex** | `startTime = end - limit*tfMs`, `endTime = end`, `limit=N` → existing |
+| **gateio** | `from = (end - limit*tfMs)/1000` (seconds), `to = end/1000` → existing |
+| **mexc** | `start = end - limit*tfMs`, `end = end + tfMs`, `limit=N` → existing |
+| **bitget** | `endTime = end + tfMs`, `limit=N` → existing |
+| **bybit** | `start = end - limit*tfMs`, `limit=N` → existing |
+
+**Rationale:** Изолированный модуль — тестируется отдельно без зависимостей от AppService.
+
+---
+
+#### Step 3: `src/exchange-fetch-last-candles.spec.ts` — полное тестовое покрытие
+
+**File:** `src/exchange-fetch-last-candles.spec.ts` (новый)
+
+Тесты: 9 per-exchange функций + диспетчер `fetchLastCandles`. Для каждой биржи:
+- Mock `fetchJsonSafe` (или `fetch`) с валидными данными → проверяем возврат `CandleDb[]`.
+- Mock с пустым массивом → возвращает `[]`.
+- Mock с ошибкой → возвращает строку.
+- Диспетчер с неизвестной биржей → возвращает строку-ошибку.
+
+```typescript
+describe('fetchLastCandles', () => {
+  describe('binance', () => {
+    it('returns CandleDb[] on success', async () => { ... });
+    it('returns [] on empty response', async () => { ... });
+    it('returns error string on fetch error', async () => { ... });
+  });
+  // ... остальные 8 бирж ...
+  describe('dispatcher', () => {
+    it('routes to correct exchange', async () => { ... });
+    it('returns error for unknown exchange', async () => { ... });
+  });
+});
+```
+
+**Rationale:** Тесты до интеграции предотвращают регрессии при изменении адаптеров.
+
+---
+
+#### Step 4: `src/prisma.service.ts` — методы для CandleUpdateStatus
+
+**File:** `src/prisma.service.ts`
+
+Три метода:
+
+```typescript
+/** Find status record for a market+tf. Returns null if not exists. */
+async getCandleUpdateStatus(
+  marketId: number,
+  tf: number,
+): Promise<CandleUpdateStatusModel | null> {
+  return this.candleUpdateStatus.findUnique({
+    where: { marketId_tf: { marketId, tf } },
+  });
+}
+
+/** Upsert the status record (creates if not exists). */
+async upsertCandleUpdateStatus(data: {
+  marketId: number;
+  tf: number;
+  symbolId: number;
+  exchangeId: number;
+  status: number;
+  candleFirstTime?: number | null;
+  candleLastTime?: number | null;
+}): Promise<void> {
+  const { marketId, tf, symbolId, exchangeId, status, candleFirstTime, candleLastTime } = data;
+  await this.candleUpdateStatus.upsert({
+    where: { marketId_tf: { marketId, tf } },
+    create: { marketId, tf, symbolId, exchangeId, status, candleFirstTime, candleLastTime },
+    update: { status, candleFirstTime, candleLastTime },
+  });
+}
+
+/** Update only specified fields (partial update). */
+async updateCandleStatusFields(
+  marketId: number,
+  tf: number,
+  fields: { status?: number; candleFirstTime?: number | null; candleLastTime?: number | null },
+): Promise<void> {
+  await this.candleUpdateStatus.updateMany({
+    where: { marketId, tf },
+    data: fields,
+  });
+}
+```
+
+**Rationale:** Инкапсуляция — `app.service.ts` не работает с Prisma напрямую для этой таблицы.
+
+---
+
+#### Step 5: `src/app.service.ts` — state machine в циклах
+
+**File:** `src/app.service.ts`
+
+**5a. Вспомогательная функция `processCandleStateMachine`**
+
+Выделить логику автомата в приватный метод (≤50 строк), вызываемый из всех 4 циклов:
+
+```typescript
+private async processCandleStateMachine(params: {
+  market: { id: number; symbolId: number; synonym: string; symbol: { name: string } };
+  exchange: { id: number; name: string };
+  timeframe: TIMEFRAME;
+  tfMinutes: number;
+  limit: number;
+  saveFn: (candles: CandleDb[]) => Promise<{ count?: number }>;
+}): Promise<void>
+```
+
+Логика (псевдокод):
+
+```
+1. statusRec = await prisma.getCandleUpdateStatus(market.id, tfMinutes)
+2. if !statusRec: create with status=0
+3. status = statusRec?.status ?? 0
+
+4. if status < 0: return  // skip
+
+5. if status === 0:
+     candles = await fetchLastCandles({ exchange.name, synonym, timeframe, limit })
+     if typeof candles === 'string': return  // error, retry next iter
+     if candles.length === 0:
+       await prisma.upsertCandleUpdateStatus({ ..., status: -404 })
+       return
+     now = getCandleTime(timeframe)
+     hasCurrent = candles.some(c => getCandleTime(timeframe, c.time) === now)
+     if !hasCurrent:
+       lastTime = Math.max(...candles.map(c => c.time.getTime())) / 1000
+       await prisma.upsertCandleUpdateStatus({ ..., status: -100, candleLastTime: lastTime })
+       return
+     await saveFn(candles)
+     firstTime = Math.min(...candles.map(c => c.time.getTime())) / 1000
+     await prisma.upsertCandleUpdateStatus({ ..., status: 2, candleFirstTime: firstTime, candleLastTime: now/1000 })
+     return
+
+6. if status === 2:
+     tfMs = timeframeMSeconds(timeframe)
+     endMs = (statusRec.candleFirstTime ?? 0) * 1000
+     startMs = endMs - limit * tfMs
+     candles = await this.fetchCandles({ ..., start: startMs, limit })
+     if typeof candles === 'string': return  // error
+     newFirstTime = statusRec.candleFirstTime
+     if candles.length > 0:
+       batchMin = Math.min(...candles.map(c => c.time.getTime())) / 1000
+       newFirstTime = Math.min(newFirstTime ?? batchMin, batchMin)
+       await saveFn(candles)
+     newStatus = candles.length < limit ? 4 : 2
+     await prisma.updateCandleStatusFields(market.id, tfMinutes, { status: newStatus, candleFirstTime: newFirstTime })
+     return
+
+7. if status === 4:
+     candles = await this.fetchCandles({ ... })  // existing behavior
+     if typeof candles === 'string': return
+     if candles.length > 0:
+       await saveFn(candles)
+       lastTime = Math.max(...candles.map(c => c.time.getTime())) / 1000
+       await prisma.updateCandleStatusFields(market.id, tfMinutes, { candleLastTime: lastTime })
+```
+
+**5b. Обновить `findMany` в каждом цикле** — добавить `id: true` в `select`:
+
+```typescript
+const markets = await this.prisma.market.findMany({
+  select: {
+    id: true,        // добавить
+    symbol: true,
+    symbolId: true,
+    synonym: true,
+  },
+  ...
+});
+```
+
+**5c. Заменить вызов `fetchCandles` в каждом цикле** на `processCandleStateMachine`:
+
+```typescript
+// БЫЛО:
+const candles = await this.fetchCandles({ exchange: exchange.name, ... });
+if (typeof candles === 'string') { ... }
+const saved = await this.saveExchangeCandlesM15({ ... });
+
+// СТАЛО:
+await this.processCandleStateMachine({
+  market, exchange,
+  timeframe: TIMEFRAME.M15,
+  tfMinutes: timeframeMinutes(TIMEFRAME.M15),
+  limit: 500,
+  saveFn: (candles) => this.saveExchangeCandlesM15({ exchangeId: exchange.id, symbolId: market.symbolId, candles }),
+});
+```
+
+Циклы: `fetchExchangeAllSymbolM15Candles`, `fetchExchangeAllSymbolH1Candles`, `fetchExchangeAllSymbolD1Candles`, `fetchTopCoinsM1Candles` (или аналогичный M1 цикл).
+
+**Rationale:** Один метод вместо дублирования логики в 4 циклах.
+
+---
+
+#### Step 6: `src/app.controller.ts` — pause/resume endpoints
+
+**File:** `src/app.controller.ts`
+
+```typescript
+import { Body, Controller, Get, Param, Patch, ... } from '@nestjs/common';
+
+const VALID_TF = [1, 15, 60, 1440, 10080, 43200];
+
+@Patch('market/:marketId/candle-status/:tf/pause')
+async pauseCandleStatus(
+  @Param('marketId') marketId: string,
+  @Param('tf') tf: string,
+): Promise<{ ok: boolean; status: number }> {
+  const mId = parseInt(marketId, 10);
+  const tfMin = parseInt(tf, 10);
+  if (isNaN(mId) || isNaN(tfMin) || !VALID_TF.includes(tfMin)) {
+    throw new BadRequestException('Invalid marketId or tf');
+  }
+  const market = await this.prisma.market.findUnique({ where: { id: mId } });
+  if (!market) throw new NotFoundException(`Market ${mId} not found`);
+
+  await this.prisma.updateCandleStatusFields(mId, tfMin, { status: -200 });
+  return { ok: true, status: -200 };
+}
+
+@Patch('market/:marketId/candle-status/:tf/resume')
+async resumeCandleStatus(
+  @Param('marketId') marketId: string,
+  @Param('tf') tf: string,
+): Promise<{ ok: boolean; status: number }> {
+  // same validation
+  await this.prisma.updateCandleStatusFields(mId, tfMin, { status: 0 });
+  return { ok: true, status: 0 };
+}
+```
+
+**Rationale:** Простой управляющий API без изменения auth.
+
+---
+
+### 7. Test Plan
+
+- **Unit — `exchange-fetch-last-candles.spec.ts`:**
+  - 9 бирж × 3 сценария (success, empty, error) = 27 тестов
+  - Диспетчер: known exchange → delegates, unknown → error string
+  - Итого: ~30 тестов
+
+- **Unit — `prisma.service.spec.ts` (дополнение):**
+  - `getCandleUpdateStatus`: found, not found
+  - `upsertCandleUpdateStatus`: create, update
+  - `updateCandleStatusFields`: partial update
+
+- **Integration — `app.service.ts` (ручное/E2E):**
+  - Маркет с status=0, первый батч пуст → проверить status=-404 в БД
+  - Маркет с status=0, есть текущая свеча → проверить status=2, candleFirstTime/LastTime
+  - Маркет с status=2, батч < limit → проверить status=4
+  - Маркет с status<0 → нет запросов к бирже
+  - Ошибка запроса → статус не меняется
+
+- **Security:**
+  - PATCH с некорректным tf → 400
+  - PATCH с несуществующим marketId → 404
+
+---
+
+### 8. Rollback Strategy
+
+```bash
+# Откат кода
+git revert <commit>
+
+# Откат миграции (если нужно)
+pnpm exec prisma migrate resolve --rolled-back add_candle_update_status
+# Затем вручную:
+# DROP TABLE "CandleUpdateStatus";
+```
+
+Существующие `FindFirstCandle`-функции не удаляются → `fetchCandles` работает как прежде после отката.
+
+---
+
+### 9. Validation Checklist
+
+- [ ] Step 1: Migration applied; `CandleUpdateStatus` таблица существует.
+- [ ] Step 2: `fetchLastCandles` реализован для всех 9 бирж; вручную проверены URL-запросы.
+- [ ] Step 3: Все тесты `exchange-fetch-last-candles.spec.ts` зелёные.
+- [ ] Step 4: Методы `prisma.service.ts` работают (unit tests).
+- [ ] Step 5: state machine вызывается в каждом из 4 циклов; market select включает `id`.
+- [ ] Step 6: Endpoints `pause`/`resume` возвращают корректные статусы; невалидные параметры → 400/404.
+- [ ] Регрессии: все существующие биржи продолжают получать свечи (наблюдение за логами).
+- [ ] Производительность: новые маркеты определяются за 1–2 батча вместо сотен.
+- [ ] `pnpm run build` без ошибок TypeScript.
+- [ ] `pnpm test` — все тесты зелёные.
+
+---
+
+### 10. Next Steps
+
+- Переходим к `/do` (BUILD) — реализация по шагам 1–6.
+- Порядок реализации строго по шагам: schema → fetchLastCandles+tests → prisma methods → state machine → controller.
+- После deploy: наблюдение за логами на статусы -404, -100, переходы 0→2→4.
+
+---
+
+## Task ID: DEV-0005
+
+**Title:** Add Bitget exchange — candle fetching, API docs audit, full test coverage, deploy
+
+**Status:** archived  
+**Complexity:** Level 3  
+**Started:** 2026-02-25  
+**Completed:** 2026-02-25  
+**Type:** feature + quality  
+**Priority:** high  
+**Repository:** candles  
+**Branch:** main  
+**Reflection:** memory-bank/reflection/reflection-DEV-0005.md  
+**Archive:** memory-bank/archive/archive-DEV-0005.md  
+
 ### Summary
 
-Full integration of Bitget exchange into the candle-collector service: fetch latest Bitget API docs, implement the adapter (same pattern as kucoin/gateio/mexc), wire it into the exchange fetch loop, audit and update docs for all existing exchanges, verify all exchange adapters against current APIs, write full test coverage for exchange adapters and DB methods, then test → fix → deploy → verify.
-
-### Goals
-
-1. **Bitget adapter** — implement `src/exchanges/bitget.ts` and `src/exchanges/bitget.interface.ts` following the same pattern as kucoin/gateio/mexc: `toExchangeSymbol`, `getCandleURI`, `fetchCandles`, `bitgetFindFirstCandle`, `bitgetFetchCandles`, DTO mapper `bitgetCandleToCandleModel`.
-2. **Wire into feeder** — register Bitget in `exchange.constant.ts`, `exchange-dto.ts`, `interface.ts`, and in the fetch loop in `app.service.ts` (same flow as existing exchanges); add `ENABLE_BITGET_FETCH` or add to `DAY_CANDLE_FETCH_EXCHANGES` env.
-3. **Exchange docs audit** — for each exchange (Binance, OKX, Bybit, HTX/Huobi, Poloniex, KuCoin, Gate.io, MEXC, Bitget): fetch current API documentation URLs (Candles/Klines endpoint), verify our endpoint URLs and field mappings against current docs, update `memory-bank/docs/exchange-api-reference.md` with endpoint URLs, timeframe maps, symbol formats, pagination info, and source doc links.
-4. **Code compliance check** — verify all adapters (exchange-fetch-candles.ts, exchanges/*.ts) match live API structure: URL patterns, request params, response shapes, error codes; note and fix any discrepancies.
-5. **Test coverage** — write Jest tests covering: (a) each exchange `fetchCandles` function (mock HTTP, assert `CandleDb[]` shape and mapper logic); (b) each `FindFirstCandle` function (mock responses for found/not-found/error); (c) Prisma service DB methods (candle upsert, market queries, GlobalVar, TopCoin/CMC queries) using in-memory mock or test DB.
-6. **Test → fix → test cycle** — run tests, fix failures, ensure green.
-7. **Push → deploy → verify** — push to main, run deploy script to production (23.88.34.218), smoke-test Bitget endpoint returns candle data, report full health status.
-
-### Success Criteria
-
-- `bitgetFetchCandles` and `bitgetFindFirstCandle` implemented, integrated, and collecting candles on production.
-- `memory-bank/docs/exchange-api-reference.md` created with current endpoint docs and source links for all 9 exchanges.
-- All exchange adapters verified against current API docs; fixes applied if needed.
-- Test suite: all exchange adapter tests + DB method tests pass (`pnpm test`).
-- Production (23.88.34.218): feeder running, Bitget candles in DB, health endpoint green.
-
-### Architecture Impact
-
-- **New files:** `src/exchanges/bitget.ts`, `src/exchanges/bitget.interface.ts`, `src/exchanges/bitget.spec.ts`, `memory-bank/docs/exchange-api-reference.md`.
-- **Modified files:** `src/exchange.constant.ts` (BITGET_TIMEFRAME), `src/exchange-dto.ts` (bitgetCandleToCandleModel), `src/interface.ts` (OHLCV_Bitget), `src/app.service.ts` (register Bitget in fetch loop), `.env.example` (new flag if added), `memory-bank/techContext.md`.
-- **Test files:** `src/exchanges/*.spec.ts` for each adapter; `src/prisma.service.spec.ts` (or augment existing).
-- **No DB schema changes required** — Bitget uses existing `Candle` table + Exchange/Market/Symbol rows (seeded or auto-created via market fetch).
-
-### Steps
-
-1. **Fetch Bitget API docs** (context7 / web) — get current candles endpoint: URL, params, response shape, timeframe map, symbol format, pagination, rate limits.
-2. **Audit existing exchange docs** — for each of 8 existing exchanges: verify our URL vs. current API docs; document discrepancies.
-3. **Create `exchange-api-reference.md`** — table: Exchange | Endpoint URL pattern | Symbol format | Timeframe map | Pagination | Doc link.
-4. **Fix discrepancies** found in step 2 (if any) — minimal, targeted edits to exchange adapters.
-5. **Implement Bitget adapter** — `bitget.interface.ts` (BITGET_TIMEFRAME enum, OHLCV_Bitget type), `bitget.ts` (all functions), register in constants/dto/interface files.
-6. **Wire Bitget into app.service.ts** — add to exchange fetch dispatch (same pattern as kucoin/gateio/mexc integration).
-7. **Write tests** — per-exchange adapter tests (mock fetch), DB method tests (mock Prisma).
-8. **Run tests, fix failures** — iterate until green.
-9. **Update docs** — `memory-bank/techContext.md`, `memory-bank/activeContext.md`, `.env.example`.
-10. **Push → deploy → smoke test → report**.
+Full integration of Bitget exchange: adapter (bitget.ts, bitget.interface.ts), wiring in app.service.ts, exchange-api-reference.md for all 9 exchanges, adapter audit, full test coverage (Bitget/KuCoin/Gate.io/MEXC + PrismaService). Post-deploy fixes: return→continue in D1/H1/M15 loops, history-candles limit 200, granularity 1h/1day. Production 23.88.34.218 green; Bitget candles saved.
 
 ---
 

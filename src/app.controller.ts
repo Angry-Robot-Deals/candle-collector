@@ -1,9 +1,18 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { Exchange as ExchangeModel, Market as MarketModel } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 import { AppService } from './app.service';
 import { TIMEFRAME } from './timeseries.interface';
 import { CandleDb } from './interface';
+import { timeframeMinutes } from './timeseries.constant';
+
+/** Timeframe values supported by the state machine. */
+const VALID_TF_MINUTES = new Set([
+  timeframeMinutes(TIMEFRAME.M1),
+  timeframeMinutes(TIMEFRAME.M15),
+  timeframeMinutes(TIMEFRAME.H1),
+  timeframeMinutes(TIMEFRAME.D1),
+]);
 
 @Controller()
 export class AppController {
@@ -95,5 +104,53 @@ export class AppController {
     @Body() body: { exchange: string; symbol: string; timeframe: TIMEFRAME; start: number; limit: number },
   ): Promise<any[] | string> {
     return this.appService.fetchCandles(body);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Candle update status — pause / resume
+  // ---------------------------------------------------------------------------
+
+  @Patch('market/:marketId/candle-status/:tf/pause')
+  @HttpCode(200)
+  async pauseCandleStatus(
+    @Param('marketId') marketId: string,
+    @Param('tf') tf: string,
+  ): Promise<{ ok: boolean; status: number }> {
+    return this.setCandleStatus(+marketId, +tf, -200);
+  }
+
+  @Patch('market/:marketId/candle-status/:tf/resume')
+  @HttpCode(200)
+  async resumeCandleStatus(
+    @Param('marketId') marketId: string,
+    @Param('tf') tf: string,
+  ): Promise<{ ok: boolean; status: number }> {
+    return this.setCandleStatus(+marketId, +tf, 0);
+  }
+
+  private async setCandleStatus(
+    marketId: number,
+    tf: number,
+    newStatus: number,
+  ): Promise<{ ok: boolean; status: number }> {
+    if (!Number.isInteger(marketId) || marketId <= 0) {
+      throw new BadRequestException(`Invalid marketId: ${marketId}`);
+    }
+    if (!VALID_TF_MINUTES.has(tf)) {
+      throw new BadRequestException(`Invalid tf=${tf}. Valid values: ${[...VALID_TF_MINUTES].join(', ')}`);
+    }
+
+    const market = await this.prisma.market.findUnique({ where: { id: marketId }, select: { id: true } });
+    if (!market) {
+      throw new NotFoundException(`Market ${marketId} not found`);
+    }
+
+    const rec = await this.prisma.getCandleUpdateStatus(marketId, tf);
+    if (!rec) {
+      throw new NotFoundException(`CandleUpdateStatus for market=${marketId} tf=${tf} not found`);
+    }
+
+    await this.prisma.updateCandleStatusFields(marketId, tf, { status: newStatus });
+    return { ok: true, status: newStatus };
   }
 }

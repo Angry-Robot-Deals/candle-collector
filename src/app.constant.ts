@@ -38,3 +38,17 @@ export const getStartFetchTime = (timeframe: TIMEFRAME): Date => {
 };
 
 export const BAD_SYMBOL_CHARS = ['-', ';', ',', ':', '.', '$', '%', '^', '&', '*'];
+
+/**
+ * Maximum candles an exchange returns per request.
+ * Used by the state machine to size fetch batches correctly.
+ * OKX history-candles endpoint is capped at 100.
+ */
+export const EXCHANGE_BATCH_LIMIT: Readonly<Record<string, number>> = {
+  okx: 100,
+};
+export const DEFAULT_BATCH_LIMIT = 500;
+
+export function getExchangeBatchLimit(exchangeName: string): number {
+  return EXCHANGE_BATCH_LIMIT[exchangeName] ?? DEFAULT_BATCH_LIMIT;
+}

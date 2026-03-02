@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-**DEV-0005** — Add Bitget exchange, exchange API docs audit, full test coverage, deploy (pending).
+**DEV-0006** — Candle fetch order: Market status machine + archive-first strategy (started 2026-03-02).
 
 ## Completed
 
@@ -24,8 +24,16 @@
 - **DEV-0003** archived 2026-02-21 → memory-bank/archive/archive-DEV-0003.md
 
 - [x] **DEV-0004:** Migrated feeder+API to 23.88.34.218 (Docker, port 14444, DB local via host.docker.internal); CPU reduction (FETCH_CONCURRENT_EXCHANGES); logrotate; verify-server.sh — archived 2026-02-25 → memory-bank/archive/archive-DEV-0004.md
+- [x] **DEV-0005:** Bitget adapter, exchange-api-reference.md, full test coverage (adapters + PrismaService), deploy + post-deploy fixes (return→continue, limit 200, granularity) — archived 2026-02-26 → memory-bank/archive/archive-DEV-0005.md
+
+- [x] **DEV-0004:** Migrated feeder+API to 23.88.34.218 (Docker, port 14444, DB local via host.docker.internal); CPU reduction (FETCH_CONCURRENT_EXCHANGES); logrotate; verify-server.sh — archived 2026-02-25 → memory-bank/archive/archive-DEV-0004.md
+- [x] **DEV-0005:** Bitget adapter, exchange-api-reference.md, full test coverage (adapters + PrismaService), deploy + post-deploy fixes (return→continue, limit 200, granularity) — archived 2026-02-26 → memory-bank/archive/archive-DEV-0005.md
+
+## In Progress
+
+- [ ] **DEV-0006:** Schema (Market+3 fields), state machine, archive-first candle fetch — started 2026-03-02
 
 ## Next Steps
 
-- **DEV-0005:** Add Bitget exchange, exchange API docs audit, full test coverage, deploy.
-- Use `/van` for new tasks; backlog in memory-bank/backlog.md.
+- Ответить на открытые вопросы (Q1–Q8 в tasks.md) перед переходом к реализации.
+- Переход к `/plan` для детального плана реализации.

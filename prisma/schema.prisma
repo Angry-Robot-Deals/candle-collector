@@ -54,48 +54,71 @@ model TopCoinFromCmc {
 }
 
 model Symbol {
-  id           Int            @id @default(autoincrement())
-  name         String         @unique
-  disabled     Boolean        @default(false)
-  ATHL         ATHL[]
-  Candle       Candle[]
-  CandleM15    CandleM15[]
-  CandleH1     CandleH1[]
-  CandleD1     CandleD1[]
-  ExportCandle ExportCandle[]
-  Market       Market[]
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique
+  disabled           Boolean              @default(false)
+  ATHL               ATHL[]
+  Candle             Candle[]
+  CandleM15          CandleM15[]
+  CandleH1           CandleH1[]
+  CandleD1           CandleD1[]
+  ExportCandle       ExportCandle[]
+  Market             Market[]
+  CandleUpdateStatus CandleUpdateStatus[]
 }
 
 model Exchange {
-  id           Int            @id @default(autoincrement())
-  name         String         @unique
-  apiUri       String?
-  candlesUri   String?
-  disabled     Boolean        @default(false)
-  priority     Int            @default(999)
-  ATHL         ATHL[]
-  Candle       Candle[]
-  CandleM15    CandleM15[]
-  CandleH1     CandleH1[]
-  CandleD1     CandleD1[]
-  ExportCandle ExportCandle[]
-  Market       Market[]
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique
+  apiUri             String?
+  candlesUri         String?
+  disabled           Boolean              @default(false)
+  priority           Int                  @default(999)
+  ATHL               ATHL[]
+  Candle             Candle[]
+  CandleM15          CandleM15[]
+  CandleH1           CandleH1[]
+  CandleD1           CandleD1[]
+  ExportCandle       ExportCandle[]
+  Market             Market[]
+  CandleUpdateStatus CandleUpdateStatus[]
 }
 
 model Market {
-  id          Int      @id @default(autoincrement())
-  symbolId    Int
-  exchangeId  Int
-  synonym     String
-  description String?
-  disabled    Boolean  @default(false)
-  priority    Int      @default(0)
-  exchange    Exchange @relation(fields: [exchangeId], references: [id])
-  symbol      Symbol   @relation(fields: [symbolId], references: [id])
+  id                 Int                  @id @default(autoincrement())
+  symbolId           Int
+  exchangeId         Int
+  synonym            String
+  description        String?
+  disabled           Boolean              @default(false)
+  priority           Int                  @default(0)
+  exchange           Exchange             @relation(fields: [exchangeId], references: [id])
+  symbol             Symbol               @relation(fields: [symbolId], references: [id])
+  CandleUpdateStatus CandleUpdateStatus[]
 
   @@unique([symbolId, synonym, exchangeId])
   @@unique([symbolId, exchangeId])
   @@index([synonym, exchangeId])
+}
+
+model CandleUpdateStatus {
+  id              Int      @id @default(autoincrement())
+  marketId        Int
+  tf              Int      // timeframe in minutes (1, 15, 60, 1440, ...)
+  symbolId        Int
+  exchangeId      Int
+  candleFirstTime Int?     // Unix timestamp seconds, tf-aligned; oldest known candle
+  candleLastTime  Int?     // Unix timestamp seconds, tf-aligned; newest known candle
+  status          Int      @default(0)
+  // 0=pending, 2=find_first_fringe, 4=process, -100=disabled, -200=paused, -404=not_found
+
+  market   Market   @relation(fields: [marketId], references: [id])
+  exchange Exchange @relation(fields: [exchangeId], references: [id])
+  symbol   Symbol   @relation(fields: [symbolId], references: [id])
+
+  @@unique([marketId, tf])
+  @@index([exchangeId, tf, status])
+  @@index([symbolId, exchangeId, tf])
 }
 
 model Candle {

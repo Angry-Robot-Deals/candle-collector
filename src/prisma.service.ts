@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { CandleUpdateStatus, Prisma, PrismaClient } from '@prisma/client';
 import { STABLES, TOP_COIN_EXCHANGES } from './exchange.constant';
 
 const DB_CONNECT_RETRIES = 10;
@@ -133,5 +133,54 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       ORDER BY coin ASC
     `;
     return this.$queryRaw(query);
+  }
+
+  // ---------------------------------------------------------------------------
+  // CandleUpdateStatus — state machine persistence
+  // ---------------------------------------------------------------------------
+
+  /** Find status record for a market+tf. Returns null if not exists. */
+  async getCandleUpdateStatus(marketId: number, tf: number): Promise<CandleUpdateStatus | null> {
+    return this.candleUpdateStatus.findUnique({
+      where: { marketId_tf: { marketId, tf } },
+    });
+  }
+
+  /**
+   * Create or update the status record for a market+tf.
+   * On create, symbolId and exchangeId are required.
+   * Returns the resulting record (avoids a follow-up findUnique call).
+   */
+  async upsertCandleUpdateStatus(data: {
+    marketId: number;
+    tf: number;
+    symbolId: number;
+    exchangeId: number;
+    status: number;
+    candleFirstTime?: number | null;
+    candleLastTime?: number | null;
+  }): Promise<CandleUpdateStatus> {
+    const { marketId, tf, symbolId, exchangeId, status, candleFirstTime, candleLastTime } = data;
+    return this.candleUpdateStatus.upsert({
+      where: { marketId_tf: { marketId, tf } },
+      create: { marketId, tf, symbolId, exchangeId, status, candleFirstTime, candleLastTime },
+      update: { status, candleFirstTime, candleLastTime },
+    });
+  }
+
+  /** Partially update an existing status record (only provided fields). */
+  async updateCandleStatusFields(
+    marketId: number,
+    tf: number,
+    fields: {
+      status?: number;
+      candleFirstTime?: number | null;
+      candleLastTime?: number | null;
+    },
+  ): Promise<void> {
+    await this.candleUpdateStatus.updateMany({
+      where: { marketId, tf },
+      data: fields,
+    });
   }
 }
