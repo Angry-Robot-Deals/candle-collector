@@ -4,7 +4,7 @@
 
 **Title:** Structured logging — split API and APP logs with rotation
 
-**Status:** completed
+**Status:** reflected
 **Complexity:** Level 2
 **Started:** 2026-03-02
 **Type:** infrastructure
