@@ -464,7 +464,7 @@ export class AppService implements OnApplicationBootstrap {
   async calculateAllATHL() {
     const lastCalculateAllATHL = await this.global.getGlobalVariableTime(`LastCalculateAllATHL`);
     if (lastCalculateAllATHL && Date.now() - lastCalculateAllATHL < CALCULATE_ATHL_PERIOD) {
-      Logger.warn(`Delay calculate all ATHL ${Date.now() - lastCalculateAllATHL} ms`, 'calculateAllATHL');
+      Logger.debug(`Delay calculate all ATHL ${Date.now() - lastCalculateAllATHL} ms`, 'calculateAllATHL');
       setTimeout(() => this.calculateAllATHL(), MIN_MSEC);
       return;
     }

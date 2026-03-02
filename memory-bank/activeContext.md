@@ -1,6 +1,6 @@
 # Active Context
 
-**Current Task:** DEV-0007 — Structured logging: API/APP split with rotation
+**Current Task:** DEV-0007 (completed) — Structured logging: API/APP split with rotation
 
 - **Status:** planned
 - **Started:** 2026-03-02
