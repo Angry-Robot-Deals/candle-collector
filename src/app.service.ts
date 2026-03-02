@@ -1644,6 +1644,10 @@ export class AppService implements OnApplicationBootstrap {
           'fetchMarkets',
         );
 
+        // Disable non-spot markets (futures, swaps, options).
+        // market.spot is more reliable than scanning market.id for special
+        // chars: OKX/KuCoin spot IDs legitimately contain '-'.
+        const isDisabled = market.spot !== true;
         await this.prisma.market.upsert({
           where: {
             symbolId_exchangeId: {
@@ -1655,9 +1659,9 @@ export class AppService implements OnApplicationBootstrap {
             symbolId: sym.id,
             synonym: market.id,
             exchangeId: exc.id,
-            disabled: BAD_SYMBOL_CHARS.some((s) => market.id.includes(s)),
+            disabled: isDisabled,
           },
-          update: { synonym: market.id },
+          update: { synonym: market.id, disabled: isDisabled },
         });
       }
     }

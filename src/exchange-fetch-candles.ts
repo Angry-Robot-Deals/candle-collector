@@ -82,6 +82,12 @@ export async function poloniexFetchCandles(
   const url = `https://api.poloniex.com/markets/${symbol}/candles?interval=${timeframe}&startTime=${start}&endTime=${end}&limit=${limit}`;
   const { data: candles, error } = await fetchJsonSafe<unknown>(url, 'poloniexFetchCandles');
 
+  // Poloniex returns an empty HTTP body (not "[]") for markets with no data.
+  // Treat this the same as an empty array so the state machine sets -404.
+  if (error === 'Empty response') {
+    return [];
+  }
+
   if (error || candles == null) {
     return `Bad response ${error || 'null'}`;
   }
