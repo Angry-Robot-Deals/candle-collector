@@ -1,8 +1,8 @@
 # Active Context
 
-**Current Task:** DEV-0006 — Candle fetch order: status machine, archive-first strategy
+**Current Task:** DEV-0007 — Structured logging: API/APP split with rotation
 
-- **Status:** completed
+- **Status:** planned
 - **Started:** 2026-03-02
 - **Completed:** 2026-03-02
 - **Complexity:** Level 3
@@ -28,7 +28,9 @@ DEV-0005 (Add Bitget exchange, API docs audit, full test coverage, deploy) — *
 
 ## Notes
 
-- Project: NestJS + Prisma + PostgreSQL. Build: pnpm run build. Deploy: scripts/external-deploy.sh.
+- Project: NestJS + Prisma + PostgreSQL. Build: pnpm run build.
 - Production server: **23.88.34.218** (Docker, port 14444, DB local via host.docker.internal:51432)
+- **Deploy command:** `cd /repos/candle-collector && git pull && docker compose -p cc build candles && docker compose -p cc restart candles`
+- Container name: `cc-candles-1` (project name **cc**, NOT default candle-collector)
 - Backlog: memory-bank/backlog.md
 - Last archived: DEV-0005 (2026-02-26) → memory-bank/archive/archive-DEV-0005.md

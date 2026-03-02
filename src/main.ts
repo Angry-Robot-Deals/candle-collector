@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import * as process from 'node:process';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { WinstonModule } from 'nest-winston';
+import { appWinstonConfig } from './logging/winston.config';
 
 const dotenv = import('dotenv');
 
@@ -15,10 +16,10 @@ const API_PORT = Number(process.env.API_PORT) || 14444;
   try {
     (await dotenv).configDotenv();
 
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, {
+      logger: WinstonModule.createLogger(appWinstonConfig),
+    });
     await app.listen(API_PORT);
-
-    Logger.log(`🚀 http://localhost:${API_PORT}`);
   } catch (err) {
     console.error('Bootstrap failed:', err);
     process.exit(1);

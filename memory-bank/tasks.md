@@ -1,5 +1,171 @@
 # Tasks
 
+## Task ID: DEV-0007
+
+**Title:** Structured logging — split API and APP logs with rotation
+
+**Status:** planned
+**Complexity:** Level 2
+**Started:** 2026-03-02
+**Type:** infrastructure
+**Priority:** medium
+**Repository:** candles
+**Branch:** main
+
+---
+
+### 1. Overview
+
+**Problem:**
+- Все логи пишутся в единый `app.log` (110 MB сегодня, 150 MB вчера).
+- Смешаны HTTP-запросы, бизнес-логика, ошибки — разбирать крайне сложно.
+- Ротация управляется только через `docker-entrypoint` + `logrotate` вне контейнера.
+
+**Цель:**
+Разделить на 4 потока с автоматической ротацией внутри NestJS (Winston):
+
+| Файл | Содержимое | Уровень | Ротация |
+|------|------------|---------|---------|
+| `logs/api-access.log` | HTTP-запросы: method, url, status, ms | INFO | 7 дней / 20 MB |
+| `logs/api-error.log` | HTTP 4xx/5xx с body | WARN/ERROR | 14 дней / 20 MB |
+| `logs/app-process.log` | NestJS LOG/DEBUG — бизнес-логика | INFO/DEBUG | 7 дней / 50 MB |
+| `logs/app-error.log` | NestJS ERROR/WARN — исключения | ERROR/WARN | 14 дней / 20 MB |
+
+**Что НЕ меняем:**
+- Существующие `Logger.log/debug/error` вызовы в сервисах.
+- Prisma schema / DB.
+- Тестовые файлы.
+
+---
+
+### 2. Architecture Impact
+
+**Компоненты:**
+- `src/main.ts` — инициализация Winston logger + `app.useLogger()`
+- `src/logging/` — новая директория:
+  - `winston.config.ts` — конфигурация транспортов
+  - `http-access.middleware.ts` — HTTP access/error логгер
+- `src/app.module.ts` — регистрация middleware
+- `docker-compose.yml` — убрать `tee -a app.log` из command (Winston пишет сам)
+- `package.json` — добавить `winston`, `nest-winston`, `winston-daily-rotate-file`
+
+---
+
+### 3. Detailed Design
+
+#### 3.1 Зависимости
+
+```bash
+pnpm add winston nest-winston winston-daily-rotate-file
+pnpm add -D @types/winston
+```
+
+#### 3.2 `src/logging/winston.config.ts`
+
+Два логгера через `createLogger`:
+- **appLogger** — транспорты `app-process.log` (INFO/DEBUG) + `app-error.log` (ERROR/WARN)
+- **apiLogger** — транспорты `api-access.log` + `api-error.log`
+
+Общий формат: `timestamp | level | context | message`
+
+Ротация (`winston-daily-rotate-file`):
+- `datePattern: 'YYYY-MM-DD'` — ежедневно
+- `maxSize: '50m'` для process, `'20m'` для остальных
+- `maxFiles: '7d'` / `'14d'` для error-логов
+- `zippedArchive: true`
+
+#### 3.3 `src/logging/http-access.middleware.ts`
+
+NestJS `NestMiddleware` + `express` — перехватывает каждый запрос:
+- **access**: `{method, url, statusCode, responseTime, userAgent, ip}` → `api-access.log`
+- **error** (status ≥ 400): то же + `responseBody` (обрезан до 500 символов) → `api-error.log`
+
+Использует override `res.end()` для захвата статус-кода ПОСЛЕ отправки ответа.
+
+#### 3.4 `src/app.module.ts`
+
+```typescript
+implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpAccessMiddleware).forRoutes('*');
+  }
+}
+```
+
+#### 3.5 `src/main.ts`
+
+```typescript
+import { WinstonModule } from 'nest-winston';
+import { appWinstonConfig } from './logging/winston.config';
+
+const app = await NestFactory.create(AppModule, {
+  logger: WinstonModule.createLogger(appWinstonConfig),
+});
+```
+
+#### 3.6 `docker-compose.yml`
+
+**Было:**
+```yaml
+command: ["sh", "-c", "mkdir -p /usr/app/logs && exec node dist/src/main 2>&1 | tee -a /usr/app/logs/app.log"]
+```
+
+**Станет:**
+```yaml
+command: ["node", "dist/src/main"]
+```
+
+Логи пишет Winston напрямую в `/usr/app/logs/`.
+
+---
+
+### 4. Implementation Steps
+
+#### Step 1 — Зависимости
+- Добавить `winston`, `nest-winston`, `winston-daily-rotate-file` в `package.json`
+
+#### Step 2 — `src/logging/winston.config.ts`
+- Создать конфигурацию 4 транспортов
+- Экспортировать `appWinstonConfig` (для NestJS) и `apiLogger` (для middleware)
+
+#### Step 3 — `src/logging/http-access.middleware.ts`
+- Создать middleware с логированием access/error в `apiLogger`
+
+#### Step 4 — `src/app.module.ts`
+- Добавить `implements NestModule` + `configure()` с регистрацией middleware
+
+#### Step 5 — `src/main.ts`
+- Заменить стандартный логгер на `WinstonModule.createLogger()`
+
+#### Step 6 — `docker-compose.yml`
+- Убрать `tee -a app.log` — Winston пишет сам
+
+#### Step 7 — Build, deploy, verify
+- `pnpm build` — убедиться что компилируется
+- Deploy: `git pull && docker compose -p cc build candles && docker compose -p cc restart candles`
+- Проверить что все 4 файла появились в `logs/`
+- Вызвать endpoints:
+  - `GET /` → должно попасть в `api-access.log`
+  - `GET /exchange` → `api-access.log`
+  - `GET /nonexistent` → `api-error.log` (404)
+  - Посмотреть `app-process.log` и `app-error.log`
+
+---
+
+### 5. Validation Checklist
+
+- [ ] `pnpm build` проходит без ошибок
+- [ ] `pnpm test` — 95/95 тестов проходят
+- [ ] После деплоя появились все 4 log-файла в `logs/`
+- [ ] `api-access.log` — содержит HTTP GET запросы
+- [ ] `api-error.log` — содержит 404 ответ на несуществующий endpoint
+- [ ] `app-process.log` — содержит NestJS LOG строки (fetch cycles)
+- [ ] `app-error.log` — содержит ERROR строки (exchange errors)
+- [ ] `docker-compose.yml` не использует `tee app.log`
+- [ ] Ротация настроена (проверить конфигурацию в `winston.config.ts`)
+
+---
+
 ## Task ID: DEV-0006
 
 **Title:** Candle fetch order: Market status machine + archive-first strategy

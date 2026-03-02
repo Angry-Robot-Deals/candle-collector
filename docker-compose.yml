@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: production
-    command: ["sh", "-c", "mkdir -p /usr/app/logs && exec node dist/src/main 2>&1 | tee -a /usr/app/logs/app.log"]
+    command: ["sh", "-c", "mkdir -p /usr/app/logs && node dist/src/main"]
     deploy:
       replicas: 1
       restart_policy:
@@ -22,6 +22,7 @@ services:
     environment:
       - NODE_ENV=production
       - TZ=UTC
+      - LOGS_DIR=/usr/app/logs
     ports:
       - "14444:14444"
     extra_hosts:
