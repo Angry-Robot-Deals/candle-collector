@@ -57,6 +57,10 @@ export async function okxFetchCandles(
   }
 
   if (!res?.data || res?.code !== '0') {
+    // 51001 = "Instrument ID doesn't exist" — treat as permanently not found.
+    if (res?.code === '51001') {
+      return [];
+    }
     Logger.error(
       `[okx] bad response instId=${instId} bar=${timeframe}: ${JSON.stringify(res || {})}`,
       'okxFetchCandles',
