@@ -117,6 +117,7 @@ export async function okxFetchLastCandles({
 /**
  * KuCoin: GET /api/v1/market/candles?type=TF&symbol=X&startAt=S&endAt=E
  * kucoinFetchCandles expects ms; internally converts to seconds.
+ * endAt is exclusive — set end = endMs+tfMs so the current candle is included.
  */
 export async function kucoinFetchLastCandles({
   synonym,
@@ -124,8 +125,9 @@ export async function kucoinFetchLastCandles({
   limit,
 }: FetchLastCandlesParams): Promise<CandleDb[] | string> {
   const endMs = getCandleTime(timeframe);
-  const startMs = endMs - limit * timeframeMSeconds(timeframe);
-  return kucoinFetchCandles({ synonym, timeframe, start: startMs, end: endMs });
+  const tfMs = timeframeMSeconds(timeframe);
+  const startMs = endMs - (limit - 1) * tfMs;
+  return kucoinFetchCandles({ synonym, timeframe, start: startMs, end: endMs + tfMs });
 }
 
 /**

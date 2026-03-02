@@ -173,11 +173,11 @@ describe('okxFetchLastCandles', () => {
 describe('kucoinFetchLastCandles', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('calls kucoinFetchCandles with correct startMs and endMs', async () => {
+  it('calls kucoinFetchCandles with startMs=(end-(limit-1)*tf) and end=endMs+tfMs (current candle included)', async () => {
     mockKucoin.mockResolvedValue([]);
     await kucoinFetchLastCandles({ exchange: 'kucoin', synonym: 'BTC/USDT', timeframe: TF, limit: LIMIT });
     expect(mockKucoin).toHaveBeenCalledWith(
-      expect.objectContaining({ start: START_MS, end: END_MS }),
+      expect.objectContaining({ start: START_MS_CURRENT, end: END_MS + TF_MS }),
     );
   });
 
