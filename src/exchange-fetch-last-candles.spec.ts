@@ -96,7 +96,10 @@ const TF = TIMEFRAME.M15;
 const TF_MS = 15 * 60 * 1000;
 const TF_SEC = 15 * 60;
 const END_MS = FIXED_NOW_MS;
+/** startMs for exchanges that use start+end range (OKX, Poloniex, KuCoin): includes limit candles before endMs */
 const START_MS = END_MS - LIMIT * TF_MS;
+/** startMs for exchanges that use start+limit only (Binance, Bybit, MEXC): last candle lands on endMs */
+const START_MS_CURRENT = END_MS - (LIMIT - 1) * TF_MS;
 const END_SEC = Math.ceil(END_MS / 1000);
 const START_SEC = END_SEC - LIMIT * TF_SEC;
 
@@ -114,10 +117,10 @@ const CANDLES_SORTED = [...CANDLES_REVERSED].sort((a, b) => a.time.getTime() - b
 describe('binanceFetchLastCandles', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('calls binanceFetchCandles with correct startMs and limit', async () => {
+  it('calls binanceFetchCandles with correct startMs and limit (current candle included)', async () => {
     mockBinance.mockResolvedValue([]);
     await binanceFetchLastCandles({ exchange: 'binance', synonym: 'BTC/USDT', timeframe: TF, limit: LIMIT });
-    expect(mockBinance).toHaveBeenCalledWith(expect.any(String), expect.any(String), START_MS, LIMIT);
+    expect(mockBinance).toHaveBeenCalledWith(expect.any(String), expect.any(String), START_MS_CURRENT, LIMIT);
   });
 
   it('returns CandleDb[] on success', async () => {
@@ -274,11 +277,11 @@ describe('gateioFetchLastCandles', () => {
 describe('mexcFetchLastCandles', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('calls mexcFetchCandles with correct startMs and limit', async () => {
+  it('calls mexcFetchCandles with correct startMs and limit (current candle included)', async () => {
     mockMexc.mockResolvedValue([]);
     await mexcFetchLastCandles({ exchange: 'mexc', synonym: 'BTC/USDT', timeframe: TF, limit: LIMIT });
     expect(mockMexc).toHaveBeenCalledWith(
-      expect.objectContaining({ start: START_MS, limit: LIMIT }),
+      expect.objectContaining({ start: START_MS_CURRENT, limit: LIMIT }),
     );
   });
 
@@ -328,10 +331,10 @@ describe('bitgetFetchLastCandles', () => {
 describe('bybitFetchLastCandles', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('calls bybitFetchCandles with correct startMs and limit', async () => {
+  it('calls bybitFetchCandles with correct startMs and limit (current candle included)', async () => {
     mockBybit.mockResolvedValue([]);
     await bybitFetchLastCandles({ exchange: 'bybit', synonym: 'BTC/USDT', timeframe: TF, limit: LIMIT });
-    expect(mockBybit).toHaveBeenCalledWith(expect.any(String), expect.any(String), START_MS, LIMIT);
+    expect(mockBybit).toHaveBeenCalledWith(expect.any(String), expect.any(String), START_MS_CURRENT, LIMIT);
   });
 
   it('returns CandleDb[] on success', async () => {

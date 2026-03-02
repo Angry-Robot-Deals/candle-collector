@@ -88,7 +88,7 @@ export async function fetchLastCandles(
 
 /**
  * Binance: GET /api/v3/uiKlines?symbol=X&interval=TF&limit=N&startTime=S
- * startTime = endMs - limit*tfMs
+ * startTime = endMs - (limit-1)*tfMs so the window is [start, current] inclusive.
  */
 export async function binanceFetchLastCandles({
   synonym,
@@ -96,7 +96,7 @@ export async function binanceFetchLastCandles({
   limit,
 }: FetchLastCandlesParams): Promise<CandleDb[] | string> {
   const endMs = getCandleTime(timeframe);
-  const startMs = endMs - limit * timeframeMSeconds(timeframe);
+  const startMs = endMs - (limit - 1) * timeframeMSeconds(timeframe);
   return binanceFetchCandles(synonym, BINANCE_TIMEFRAME[timeframe], startMs, limit);
 }
 
@@ -170,7 +170,7 @@ export async function gateioFetchLastCandles({
 
 /**
  * MEXC: GET /api/v3/klines?symbol=X&interval=TF&startTime=S&endTime=E&limit=N
- * startTime / endTime in ms.
+ * startTime / endTime in ms. Use (limit-1)*tfMs so current candle is included.
  */
 export async function mexcFetchLastCandles({
   synonym,
@@ -178,7 +178,7 @@ export async function mexcFetchLastCandles({
   limit,
 }: FetchLastCandlesParams): Promise<CandleDb[] | string> {
   const endMs = getCandleTime(timeframe);
-  const startMs = endMs - limit * timeframeMSeconds(timeframe);
+  const startMs = endMs - (limit - 1) * timeframeMSeconds(timeframe);
   return mexcFetchCandles({ synonym, timeframe, start: startMs, end: endMs + timeframeMSeconds(timeframe), limit });
 }
 
@@ -200,6 +200,7 @@ export async function bitgetFetchLastCandles({
 /**
  * Bybit: GET /v5/market/kline?category=spot&symbol=X&interval=TF&start=S&limit=N
  * Response is newest-first; sorted by dispatcher.
+ * Use (limit-1)*tfMs so current candle is included.
  */
 export async function bybitFetchLastCandles({
   synonym,
@@ -207,6 +208,6 @@ export async function bybitFetchLastCandles({
   limit,
 }: FetchLastCandlesParams): Promise<CandleDb[] | string> {
   const endMs = getCandleTime(timeframe);
-  const startMs = endMs - limit * timeframeMSeconds(timeframe);
+  const startMs = endMs - (limit - 1) * timeframeMSeconds(timeframe);
   return bybitFetchCandles(synonym, BYBIT_TIMEFRAME[timeframe], startMs, limit);
 }
