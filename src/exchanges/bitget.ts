@@ -67,7 +67,7 @@ async function fetchCandles(data: {
   return res.data;
 }
 
-export async function bitgetFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | null> {
+export async function bitgetFindFirstCandle(data: { synonym: string; timeframe: TIMEFRAME }): Promise<Date | string | null> {
   const synonym = toBitgetSymbol(data.synonym);
   const granularity = BITGET_TIMEFRAME[data.timeframe];
   const limit = 1000;
@@ -83,6 +83,11 @@ export async function bitgetFindFirstCandle(data: { synonym: string; timeframe: 
 
     const candles = await fetchCandles({ synonym, granularity, start, end, limit });
     if (typeof candles === 'string') {
+      // HTTP 429 = rate limited — propagate upward so callers skip without disabling.
+      if (candles.includes('429') || candles.includes('Too Many Requests')) {
+        Logger.warn(`[bitget] rate limited in findFirstCandle ${synonym}, skipping`, 'bitgetFindFirstCandle');
+        return candles;
+      }
       Logger.error(`[bitget] findFirstCandle error: ${candles}`, 'bitgetFindFirstCandle');
       return null;
     }

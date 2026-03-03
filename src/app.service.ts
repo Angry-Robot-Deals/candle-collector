@@ -368,7 +368,7 @@ export class AppService implements OnApplicationBootstrap {
         `LastFetchAllSymbolD1Candles_${exchange.name}`,
       );
       if (lastFetchAllSymbolD1Candles && Date.now() - lastFetchAllSymbolD1Candles < DAY_MSEC) {
-        Logger.warn(
+        Logger.debug(
           `Delay fetch all symbol D1 candles ${Date.now() - lastFetchAllSymbolD1Candles} ms`,
           'fetchAllSymbolD1Candles',
         );
@@ -402,7 +402,7 @@ export class AppService implements OnApplicationBootstrap {
         `LastFetchAllSymbolH1Candles_${exchange.name}`,
       );
       if (lastFetchAllSymbolH1Candles && Date.now() - lastFetchAllSymbolH1Candles < HOUR_MSEC) {
-        Logger.warn(
+        Logger.debug(
           `Delay fetch all symbol H1 candles ${Date.now() - lastFetchAllSymbolH1Candles} ms`,
           `fetchAllSymbolH1Candles_${exchange.name}`,
         );
@@ -440,7 +440,7 @@ export class AppService implements OnApplicationBootstrap {
         Date.now() - lastFetchAllSymbolM15Candles < MIN_MSEC * 15 &&
         process.env.NODE_ENV !== 'development'
       ) {
-        Logger.warn(
+        Logger.debug(
           `Delay fetch all symbol M15 candles ${Date.now() - lastFetchAllSymbolM15Candles} ms`,
           `fetchAllSymbolM15Candles_${exchange.name}`,
         );
@@ -684,7 +684,7 @@ export class AppService implements OnApplicationBootstrap {
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
-      Logger.warn(
+      Logger.debug(
         `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
         'fetchAllSymbolD1Candles',
       );
@@ -771,7 +771,7 @@ export class AppService implements OnApplicationBootstrap {
         },
         onFewCandles: () => {
           if (!this.delayMarket_D1[exchange.id]) this.delayMarket_D1[exchange.id] = {};
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}.D1`);
+          Logger.debug(`Delay ${exchange.name} ${market.symbol.name}.D1`);
           this.delayMarket_D1[exchange.id][market.symbolId] = Date.now();
         },
         logContext: 'fetchExchangeAllSymbolD1Candles',
@@ -825,7 +825,7 @@ export class AppService implements OnApplicationBootstrap {
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
-      Logger.warn(
+      Logger.debug(
         `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
         'fetchAllSymbolH1Candles',
       );
@@ -909,7 +909,7 @@ export class AppService implements OnApplicationBootstrap {
         },
         onFewCandles: () => {
           if (!this.delayMarket_H1[exchange.id]) this.delayMarket_H1[exchange.id] = {};
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}`);
+          Logger.debug(`Delay ${exchange.name} ${market.symbol.name}`);
           this.delayMarket_H1[exchange.id][market.symbolId] = Date.now();
         },
         logContext: 'fetchExchangeAllSymbolH1Candles',
@@ -924,7 +924,7 @@ export class AppService implements OnApplicationBootstrap {
     const enabledExchanges = ENABLED_EXCHANGES.filter((e) => !envExchanges.length || envExchanges.includes(e));
 
     if (!enabledExchanges.includes(exchange.name)) {
-      Logger.warn(
+      Logger.debug(
         `[${exchange.name}] Exchange is not enabled: ${enabledExchanges.join(',')}`,
         'fetchAllSymbolM15Candles',
       );
@@ -1010,7 +1010,7 @@ export class AppService implements OnApplicationBootstrap {
         },
         onFewCandles: () => {
           if (!this.delayMarket_M15[exchange.id]) this.delayMarket_M15[exchange.id] = {};
-          Logger.warn(`Delay ${exchange.name} ${market.symbol.name}`);
+          Logger.debug(`Delay ${exchange.name} ${market.symbol.name}`);
           this.delayMarket_M15[exchange.id][market.symbolId] = Date.now();
         },
         logContext: 'fetchExchangeAllSymbolM15Candles',
@@ -1862,6 +1862,10 @@ export class AppService implements OnApplicationBootstrap {
               break;
             case 'bitget': {
               const firstResBitget = await bitgetFindFirstCandle({ synonym, timeframe });
+              if (typeof firstResBitget === 'string') {
+                // Transient error (e.g. HTTP 429) — skip this cycle, do not disable.
+                return [];
+              }
               if (!firstResBitget) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
@@ -1922,6 +1926,10 @@ export class AppService implements OnApplicationBootstrap {
               break;
             case 'bitget': {
               const firstResBitget = await bitgetFindFirstCandle({ synonym, timeframe });
+              if (typeof firstResBitget === 'string') {
+                // Transient error (e.g. HTTP 429) — skip this cycle, do not disable.
+                return [];
+              }
               if (!firstResBitget) {
                 Logger.error(`Disable market ${exchange} ${symbol}`, 'fetchCandles');
                 await this.disableMarket({ exchangeId, symbolId });
