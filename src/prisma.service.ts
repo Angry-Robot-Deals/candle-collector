@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CandleUpdateStatus, Prisma, PrismaClient } from '@prisma/client';
-import { TOP_COIN_SYNC_LIMIT } from './app.constant';
 import { STABLES, TOP_COIN_EXCHANGES } from './exchange.constant';
 
 const DB_CONNECT_RETRIES = 10;
@@ -41,7 +40,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       const rows = await this.topCoinFromCmc.findMany({
         where: { symbol: { notIn: STABLES } },
         orderBy: { volume24h: 'desc' },
-        take: TOP_COIN_SYNC_LIMIT,
       });
       return rows.map((r) => ({
         id: r.id,
@@ -72,9 +70,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         INNER JOIN public."Symbol" AS s ON s."name" = tc.symbol || '/USDT'
         INNER JOIN public."Market" AS m ON m."symbolId" = s.id
         INNER JOIN public."Exchange" AS e ON m."exchangeId" = e.id
-        WHERE s.disabled != true AND tc.symbol IN (
-          SELECT symbol FROM public."TopCoinFromCmc" ORDER BY "volume24h" DESC LIMIT ${TOP_COIN_SYNC_LIMIT}
-        )
+        WHERE s.disabled != true
         ORDER BY tc.symbol ASC, e.priority
       `;
     }
@@ -89,33 +85,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     `;
   }
 
+  /** Returns one market per coin for M1 candle fetch. Uses TopCoin (top 100 by volume from CMC sync). */
   async getTopCoinFirstExchange(): Promise<any[]> {
-    const useCmc = await this.hasTopCoinFromCmcData();
-    if (useCmc) {
-      const query = Prisma.sql`
-        WITH RankedExchanges AS (
-          SELECT
-            tc.symbol AS coin,
-            tc."volume24h" AS "volume24h",
-            s.id AS "symbolId",
-            s.name AS symbol,
-            e.id AS "exchangeId",
-            e.name AS exchange,
-            ROW_NUMBER() OVER(PARTITION BY s.id ORDER BY e.priority ASC) AS rn
-          FROM public."TopCoinFromCmc" AS tc
-          INNER JOIN public."Symbol" AS s ON s."name" = tc.symbol || '/USDT'
-          INNER JOIN public."Market" AS m ON m."symbolId" = s.id
-          INNER JOIN public."Exchange" AS e ON m."exchangeId" = e.id
-          WHERE s.disabled != true AND m.disabled != true AND LOWER(e.name) IN (${Prisma.join(TOP_COIN_EXCHANGES.map((ex) => ex.toLowerCase()))})
-            AND tc.symbol IN (SELECT symbol FROM public."TopCoinFromCmc" ORDER BY "volume24h" DESC LIMIT ${TOP_COIN_SYNC_LIMIT})
-        )
-        SELECT coin, "symbolId", symbol, "exchangeId", exchange
-        FROM RankedExchanges
-        WHERE rn = 1 AND NOT coin IN (${Prisma.join(STABLES)})
-        ORDER BY coin ASC
-      `;
-      return this.$queryRaw(query);
-    }
     const query = Prisma.sql`
       WITH RankedExchanges AS (
         SELECT

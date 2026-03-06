@@ -50,11 +50,8 @@ import { kucoinFetchCandles, kucoinFindFirstCandle } from './exchanges/kucoin';
 import { bitgetFetchCandles, bitgetFindFirstCandle } from './exchanges/bitget';
 import { fetchLastCandles } from './exchange-fetch-last-candles';
 import { GlobalVariablesDBService } from './global-variables-db.service';
-import {
-  fetchCmcPage,
-  extractCoinListingFromHtml,
-  getUsdQuote,
-} from './cmc.service';
+import { extractCoinListingFromHtml, fetchCmcPage, getUsdQuote } from './cmc.service';
+
 const CMC_UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const CMC_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
@@ -108,10 +105,7 @@ export class AppService implements OnApplicationBootstrap {
       setTimeout(() => this.calculateAllATHL(), Math.random() * 10000);
     }
 
-    if (
-      process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === 'true' ||
-      process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === '1'
-    ) {
+    if (process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === 'true' || process.env.ENABLE_UPDATE_TOP_COIN_FROM_CMC === '1') {
       setTimeout(() => this.runUpdateTopCoinsFromCmcIfNeeded(), Math.random() * 5000);
     }
   }
@@ -166,9 +160,7 @@ export class AppService implements OnApplicationBootstrap {
         const price = usd?.price ?? 0;
         const volume24h = usd?.volume24h ?? 0;
         const marketCap = usd?.marketCap ?? 0;
-        const lastUpdatedQuote = usd?.lastUpdated
-          ? new Date(usd.lastUpdated)
-          : null;
+        const lastUpdatedQuote = usd?.lastUpdated ? new Date(usd.lastUpdated) : null;
         const lastUpdatedCoin = coin.lastUpdated ? new Date(coin.lastUpdated) : null;
         const dateAdded = coin.dateAdded ? new Date(coin.dateAdded) : null;
 
@@ -231,7 +223,7 @@ export class AppService implements OnApplicationBootstrap {
 
     // Sync top coins by volume (turnover) into TopCoin table for compatibility
     const topByVolume = await this.prisma.topCoinFromCmc.findMany({
-      orderBy: { volume24h: 'desc' },
+      orderBy: { marketCap: 'desc' },
       take: TOP_COIN_SYNC_LIMIT,
     });
     for (const row of topByVolume) {
@@ -278,11 +270,27 @@ export class AppService implements OnApplicationBootstrap {
           'updateTopCoinsFromCmc',
         );
       }
+
+      // Remove M1 candles for symbols no longer in TopCoin (keep only top coins' data)
+      const topSymbolNames = topSymbols.map((s) => `${s}/USDT`);
+      const symbolsInTop = await this.prisma.symbol.findMany({
+        where: { name: { in: topSymbolNames } },
+        select: { id: true },
+      });
+      const topSymbolIds = symbolsInTop.map((s) => s.id);
+      if (topSymbolIds.length > 0) {
+        const deletedCandles = await this.prisma.candle.deleteMany({
+          where: { symbolId: { notIn: topSymbolIds } },
+        });
+        if (deletedCandles.count > 0) {
+          Logger.log(
+            `Candle: removed ${deletedCandles.count} rows for symbols not in TopCoin`,
+            'updateTopCoinsFromCmc',
+          );
+        }
+      }
     }
-    Logger.log(
-      `TopCoin table synced: ${topByVolume.length} top coins by volume`,
-      'updateTopCoinsFromCmc',
-    );
+    Logger.log(`TopCoin table synced: ${topByVolume.length} top coins by volume`, 'updateTopCoinsFromCmc');
   }
 
   async fetchTopCoinsM1Candles() {
@@ -332,16 +340,10 @@ export class AppService implements OnApplicationBootstrap {
             tf: timeframeMinutes(TIMEFRAME.M1),
             candles,
           }).catch((err) => {
-            Logger.error(
-              `[${row.exchange}] ${row.symbol}.M1 Error save: ${err.message}`,
-              'fetchTopCoinsM1Candles',
-            );
+            Logger.error(`[${row.exchange}] ${row.symbol}.M1 Error save: ${err.message}`, 'fetchTopCoinsM1Candles');
             return { count: 0 };
           });
-          Logger.log(
-            `Saved [${row.exchange}] ${row.coin}.M1: ${saved?.count || 0}`,
-            'fetchTopCoinsM1Candles',
-          );
+          Logger.log(`Saved [${row.exchange}] ${row.coin}.M1: ${saved?.count || 0}`, 'fetchTopCoinsM1Candles');
           return saved;
         },
         fewCandlesThreshold: 10,
@@ -610,8 +612,7 @@ export class AppService implements OnApplicationBootstrap {
         position = (lastCandle.close - firstCandle.open) / fullRange;
       }
 
-      const ath =
-        symbol._max.high > 0 ? lastCandle.close / symbol._max.high - 1 : 0;
+      const ath = symbol._max.high > 0 ? lastCandle.close / symbol._max.high - 1 : 0;
 
       await this.prisma.aTHL
         .upsert({
@@ -765,9 +766,15 @@ export class AppService implements OnApplicationBootstrap {
         fetchCandlesLimit: htxFetchLimitD1,
         saveFn: async (candles) => {
           const saved = await this.saveExchangeCandlesD1({
-            exchangeId: exchange.id, symbolId: market.symbolId, timeframe: TIMEFRAME.D1, candles,
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            timeframe: TIMEFRAME.D1,
+            candles,
           });
-          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolD1Candles');
+          Logger.log(
+            `Saved [${exchange.name}] ${market.symbol.name}.D1: ${saved?.count || 0}`,
+            'fetchExchangeAllSymbolD1Candles',
+          );
           return saved;
         },
         onFewCandles: () => {
@@ -795,9 +802,13 @@ export class AppService implements OnApplicationBootstrap {
         }
 
         const candlesMN1 = await this.fetchCandles({
-          exchange: exchange.name, exchangeId: exchange.id,
-          symbol: market.symbol.name, symbolId: market.symbolId,
-          synonym: market.synonym, timeframe: TIMEFRAME.MN1, limit: mn1Limit,
+          exchange: exchange.name,
+          exchangeId: exchange.id,
+          symbol: market.symbol.name,
+          symbolId: market.symbolId,
+          synonym: market.synonym,
+          timeframe: TIMEFRAME.MN1,
+          limit: mn1Limit,
         });
 
         if (typeof candlesMN1 === 'string') {
@@ -810,9 +821,15 @@ export class AppService implements OnApplicationBootstrap {
           }
           if (candlesMN1?.length) {
             const saved = await this.saveExchangeCandlesD1({
-              exchangeId: exchange.id, symbolId: market.symbolId, timeframe: TIMEFRAME.MN1, candles: candlesMN1,
+              exchangeId: exchange.id,
+              symbolId: market.symbolId,
+              timeframe: TIMEFRAME.MN1,
+              candles: candlesMN1,
             });
-            Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.MN1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolD1Candles');
+            Logger.log(
+              `Saved [${exchange.name}] ${market.symbol.name}.MN1: ${saved?.count || 0}`,
+              'fetchExchangeAllSymbolD1Candles',
+            );
           }
         }
       }
@@ -904,8 +921,15 @@ export class AppService implements OnApplicationBootstrap {
         limit: getExchangeBatchLimit(exchange.name),
         fetchCandlesLimit: htxFetchLimit,
         saveFn: async (candles) => {
-          const saved = await this.saveExchangeCandlesH1({ exchangeId: exchange.id, symbolId: market.symbolId, candles });
-          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.H1: ${saved?.count || 0}`, 'fetchExchangeAllSymbolH1Candles');
+          const saved = await this.saveExchangeCandlesH1({
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            candles,
+          });
+          Logger.log(
+            `Saved [${exchange.name}] ${market.symbol.name}.H1: ${saved?.count || 0}`,
+            'fetchExchangeAllSymbolH1Candles',
+          );
           return saved;
         },
         onFewCandles: () => {
@@ -1005,8 +1029,15 @@ export class AppService implements OnApplicationBootstrap {
         limit: getExchangeBatchLimit(exchange.name),
         fetchCandlesLimit: htxFetchLimit,
         saveFn: async (candles) => {
-          const saved = await this.saveExchangeCandlesM15({ exchangeId: exchange.id, symbolId: market.symbolId, candles });
-          Logger.log(`Saved [${exchange.name}] ${market.symbol.name}.M15: ${saved?.count || 0}`, 'fetchExchangeAllSymbolM15Candles');
+          const saved = await this.saveExchangeCandlesM15({
+            exchangeId: exchange.id,
+            symbolId: market.symbolId,
+            candles,
+          });
+          Logger.log(
+            `Saved [${exchange.name}] ${market.symbol.name}.M15: ${saved?.count || 0}`,
+            'fetchExchangeAllSymbolM15Candles',
+          );
           return saved;
         },
         onFewCandles: () => {
@@ -1055,7 +1086,18 @@ export class AppService implements OnApplicationBootstrap {
     fewCandlesThreshold?: number;
     logContext: string;
   }): Promise<void> {
-    const { market, exchange, timeframe, tfMinutes, limit, fetchCandlesLimit, saveFn, onFewCandles, fewCandlesThreshold, logContext } = params;
+    const {
+      market,
+      exchange,
+      timeframe,
+      tfMinutes,
+      limit,
+      fetchCandlesLimit,
+      saveFn,
+      onFewCandles,
+      fewCandlesThreshold,
+      logContext,
+    } = params;
 
     let statusRec = await this.prisma.getCandleUpdateStatus(market.id, tfMinutes);
     if (!statusRec) {
@@ -1087,7 +1129,11 @@ export class AppService implements OnApplicationBootstrap {
 
       if (candles.length === 0) {
         await this.prisma.upsertCandleUpdateStatus({
-          marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id, status: -404,
+          marketId: market.id,
+          tf: tfMinutes,
+          symbolId: market.symbolId,
+          exchangeId: exchange.id,
+          status: -404,
         });
         Logger.warn(`[${exchange.name}] ${market.symbol.name}.${timeframe} → not-found (-404)`, logContext);
         return;
@@ -1100,8 +1146,12 @@ export class AppService implements OnApplicationBootstrap {
         const maxMs = candles.reduce((m, c) => Math.max(m, c.time.getTime()), -Infinity);
         const lastTimeSec = Math.floor(getCandleTime(timeframe, new Date(maxMs)) / 1000);
         await this.prisma.upsertCandleUpdateStatus({
-          marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id,
-          status: -100, candleLastTime: lastTimeSec,
+          marketId: market.id,
+          tf: tfMinutes,
+          symbolId: market.symbolId,
+          exchangeId: exchange.id,
+          status: -100,
+          candleLastTime: lastTimeSec,
         });
         Logger.warn(`[${exchange.name}] ${market.symbol.name}.${timeframe} → disabled (-100)`, logContext);
         return;
@@ -1113,10 +1163,18 @@ export class AppService implements OnApplicationBootstrap {
       const firstTimeSec = Math.floor(getCandleTime(timeframe, new Date(minMs)) / 1000);
       const lastTimeSec = Math.floor(nowCandleMs / 1000);
       await this.prisma.upsertCandleUpdateStatus({
-        marketId: market.id, tf: tfMinutes, symbolId: market.symbolId, exchangeId: exchange.id,
-        status: 2, candleFirstTime: firstTimeSec, candleLastTime: lastTimeSec,
+        marketId: market.id,
+        tf: tfMinutes,
+        symbolId: market.symbolId,
+        exchangeId: exchange.id,
+        status: 2,
+        candleFirstTime: firstTimeSec,
+        candleLastTime: lastTimeSec,
       });
-      Logger.log(`[${exchange.name}] ${market.symbol.name}.${timeframe} → find_first_fringe (2), first=${firstTimeSec}`, logContext);
+      Logger.log(
+        `[${exchange.name}] ${market.symbol.name}.${timeframe} → find_first_fringe (2), first=${firstTimeSec}`,
+        logContext,
+      );
       return;
     }
 
@@ -1127,9 +1185,14 @@ export class AppService implements OnApplicationBootstrap {
       const startMs = firstMs - limit * tfMs;
 
       const candles = await this.fetchCandles({
-        exchange: exchange.name, exchangeId: exchange.id,
-        symbol: market.symbol.name, symbolId: market.symbolId,
-        synonym: market.synonym, timeframe, start: startMs, limit,
+        exchange: exchange.name,
+        exchangeId: exchange.id,
+        symbol: market.symbol.name,
+        symbolId: market.symbolId,
+        synonym: market.synonym,
+        timeframe,
+        start: startMs,
+        limit,
       });
 
       if (typeof candles === 'string') {
@@ -1146,18 +1209,28 @@ export class AppService implements OnApplicationBootstrap {
       }
 
       const newStatus = candles.length < limit ? 4 : 2;
-      await this.prisma.updateCandleStatusFields(market.id, tfMinutes, { status: newStatus, candleFirstTime: newFirstTimeSec });
+      await this.prisma.updateCandleStatusFields(market.id, tfMinutes, {
+        status: newStatus,
+        candleFirstTime: newFirstTimeSec,
+      });
       if (newStatus === 4) {
-        Logger.log(`[${exchange.name}] ${market.symbol.name}.${timeframe} → process (4), first=${newFirstTimeSec}`, logContext);
+        Logger.log(
+          `[${exchange.name}] ${market.symbol.name}.${timeframe} → process (4), first=${newFirstTimeSec}`,
+          logContext,
+        );
       }
       return;
     }
 
     // ── Status 4 (or any unknown positive): standard fetch ───────────────────
     const candles = await this.fetchCandles({
-      exchange: exchange.name, exchangeId: exchange.id,
-      symbol: market.symbol.name, symbolId: market.symbolId,
-      synonym: market.synonym, timeframe, limit: fetchCandlesLimit || 0,
+      exchange: exchange.name,
+      exchangeId: exchange.id,
+      symbol: market.symbol.name,
+      symbolId: market.symbolId,
+      synonym: market.synonym,
+      timeframe,
+      limit: fetchCandlesLimit || 0,
     });
 
     if (typeof candles === 'string') {
@@ -2040,7 +2113,13 @@ export class AppService implements OnApplicationBootstrap {
         if (startTime >= endTime) {
           startTime = getCandleTimeByShift(timeframe, 1);
         }
-        candles = await bitgetFetchCandles({ synonym, timeframe, start: startTime, end: endTime, limit: limit || 1000 });
+        candles = await bitgetFetchCandles({
+          synonym,
+          timeframe,
+          start: startTime,
+          end: endTime,
+          limit: limit || 1000,
+        });
         break;
       default:
         return [];
@@ -2103,12 +2182,7 @@ export class AppService implements OnApplicationBootstrap {
           disabled: false,
         },
       },
-      orderBy: [
-        { symbol: { name: 'asc' } },
-        { closeTime: 'desc' },
-        { ath: 'desc' },
-        { position: 'desc' },
-      ],
+      orderBy: [{ symbol: { name: 'asc' } }, { closeTime: 'desc' }, { ath: 'desc' }, { position: 'desc' }],
     });
   }
 
@@ -2145,12 +2219,7 @@ export class AppService implements OnApplicationBootstrap {
           disabled: false,
         },
       },
-      orderBy: [
-        { symbol: { name: 'asc' } },
-        { closeTime: 'desc' },
-        { ath: 'desc' },
-        { position: 'desc' },
-      ],
+      orderBy: [{ symbol: { name: 'asc' } }, { closeTime: 'desc' }, { ath: 'desc' }, { position: 'desc' }],
     });
   }
 
