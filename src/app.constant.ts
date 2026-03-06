@@ -1,5 +1,8 @@
 import { TIMEFRAME } from './timeseries.interface';
 
+/** PostgreSQL Int4 (signed 32-bit) max; clamp candle.trades to avoid overflow. */
+export const MAX_SAFE_TRADES = 2_147_483_647;
+
 export const MIN_MSEC: number = 1000 * 60;
 export const HOUR_MSEC: number = 1000 * 60 * 60; // 1 hour
 export const DAY_MSEC: number = 1000 * 60 * 60 * 24; // 1 day

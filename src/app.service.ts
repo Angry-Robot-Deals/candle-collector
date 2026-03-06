@@ -40,6 +40,7 @@ import {
   getStartFetchTime,
   HOUR_MSEC,
   MARKET_UPDATE_TIMEOUT,
+  MAX_SAFE_TRADES,
   MIN_MSEC,
   TOP_COIN_SYNC_LIMIT,
 } from './app.constant';
@@ -1456,6 +1457,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId,
         symbolId,
         tf,
+        trades: Math.min(MAX_SAFE_TRADES, Math.max(0, Math.floor(candle.trades ?? 0))),
       }));
 
       return this.prisma.candle.createMany({
@@ -1489,6 +1491,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId,
         symbolId,
         tf: 60,
+        trades: Math.min(MAX_SAFE_TRADES, Math.max(0, Math.floor(candle.trades ?? 0))),
       }));
 
       return this.prisma.candleH1.createMany({
@@ -1522,6 +1525,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId,
         symbolId,
         tf: 15,
+        trades: Math.min(MAX_SAFE_TRADES, Math.max(0, Math.floor(candle.trades ?? 0))),
       }));
 
       return this.prisma.candleM15.createMany({
@@ -1560,6 +1564,7 @@ export class AppService implements OnApplicationBootstrap {
         exchangeId,
         symbolId,
         tf: timeframeMinutes(timeframe),
+        trades: Math.min(MAX_SAFE_TRADES, Math.max(0, Math.floor(candle.trades ?? 0))),
       }));
 
       return this.prisma.candleD1.createMany({
