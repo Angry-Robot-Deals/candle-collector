@@ -8,8 +8,8 @@ export const HOUR_MSEC: number = 1000 * 60 * 60; // 1 hour
 export const DAY_MSEC: number = 1000 * 60 * 60 * 24; // 1 day
 
 export const MARKET_UPDATE_TIMEOUT: number = 1000 * 60 * 60 * 24 * 7; // 1 week
-/** Max number of top coins (by volume) to sync from CMC into TopCoin table. */
-export const TOP_COIN_SYNC_LIMIT = 150;
+/** Max number of top coins (by volume) to sync from CMC into TopCoin table and for M1 candle fetch. */
+export const TOP_COIN_SYNC_LIMIT = 100;
 /** Number of CMC listing pages to fetch (1..N, ~100 coins per page). */
 export const CMC_FETCH_PAGES = 100;
 /** Delay between CMC page fetches (ms) to avoid rate limit. */

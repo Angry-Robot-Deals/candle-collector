@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CandleUpdateStatus, Prisma, PrismaClient } from '@prisma/client';
+import { TOP_COIN_SYNC_LIMIT } from './app.constant';
 import { STABLES, TOP_COIN_EXCHANGES } from './exchange.constant';
 
 const DB_CONNECT_RETRIES = 10;
@@ -40,6 +41,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       const rows = await this.topCoinFromCmc.findMany({
         where: { symbol: { notIn: STABLES } },
         orderBy: { volume24h: 'desc' },
+        take: TOP_COIN_SYNC_LIMIT,
       });
       return rows.map((r) => ({
         id: r.id,
@@ -70,7 +72,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         INNER JOIN public."Symbol" AS s ON s."name" = tc.symbol || '/USDT'
         INNER JOIN public."Market" AS m ON m."symbolId" = s.id
         INNER JOIN public."Exchange" AS e ON m."exchangeId" = e.id
-        WHERE s.disabled != true
+        WHERE s.disabled != true AND tc.symbol IN (
+          SELECT symbol FROM public."TopCoinFromCmc" ORDER BY "volume24h" DESC LIMIT ${TOP_COIN_SYNC_LIMIT}
+        )
         ORDER BY tc.symbol ASC, e.priority
       `;
     }
@@ -92,6 +96,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         WITH RankedExchanges AS (
           SELECT
             tc.symbol AS coin,
+            tc."volume24h" AS "volume24h",
             s.id AS "symbolId",
             s.name AS symbol,
             e.id AS "exchangeId",
@@ -102,7 +107,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           INNER JOIN public."Market" AS m ON m."symbolId" = s.id
           INNER JOIN public."Exchange" AS e ON m."exchangeId" = e.id
           WHERE s.disabled != true AND m.disabled != true AND LOWER(e.name) IN (${Prisma.join(TOP_COIN_EXCHANGES.map((ex) => ex.toLowerCase()))})
-          ORDER BY tc."volume24h" DESC
+            AND tc.symbol IN (SELECT symbol FROM public."TopCoinFromCmc" ORDER BY "volume24h" DESC LIMIT ${TOP_COIN_SYNC_LIMIT})
         )
         SELECT coin, "symbolId", symbol, "exchangeId", exchange
         FROM RankedExchanges
